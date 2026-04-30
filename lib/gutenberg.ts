@@ -35,6 +35,31 @@ export async function getPopularBooks(page = 1): Promise<GutenbergSearchResult &
 }
 
 export async function getBook(id: number): Promise<GutenbergBook> {
+  // Try catalog first (instant, no external API)
+  try {
+    const catalogRes = await fetch('/api/catalog')
+    if (catalogRes.ok) {
+      const catalog = await catalogRes.json()
+      const entry = catalog.find((b: { id: number }) => b.id === id)
+      if (entry) {
+        return {
+          id: entry.id,
+          title: entry.title,
+          authors: [{ name: entry.author, birth_year: null, death_year: null }],
+          subjects: [],
+          languages: ['en'],
+          download_count: 0,
+          formats: {
+            'image/jpeg': `https://www.gutenberg.org/cache/epub/${id}/pg${id}.cover.medium.jpg`,
+            'text/plain; charset=utf-8': `https://gutenberg.pglaf.org/cache/epub/${id}/pg${id}.txt`,
+          },
+          summaries: [],
+        }
+      }
+    }
+  } catch { /* fall through to gutendex */ }
+
+  // Fallback: gutendex (for books not in catalog)
   const res = await fetch(`/api/gutenberg?path=/books/${id}`)
   if (!res.ok) throw new Error('책 정보 로드 실패')
   return res.json()
