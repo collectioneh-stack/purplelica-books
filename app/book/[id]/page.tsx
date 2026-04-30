@@ -162,6 +162,26 @@ export default function BookPage() {
 
     setTranslating(true)
     try {
+      // 1차: CDN 정적 사전번역 파일 직접 fetch (서버리스 readFileSync 대신)
+      const pgMatch = bookId.match(/gutenberg_(\d+)/)
+      if (pgMatch) {
+        try {
+          const preRes = await fetch(`/translations/pg${pgMatch[1]}/p${page}.json`)
+          if (preRes.ok) {
+            const preData: unknown = await preRes.json()
+            if (Array.isArray(preData) && preData.length === paragraphs.length) {
+              const translations = preData.map(String)
+              setPageTranslations(translations)
+              saveTranslations(bookId, page, translations)
+              return
+            }
+          }
+        } catch {
+          // 사전번역 없음 → Gemini fallback
+        }
+      }
+
+      // 2차: Gemini API 번역
       const res = await fetch('/api/translate-batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -186,15 +206,28 @@ export default function BookPage() {
     // 다음 페이지 번역 미리 로드 (캐시 없을 때만)
     if ((viewMode === 'split' || viewMode === 'ko') && pages[page]) {
       const nextParagraphs = pages[page]
-      if (!getTranslations(bookId, page + 1)) {
-        fetch('/api/translate-batch', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ texts: nextParagraphs, bookId, page: page + 1 }),
-        })
-          .then((r) => r.json())
-          .then((d) => saveTranslations(bookId, page + 1, d.translations ?? []))
-          .catch(() => {})
+      const nextPage = page + 1
+      if (!getTranslations(bookId, nextPage)) {
+        const pgMatch = bookId.match(/gutenberg_(\d+)/)
+        if (pgMatch) {
+          fetch(`/translations/pg${pgMatch[1]}/p${nextPage}.json`)
+            .then((r) => r.ok ? r.json() : null)
+            .then((pre) => {
+              if (Array.isArray(pre) && pre.length === nextParagraphs.length) {
+                saveTranslations(bookId, nextPage, pre.map(String))
+              } else {
+                fetch('/api/translate-batch', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ texts: nextParagraphs, bookId, page: nextPage }),
+                })
+                  .then((r) => r.json())
+                  .then((d) => saveTranslations(bookId, nextPage, d.translations ?? []))
+                  .catch(() => {})
+              }
+            })
+            .catch(() => {})
+        }
       }
     }
   }, [id, router, viewMode, pages, bookId])
