@@ -165,7 +165,7 @@ export default function BookPage() {
       const res = await fetch('/api/translate-batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texts: paragraphs }),
+        body: JSON.stringify({ texts: paragraphs, bookId, page }),
       })
       const data = await res.json()
       const translations = data.translations ?? []
@@ -190,7 +190,7 @@ export default function BookPage() {
         fetch('/api/translate-batch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ texts: nextParagraphs }),
+          body: JSON.stringify({ texts: nextParagraphs, bookId, page: page + 1 }),
         })
           .then((r) => r.json())
           .then((d) => saveTranslations(bookId, page + 1, d.translations ?? []))

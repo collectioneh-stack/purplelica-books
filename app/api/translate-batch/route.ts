@@ -1,15 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { flash } from '@/lib/gemini'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export const maxDuration = 60
 
+// 사전 번역 파일 확인 (public/translations/pg{id}/p{page}.json)
+function getPreTranslated(bookId: string, page: number): string[] | null {
+  if (!bookId || !page) return null
+  // bookId 형식: "gutenberg_84" → "pg84"
+  const match = bookId.match(/gutenberg_(\d+)/)
+  if (!match) return null
+  const filePath = join(process.cwd(), 'public', 'translations', `pg${match[1]}`, `p${page}.json`)
+  try {
+    const raw = readFileSync(filePath, 'utf8')
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
 export async function POST(req: NextRequest) {
-  const { texts } = await req.json()
+  const { texts, bookId, page } = await req.json()
   if (!Array.isArray(texts) || texts.length === 0) {
     return NextResponse.json({ translations: [] })
   }
 
-  // 한 번에 너무 많으면 나눠서 처리 (Gemini 토큰 제한 방지)
+  // 사전 번역 파일 확인 (즉시 응답, Gemini API 불필요)
+  if (bookId && page) {
+    const preTranslated = getPreTranslated(bookId, page)
+    if (preTranslated && preTranslated.length === texts.length) {
+      return NextResponse.json({ translations: preTranslated, cached: true })
+    }
+  }
+
+  // 사전 번역 없음 → Gemini API 호출
   const CHUNK = 4
   const allTranslations: string[] = []
 
@@ -29,7 +55,6 @@ ${numbered}`
     try {
       const result = await flash.generateContent(prompt)
       const raw = result.response.text().trim()
-      // JSON 배열 추출
       const match = raw.match(/\[[\s\S]*?\]/)
       if (match) {
         const parsed = JSON.parse(match[0])
@@ -38,7 +63,6 @@ ${numbered}`
           continue
         }
       }
-      // 파싱 실패 시 빈 문자열로 채움
       allTranslations.push(...chunk.map(() => '번역 실패'))
     } catch {
       allTranslations.push(...chunk.map(() => '번역 실패'))
