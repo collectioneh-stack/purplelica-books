@@ -12,7 +12,7 @@ import type { BookAnalysis, Character } from '@/lib/types'
 const CharacterGraph = dynamic(() => import('@/components/CharacterGraph'), { ssr: false })
 const CharacterPanel = dynamic(() => import('@/components/CharacterPanel'), { ssr: false })
 
-const WORDS_PER_PAGE = 600
+const WORDS_PER_PAGE = 1200  // ~5분 분량 (영어 250wpm 기준)
 
 type ViewMode = 'en' | 'split' | 'ko'
 
