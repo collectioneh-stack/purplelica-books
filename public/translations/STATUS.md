@@ -9,12 +9,13 @@
 |:---:|:---|:---|:---:|:---:|
 | pg84 | 프랑켄슈타인 | Frankenstein | 70 | 2026-04-30 |
 | pg11 | 이상한 나라의 앨리스 | Alice's Adventures in Wonderland | 26 | 2026-04-30 |
+| pg5200 | 변신 | Metamorphosis | 24 | 2026-05-01 |
+| pg1342 | 오만과 편견 | Pride and Prejudice | 113 | 2026-05-01 |
 
 ## 번역 대기 (우선순위 순)
 
 | PG ID | 한국어 제목 | 원제 | 비고 |
 |:---:|:---|:---|:---|
-| 1342 | 오만과 편견 | Pride and Prejudice | |
 | 1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | |
 | 174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | |
 | 345 | 드라큘라 | Dracula | 장편 — 여러 세션 필요 |
@@ -22,7 +23,6 @@
 | 2701 | 모비 딕 | Moby Dick | 장편 |
 | 76 | 허클베리 핀의 모험 | Adventures of Huckleberry Finn | |
 | 1400 | 위대한 기대 | Great Expectations | 장편 |
-| 5200 | 변신 | Metamorphosis | 단편 — 빠름 |
 | 2542 | 인형의 집 | A Doll's House | |
 
 ## 번역 방법
