@@ -5,6 +5,9 @@ import Link from 'next/link'
 import AdBanner from '@/components/AdBanner'
 import type { CatalogBook } from '@/lib/catalog'
 import { getCatalogCoverUrl, getWeeklyRecommended } from '@/lib/catalog'
+import koreanTitlesRaw from '@/lib/korean-titles.json'
+
+const KOREAN_TITLES: Record<string, string> = koreanTitlesRaw as Record<string, string>
 
 const GENRES = [
   { label: '전체', value: '' },
@@ -15,6 +18,14 @@ const GENRES = [
   { label: '철학', value: 'philosophy' },
   { label: '고전', value: 'classic' },
 ]
+
+function matchesKorean(book: CatalogBook, q: string): boolean {
+  const koTitle = KOREAN_TITLES[String(book.id)]
+  if (!koTitle) return false
+  const noSpace = q.replace(/\s/g, '')
+  const koNoSpace = koTitle.replace(/\s/g, '')
+  return koNoSpace.includes(noSpace) || noSpace.includes(koNoSpace)
+}
 
 // Genre keyword mapping (author/title based heuristic)
 const GENRE_KEYWORDS: Record<string, string[]> = {
@@ -60,6 +71,9 @@ function CatalogCard({ book }: { book: CatalogBook }) {
         </div>
         <div className="p-3 space-y-1">
           <h3 className="text-violet-950 text-sm font-semibold leading-tight line-clamp-2">{book.title}</h3>
+          {KOREAN_TITLES[String(book.id)] && (
+            <p className="text-violet-600 text-xs font-medium leading-tight">{KOREAN_TITLES[String(book.id)]}</p>
+          )}
           <p className="text-violet-400 text-xs">{book.author}</p>
         </div>
       </div>
@@ -88,7 +102,10 @@ export default function Home() {
     if (query.trim()) {
       const q = query.trim().toLowerCase()
       books = books.filter(
-        (b) => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)
+        (b) =>
+          b.title.toLowerCase().includes(q) ||
+          b.author.toLowerCase().includes(q) ||
+          matchesKorean(b, q)
       )
     }
     return books

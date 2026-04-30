@@ -377,8 +377,8 @@ export default function BookPage() {
       {/* 본문 */}
       <main className={`flex-1 mx-auto w-full px-4 py-8 flex flex-col ${isSplit ? 'max-w-6xl' : 'max-w-3xl'}`}>
 
-        {/* 이전 페이지 연결 맥락 */}
-        {currentPage > 1 && prevTailRef.current && (
+        {/* 이전 페이지 연결 맥락 — ko 모드에서는 영어 미표시 */}
+        {currentPage > 1 && prevTailRef.current && !isKo && (
           <div className="mb-6 pb-5 border-b border-violet-900/30">
             <div className="text-[11px] text-violet-600 mb-2 uppercase tracking-wider">← 이전 페이지에서 이어짐</div>
             {isSplit ? (

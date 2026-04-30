@@ -70,7 +70,9 @@ function splitIntoPages(text) {
 
 // ── Gemini SDK 초기화 (앱과 동일한 방식) ────────────────────────────
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+// 사전 번역엔 1.5-flash 사용 (무료 1,500 RPD)
+// 2.5-flash는 무료 등급 20 RPD로 사전 번역에 부적합
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
 // ── Gemini API 호출 (1 페이지 전체를 1번의 요청으로) ───────────────────
 async function translatePage(paragraphs) {
