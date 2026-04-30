@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+/* React Flow 기본 스타일 오버라이드 */
+.react-flow__node {
+  cursor: pointer;
+}
