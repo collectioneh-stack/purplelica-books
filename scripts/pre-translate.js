@@ -14,9 +14,9 @@
  *   - 전체 번역 시 ~5일 소요 (스크립트를 매일 실행하면 됨)
  *   - 유료 등급 사용 시 ~30분 완료
  */
-const https = require('https')
 const fs = require('fs')
 const path = require('path')
+const { GoogleGenerativeAI } = require('@google/generative-ai')
 
 // .env.local에서 API 키 로드
 const envPath = path.join(__dirname, '..', '.env.local')
@@ -68,9 +68,12 @@ function splitIntoPages(text) {
   return pages
 }
 
+// ── Gemini SDK 초기화 (앱과 동일한 방식) ────────────────────────────
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+
 // ── Gemini API 호출 (1 페이지 전체를 1번의 요청으로) ───────────────────
 async function translatePage(paragraphs) {
-  // 페이지 전체를 한 번에 전송 (문맥 일관성 + API 호출 최소화)
   const numbered = paragraphs.map((t, idx) => `[${idx}] ${t}`).join('\n\n')
   const prompt = `Translate each English paragraph below into natural Korean.
 Reply ONLY with a JSON array of strings. No explanation, no markdown, no extra text.
@@ -81,44 +84,13 @@ Example format: ["번역1", "번역2", "번역3"]
 English paragraphs:
 ${numbered}`
 
-  const body = JSON.stringify({
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
-  })
+  const result = await model.generateContent(prompt)
+  const raw = result.response.text().trim()
 
-  const result = await new Promise((resolve, reject) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`
-    const req = https.request(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
-    }, (res) => {
-      let data = ''
-      res.on('data', c => data += c)
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)) }
-        catch { reject(new Error(`JSON parse error: ${data.slice(0, 100)}`)) }
-      })
-    })
-    req.on('error', reject)
-    req.setTimeout(60000, () => { req.destroy(); reject(new Error('timeout')) })
-    req.write(body)
-    req.end()
-  })
-
-  // 오류 응답 확인
-  if (result.error) {
-    throw new Error(`API error: ${result.error.message} (${result.error.code})`)
-  }
-
-  const raw = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
   const match = raw.match(/\[[\s\S]*\]/)
   if (match) {
     try {
       const parsed = JSON.parse(match[0])
-      if (Array.isArray(parsed) && parsed.length === paragraphs.length) {
-        return parsed.map(String)
-      }
-      // 길이 불일치 시 패딩
       if (Array.isArray(parsed)) {
         const padded = [...parsed]
         while (padded.length < paragraphs.length) padded.push('')
