@@ -2,35 +2,45 @@
 
 > 새 책 번역 완료 시 이 파일을 업데이트하세요.
 > 중복 작업 방지용 — 번역 전 반드시 이 목록 확인.
+> **마지막 디스크 실사: 2026-05-02** (STATUS.md ≠ 실제 파일 사고 방지용)
 
-## 번역 완료
+## 번역 완료 (파일 존재 확인됨)
 
 | PG ID | 한국어 제목 | 원제 | 페이지 수 | 완료일 |
 |:---:|:---|:---|:---:|:---:|
-| pg84 | 프랑켄슈타인 | Frankenstein | 70 | 2026-04-30 |
 | pg11 | 이상한 나라의 앨리스 | Alice's Adventures in Wonderland | 26 | 2026-04-30 |
-| pg5200 | 변신 | Metamorphosis | 24 | 2026-05-01 |
-| pg1342 | 오만과 편견 | Pride and Prejudice | 113 | 2026-05-01 |
-| pg2542 | 인형의 집 | A Doll's House | 19 | 2026-05-01 |
-| pg1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | 94 | 2026-05-01 |
 | pg41 | 슬리피 할로우의 전설 | The Legend of Sleepy Hollow | 14 | 2026-05-01 |
-| pg345 | 드라큘라 | Dracula | 148 | 2026-05-02 |
+| pg1342 | 오만과 편견 | Pride and Prejudice | 113 | 2026-05-01 (복구됨) |
 | pg1064 | 붉은 죽음의 가면 | The Masque of the Red Death | 5 | 2026-05-02 |
 | pg1080 | 겸손한 제안 | A Modest Proposal | 6 | 2026-05-02 |
-| pg1952 | 노란 벽지 | The Yellow Wallpaper | 8 | 2026-05-02 |
+| pg1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | 94 | 2026-05-01 |
 | pg1934 | 순수의 노래와 경험의 노래 | Songs of Innocence and of Experience | 8 | 2026-05-02 |
+| pg1952 | 노란 벽지 | The Yellow Wallpaper | 8 | 2026-05-02 |
+| pg2542 | 인형의 집 | A Doll's House | 19 | 2026-05-01 |
+| pg5200 | 변신 | Metamorphosis | 24 | 2026-05-01 |
 | pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 14 | 2026-05-02 |
+
+## 복구 필요 (파일 소실 — 최우선 작업)
+
+| PG ID | 한국어 제목 | 상태 | 복구 방법 | 예상 작업량 |
+|:---:|:---|:---|:---|:---:|
+| pg345 | 드라큘라 | p123~p138 누락 (132/148p) | 16페이지 재번역 | ~16시간 |
+| pg84 | 프랑켄슈타인 | 번역 파일 없음 (0/70p) | 전체 번역 필요 | ~70시간 |
+
+## 번역 진행 중
+
+| PG ID | 한국어 제목 | 원제 | 진행률 | 비고 |
+|:---:|:---|:---|:---:|:---|
+| pg2701 | 모비 딕 | Moby Dick | 45/193p | p46부터 계속 |
 
 ## 번역 대기 (우선순위 순)
 
 | PG ID | 한국어 제목 | 원제 | 비고 |
 |:---:|:---|:---|:---|
-| 174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | |
-| ~~345~~ | ~~드라큘라~~ | ~~Dracula~~ | ~~완료~~ |
-| 98 | 두 도시 이야기 | A Tale of Two Cities | 장편 |
-| 2701 | 모비 딕 | Moby Dick | 장편 |
-| 76 | 허클베리 핀의 모험 | Adventures of Huckleberry Finn | |
-| 1400 | 위대한 기대 | Great Expectations | 장편 |
+| pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | |
+| pg98 | 두 도시 이야기 | A Tale of Two Cities | 장편 |
+| pg76 | 허클베리 핀의 모험 | Adventures of Huckleberry Finn | |
+| pg1400 | 위대한 기대 | Great Expectations | 장편 |
 
 ## 번역 방법
 
