@@ -38,9 +38,9 @@ ${numbered}`
           continue
         }
       }
-      allTranslations.push(...chunk.map(() => '번역 실패'))
+      allTranslations.push(...chunk.map(() => ''))
     } catch {
-      allTranslations.push(...chunk.map(() => '번역 실패'))
+      allTranslations.push(...chunk.map(() => ''))
     }
   }
 

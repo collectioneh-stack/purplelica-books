@@ -139,8 +139,8 @@ export default function BookPage() {
   const [loading, setLoading] = useState(true)
   const [loadingStep, setLoadingStep] = useState<'meta' | 'text' | 'parse'>('meta')
   const [error, setError] = useState<string | null>(null)
-  // 뷰 모드
-  const [viewMode, setViewMode] = useState<ViewMode>('ko')
+  // 뷰 모드 (기본값: 영한 분할 — 영어는 항상 보이게)
+  const [viewMode, setViewMode] = useState<ViewMode>('split')
 
   // 챕터 맵 (페이지번호 → 챕터 제목)
   const [chapterMap, setChapterMap] = useState<Map<number, string>>(new Map())
@@ -252,9 +252,13 @@ export default function BookPage() {
         body: JSON.stringify({ texts: paragraphs, bookId, page }),
       })
       const data = await res.json()
-      const translations = data.translations ?? []
+      const translations: string[] = data.translations ?? []
       setPageTranslations(translations)
-      saveTranslations(bookId, page, translations)
+      // 절반 이상 성공한 경우만 캐시 저장 (실패 결과 저장 방지)
+      const successCount = translations.filter((t) => t.trim() !== '').length
+      if (successCount >= paragraphs.length / 2) {
+        saveTranslations(bookId, page, translations)
+      }
     } catch {
       setPageTranslations([])
     } finally {
@@ -514,6 +518,8 @@ export default function BookPage() {
                     <div key={idx} className="h-4 bg-gray-100 rounded animate-pulse" />
                   ))}
                 </div>
+              ) : pageTranslations.every((t) => !t.trim()) ? (
+                <p className="text-gray-400 text-sm italic">번역을 불러오는 중입니다...</p>
               ) : (
                 currentParagraphs.map((_, idx) => (
                   <p key={idx} className="text-gray-800 text-[15px] sm:text-[17px] leading-[1.9]">
@@ -532,6 +538,8 @@ export default function BookPage() {
                   <div key={idx} className="h-5 bg-gray-100 rounded animate-pulse" />
                 ))}
               </div>
+            ) : pageTranslations.every((t) => !t.trim()) ? (
+              <p className="text-gray-400 text-sm italic">번역을 불러오는 중입니다...</p>
             ) : (
               currentParagraphs.map((_, idx) => (
                 <p key={idx} className="text-gray-900 text-[16px] sm:text-[18px] leading-[1.95]">
