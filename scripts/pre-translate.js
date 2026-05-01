@@ -70,14 +70,22 @@ function splitIntoPages(text) {
 
 // ── Gemini SDK 초기화 (앱과 동일한 방식) ────────────────────────────
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-// 사전 번역엔 1.5-flash 사용 (무료 1,500 RPD)
-// 2.5-flash는 무료 등급 20 RPD로 사전 번역에 부적합
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+// 사전 번역엔 2.0-flash-lite 사용 (1.5-flash deprecated)
+// 2.5-flash는 무료 등급 25 RPD로 사전 번역에 부적합
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' })
 
 // ── Gemini API 호출 (1 페이지 전체를 1번의 요청으로) ───────────────────
 async function translatePage(paragraphs) {
   const numbered = paragraphs.map((t, idx) => `[${idx}] ${t}`).join('\n\n')
-  const prompt = `Translate each English paragraph below into natural Korean.
+  const prompt = `Translate each English paragraph below into Korean suitable for classic literature.
+
+Translation guidelines:
+- Use formal, literary Korean (문어체) for narration and description
+- Use natural spoken Korean (구어체) for dialogue, preserving the character's voice
+- Preserve the author's tone, period atmosphere, and emotional nuance
+- Render idioms and metaphors naturally in Korean rather than word-for-word
+- Keep sentence rhythm close to the original — do not flatten long sentences into short ones
+
 Reply ONLY with a JSON array of strings. No explanation, no markdown, no extra text.
 The array must have exactly ${paragraphs.length} elements in order.
 
@@ -111,7 +119,9 @@ async function translateBook(book) {
     return { done: 0, skip: 0, fail: 0 }
   }
 
-  const text = fs.readFileSync(txtPath, 'utf8')
+  const rawText = fs.readFileSync(txtPath, 'utf8')
+  // BOM 제거 — frontend fetchBookText와 동일한 처리
+  const text = rawText.startsWith('\ufeff') ? rawText.slice(1) : rawText
   const pages = splitIntoPages(text)
   const bookDir = path.join(TRANSLATIONS_DIR, `pg${book.id}`)
   if (!fs.existsSync(bookDir)) fs.mkdirSync(bookDir, { recursive: true })

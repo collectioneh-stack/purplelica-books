@@ -309,14 +309,14 @@ export default function BookPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#0f0d1a] flex flex-col" onMouseUp={handleMouseUp}>
+    <div className="h-screen bg-[#0f0d1a] flex flex-col overflow-hidden" onMouseUp={handleMouseUp}>
 
       {/* 헤더 */}
-      <header className="sticky top-0 z-20 bg-[#0f0d1a]/95 backdrop-blur border-b border-violet-900/40">
+      <header className="shrink-0 z-20 bg-[#0f0d1a]/95 backdrop-blur border-b border-violet-900/40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <button
             onClick={() => router.push('/')}
-            className="text-violet-500 hover:text-violet-300 text-sm transition-colors shrink-0"
+            className="flex items-center gap-1 text-violet-300 hover:text-white text-sm font-medium transition-colors shrink-0"
           >
             ← 목록
           </button>
@@ -408,7 +408,7 @@ export default function BookPage() {
       )}
 
       {/* 본문 */}
-      <main className={`flex-1 mx-auto w-full px-4 py-8 flex flex-col ${isSplit ? 'max-w-6xl' : 'max-w-3xl'}`}>
+      <main className={`flex-1 overflow-y-auto mx-auto w-full px-6 sm:px-12 py-8 flex flex-col ${isSplit ? 'max-w-5xl' : 'max-w-2xl'}`}>
 
         {/* 이전 페이지 연결 맥락 — ko 모드에서는 영어 미표시 */}
         {currentPage > 1 && prevTailRef.current && !isKo && (
@@ -443,7 +443,7 @@ export default function BookPage() {
             <div className="md:pr-6 md:border-r md:border-violet-900/30 space-y-6">
               <div className="text-[11px] text-violet-600 uppercase tracking-wider mb-4 hidden md:block">English</div>
               {currentParagraphs.map((para, idx) => (
-                <p key={idx} className="text-[#d4cfe8] text-base leading-8 font-serif">{para}</p>
+                <p key={idx} className="text-[#e8e3f5] text-[15px] sm:text-[17px] leading-[1.9] font-serif">{para}</p>
               ))}
             </div>
             {/* 오른쪽: 한국어 */}
@@ -457,7 +457,7 @@ export default function BookPage() {
                 </div>
               ) : (
                 currentParagraphs.map((_, idx) => (
-                  <p key={idx} className="text-violet-300/80 text-base leading-8">
+                  <p key={idx} className="text-[#c8c0e0] text-[15px] sm:text-[17px] leading-[1.9]">
                     {pageTranslations[idx] ?? ''}
                   </p>
                 ))
@@ -475,7 +475,7 @@ export default function BookPage() {
               </div>
             ) : (
               currentParagraphs.map((_, idx) => (
-                <p key={idx} className="text-violet-100 text-base leading-8">
+                <p key={idx} className="text-[#e8e3f5] text-[16px] sm:text-[18px] leading-[1.95]">
                   {pageTranslations[idx] ?? ''}
                 </p>
               ))
@@ -483,39 +483,45 @@ export default function BookPage() {
           </div>
         ) : (
           /* 영어 전용 뷰 */
-          <div className="flex-1 space-y-6 text-[#d4cfe8] text-base leading-8 font-serif select-text">
+          <div className="flex-1 space-y-6 text-[#e8e3f5] text-[16px] sm:text-[18px] leading-[1.95] font-serif select-text">
             {currentParagraphs.map((para, idx) => (
               <p key={idx}>{para}</p>
             ))}
           </div>
         )}
 
-        {/* 하단 네비게이션 */}
-        <div className="mt-12 pt-6 border-t border-violet-900/40">
-          <div className="flex items-center justify-between gap-4">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage <= 1}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-violet-800 text-violet-400 hover:border-violet-600 hover:text-violet-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
-            >
-              ← 이전
-            </button>
+      </main>
 
-            <div className="text-center">
-              <div className="text-white text-sm font-semibold">{currentPage} / {totalPages}</div>
-              <div className="text-violet-600 text-xs mt-0.5">{progress}% 완료</div>
-            </div>
+      {/* 하단 네비게이션 — 항상 고정 */}
+      <nav className="shrink-0 border-t border-violet-900/40 bg-[#0f0d1a]/95 backdrop-blur px-4 py-3">
+        <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+          <button
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage <= 1}
+            className="flex items-center gap-2 px-5 py-2 rounded-xl border border-violet-800 text-violet-400 hover:border-violet-600 hover:text-violet-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
+          >
+            ← 이전
+          </button>
 
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-white text-sm font-semibold">{currentPage} / {totalPages}</div>
             <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage >= totalPages}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-bold"
+              onClick={() => router.push('/')}
+              className="text-violet-500 hover:text-violet-300 text-xs transition-colors"
             >
-              다음 →
+              🏠 목록으로
             </button>
           </div>
+
+          <button
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-bold"
+          >
+            다음 →
+          </button>
         </div>
-      </main>
+      </nav>
 
       {/* 단어 팝업 (영어 모드에서만) */}
       {wordPopup && viewMode !== 'ko' && (
@@ -527,34 +533,6 @@ export default function BookPage() {
         />
       )}
 
-      {/* 저작권 / 출처 푸터 */}
-      <footer className="bg-[#0a0815] border-t border-violet-900/40 py-4 px-4 text-center">
-        <p className="text-violet-600 text-xs leading-relaxed">
-          본 서비스는{' '}
-          <a
-            href={`https://www.gutenberg.org/ebooks/${id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-violet-400 transition-colors"
-          >
-            Project Gutenberg
-          </a>
-          에서 제공하는 저작권 만료 공개 도서를 활용합니다.
-          AI 번역 및 분석 기능은 Purplelica Books가 추가 제공합니다.
-        </p>
-        <p className="text-violet-700 text-[11px] mt-1">
-          Powered by{' '}
-          <a
-            href="https://www.gutenberg.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-violet-500 transition-colors"
-          >
-            Project Gutenberg
-          </a>
-          {' · '}© 2026 Purplelica Books
-        </p>
-      </footer>
     </div>
   )
 }

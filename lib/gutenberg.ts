@@ -51,7 +51,8 @@ export async function getBook(id: number): Promise<GutenbergBook> {
           download_count: 0,
           formats: {
             'image/jpeg': `https://www.gutenberg.org/cache/epub/${id}/pg${id}.cover.medium.jpg`,
-            'text/plain; charset=utf-8': `https://gutenberg.pglaf.org/cache/epub/${id}/pg${id}.txt`,
+            // 로컬 정적 파일 직접 사용 — API 프록시/readFileSync 우회
+            'text/plain; charset=utf-8': `/books/pg${id}.txt`,
           },
           summaries: [],
         }
@@ -78,7 +79,17 @@ export function getTextUrl(book: GutenbergBook): string | null {
 export async function fetchBookText(book: GutenbergBook): Promise<string> {
   const url = getTextUrl(book)
   if (!url) throw new Error('텍스트 형식 없음')
-  // 외부 텍스트 파일도 서버 프록시로 fetch (CORS 우회)
+
+  // 로컬 정적 파일(/books/pg*.txt)은 직접 fetch — API 프록시/readFileSync 불필요
+  if (url.startsWith('/')) {
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(`본문 로드 실패: ${res.status}`)
+    // BOM 제거 후 반환
+    const text = await res.text()
+    return text.startsWith('\ufeff') ? text.slice(1) : text
+  }
+
+  // 외부 URL은 서버 프록시로 fetch (CORS 우회)
   const res = await fetch(`/api/book-text?url=${encodeURIComponent(url)}`)
   if (!res.ok) throw new Error('본문 로드 실패')
   return res.text()

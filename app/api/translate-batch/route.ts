@@ -1,41 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { flash } from '@/lib/gemini'
-import { readFileSync } from 'fs'
-import { join } from 'path'
 
 export const maxDuration = 60
 
-// 사전 번역 파일 확인 (public/translations/pg{id}/p{page}.json)
-function getPreTranslated(bookId: string, page: number): string[] | null {
-  if (!bookId || !page) return null
-  // bookId 형식: "gutenberg_84" → "pg84"
-  const match = bookId.match(/gutenberg_(\d+)/)
-  if (!match) return null
-  const filePath = join(process.cwd(), 'public', 'translations', `pg${match[1]}`, `p${page}.json`)
-  try {
-    const raw = readFileSync(filePath, 'utf8')
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : null
-  } catch {
-    return null
-  }
-}
-
 export async function POST(req: NextRequest) {
-  const { texts, bookId, page } = await req.json()
+  const { texts } = await req.json()
   if (!Array.isArray(texts) || texts.length === 0) {
     return NextResponse.json({ translations: [] })
   }
 
-  // 사전 번역 파일 확인 (즉시 응답, Gemini API 불필요)
-  if (bookId && page) {
-    const preTranslated = getPreTranslated(bookId, page)
-    if (preTranslated && preTranslated.length === texts.length) {
-      return NextResponse.json({ translations: preTranslated, cached: true })
-    }
-  }
-
-  // 사전 번역 없음 → Gemini API 호출
+  // 클라이언트가 CDN(/translations/pg*/p*.json) 먼저 체크 후 실패 시에만 이 API 호출됨
+  // → 여기서는 순수 Gemini 번역만 처리
   const CHUNK = 4
   const allTranslations: string[] = []
 

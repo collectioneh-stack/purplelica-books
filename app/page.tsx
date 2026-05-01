@@ -202,27 +202,31 @@ export default function Home() {
       </header>
 
       {/* ── 히어로 ── */}
-      <section className="pt-16 pb-14" style={{ background: 'var(--accent-deep)' }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-14">
-          <p className="eyebrow mb-5" style={{ color: 'var(--accent-soft)', opacity: 0.7 }}>
-            Classic Literature · 100 Works · Open Access
-          </p>
-          <h1
-            className="text-paper mb-6 leading-none"
-            style={{
-              fontFamily: 'var(--serif)',
-              fontWeight: 400,
-              fontSize: 'clamp(48px, 7vw, 88px)',
-              letterSpacing: '-0.03em',
-              lineHeight: 0.92,
-            }}
-          >
-            영어 원서로<br />
-            <em style={{ fontStyle: 'italic', color: 'var(--accent-soft)' }}>읽는 즐거움</em>을<br />
-            발견하세요
-          </h1>
-          <p className="mb-8 max-w-md" style={{ fontFamily: 'var(--sans)', fontSize: '15px', color: 'var(--accent-soft)', opacity: 0.75, lineHeight: 1.6 }}>
-            모르는 단어 클릭 → AI 즉시 설명 · 한국어 번역 · 인물 관계도
+      <section className="pt-12 pb-12" style={{ background: 'var(--accent-deep)' }}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div>
+            <p className="eyebrow mb-4" style={{ color: 'var(--accent-soft)', opacity: 0.6 }}>
+              Classic Literature · 100 Works · Open Access
+            </p>
+            <h1
+              className="text-paper mb-4"
+              style={{
+                fontFamily: 'var(--serif)',
+                fontWeight: 400,
+                fontSize: 'clamp(28px, 3.2vw, 46px)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15,
+              }}
+            >
+              영어 원서로 읽는<br />
+              <em style={{ fontStyle: 'italic', color: 'var(--accent-soft)' }}>즐거움</em>을 발견하세요
+            </h1>
+            <p style={{ fontFamily: 'var(--sans)', fontSize: '14px', color: 'var(--accent-soft)', opacity: 0.6, lineHeight: 1.6 }}>
+              단어 클릭 → AI 즉시 설명 &nbsp;·&nbsp; 한국어 번역 &nbsp;·&nbsp; 인물 관계도
+            </p>
+          </div>
+          <p className="hidden sm:block coord shrink-0 pb-1" style={{ color: 'var(--accent-soft)', opacity: 0.35, fontSize: '11px' }}>
+            51.51°N · 0.12°W<br />London, 1818
           </p>
         </div>
       </section>
