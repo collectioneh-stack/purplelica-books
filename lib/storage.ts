@@ -70,6 +70,9 @@ export function saveTranslations(bookId: string, page: number, translations: str
 export function getTranslations(bookId: string, page: number): string[] | null {
   try {
     const all: Record<string, string[]> = JSON.parse(localStorage.getItem(TRANSLATION_KEY) ?? '{}')
-    return all[`${bookId}_${page}`] ?? null
+    const trans = all[`${bookId}_${page}`] ?? null
+    // 번역 실패 항목이 있으면 재시도를 위해 캐시 무효화
+    if (trans && trans.some((t) => t === '번역 실패')) return null
+    return trans
   } catch { return null }
 }
