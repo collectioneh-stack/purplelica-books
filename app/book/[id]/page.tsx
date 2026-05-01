@@ -30,10 +30,67 @@ interface WordPopupState {
   position: { x: number; y: number }
 }
 
+// ─── 구텐베르크 헤더/푸터 제거 ──────────────────────────────────────────
+function stripGutenbergWrapper(text: string): string {
+  const startRe = /\*{3}\s*START OF [^\n]+\n/i
+  const startMatch = text.match(startRe)
+  let content = text
+  if (startMatch?.index !== undefined) {
+    content = text.slice(startMatch.index + startMatch[0].length)
+  }
+  const endRe = /\*{3}\s*END OF [^\n]+/i
+  const endIdx = content.search(endRe)
+  if (endIdx !== -1) content = content.slice(0, endIdx)
+  return content
+}
+
+// ─── 챕터 제목 판별 ──────────────────────────────────────────────────────
+const CHAPTER_RE = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act|SECTION|Section|PROLOGUE|Prologue|EPILOGUE|Epilogue|PREFACE|Preface|INTRODUCTION|Introduction|VOLUME|Volume)\b/
+
+function isChapterTitle(text: string): boolean {
+  return CHAPTER_RE.test(text.trim())
+}
+
+// ─── 페이지별 챕터 제목 추출 ─────────────────────────────────────────────
+function buildChapterMap(rawText: string, pages: string[][]): Map<number, string> {
+  const map = new Map<number, string>()
+  const normalized = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  const stripped = stripGutenbergWrapper(normalized)
+  const allBlocks = stripped
+    .split(/\n{2,}/)
+    .map((p) => p.replace(/\n/g, ' ').trim())
+    .filter((p) => p.length > 0)
+
+  const pageSizes = pages.map((p) => p.length)
+  let paraIdx = 0
+  let pendingChapter = ''
+
+  for (const block of allBlocks) {
+    if (isChapterTitle(block)) {
+      pendingChapter = block
+    } else if (block.length > 30) {
+      if (pendingChapter) {
+        let cum = 0
+        for (let i = 0; i < pageSizes.length; i++) {
+          if (paraIdx >= cum && paraIdx < cum + pageSizes[i]) {
+            if (!map.has(i + 1)) map.set(i + 1, pendingChapter)
+            break
+          }
+          cum += pageSizes[i]
+        }
+        pendingChapter = ''
+      }
+      paraIdx++
+    }
+  }
+  return map
+}
+
+// ─── 페이지 분할 (구텐베르크 헤더 제거 후) ────────────────────────────────
 function splitIntoPages(text: string): string[][] {
-  // Project Gutenberg 텍스트는 \r\n 줄바꿈 사용 → 먼저 정규화
   const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-  const paragraphs = normalized
+  const stripped = stripGutenbergWrapper(normalized)
+  const paragraphs = stripped
     .split(/\n{2,}/)
     .map((p) => p.replace(/\n/g, ' ').trim())
     .filter((p) => p.length > 30)
@@ -85,6 +142,9 @@ export default function BookPage() {
   // 뷰 모드
   const [viewMode, setViewMode] = useState<ViewMode>('ko')
 
+  // 챕터 맵 (페이지번호 → 챕터 제목)
+  const [chapterMap, setChapterMap] = useState<Map<number, string>>(new Map())
+
   // 번역 (split/ko 모드에서 전체 페이지 번역)
   const [pageTranslations, setPageTranslations] = useState<string[]>([])
   const [translating, setTranslating] = useState(false)
@@ -119,13 +179,17 @@ export default function BookPage() {
         const cached = getBookText(`gutenberg_${id}`)
         if (cached) {
           setLoadingStep('parse')
-          setPages(splitIntoPages(cached))
+          const pagesData = splitIntoPages(cached)
+          setPages(pagesData)
+          setChapterMap(buildChapterMap(cached, pagesData))
         } else {
           setLoadingStep('text')
           const text = await fetchBookText(bookData)
           saveBookText(`gutenberg_${id}`, text)
           setLoadingStep('parse')
-          setPages(splitIntoPages(text))
+          const pagesData = splitIntoPages(text)
+          setPages(pagesData)
+          setChapterMap(buildChapterMap(text, pagesData))
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : '로드 실패')
@@ -279,17 +343,17 @@ export default function BookPage() {
   if (loading) {
     const msg = LOADING_MESSAGES[loadingStep]
     return (
-      <div className="min-h-screen bg-[#0f0d1a] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-violet-400 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-violet-400 text-sm font-medium">{msg.text}</p>
-          {msg.sub && <p className="text-violet-700 text-xs max-w-xs">{msg.sub}</p>}
+          <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-violet-600 text-sm font-medium">{msg.text}</p>
+          {msg.sub && <p className="text-gray-400 text-xs max-w-xs">{msg.sub}</p>}
           <div className="flex gap-2 justify-center mt-2">
             {(['meta', 'text', 'parse'] as const).map((step) => (
               <div
                 key={step}
                 className={`h-1 w-8 rounded-full transition-colors ${
-                  step === loadingStep ? 'bg-violet-400' : 'bg-violet-900'
+                  step === loadingStep ? 'bg-violet-500' : 'bg-gray-200'
                 }`}
               />
             ))}
@@ -300,16 +364,18 @@ export default function BookPage() {
   }
 
   if (error) return (
-    <div className="min-h-screen bg-[#0f0d1a] flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center space-y-3">
-        <p className="text-red-400">⚠️ {error}</p>
-        <button onClick={() => router.back()} className="text-violet-400 text-sm hover:text-white">← 돌아가기</button>
+        <p className="text-red-500">⚠️ {error}</p>
+        <button onClick={() => router.back()} className="text-violet-600 text-sm hover:text-violet-800">← 돌아가기</button>
       </div>
     </div>
   )
 
+  const chapterTitle = chapterMap.get(currentPage)
+
   return (
-    <div className="h-screen bg-[#0f0d1a] flex flex-col overflow-hidden" onMouseUp={handleMouseUp}>
+    <div className="h-screen bg-white flex flex-col overflow-hidden" onMouseUp={handleMouseUp}>
 
       {/* 헤더 */}
       <header className="shrink-0 z-20 bg-[#0f0d1a]/95 backdrop-blur border-b border-violet-900/40">
@@ -408,56 +474,49 @@ export default function BookPage() {
       )}
 
       {/* 본문 */}
-      <main className={`flex-1 overflow-y-auto mx-auto w-full px-6 sm:px-12 py-8 flex flex-col ${isSplit ? 'max-w-5xl' : 'max-w-2xl'}`}>
+      <main className="flex-1 overflow-y-auto mx-auto w-full px-6 sm:px-12 py-8 flex flex-col max-w-2xl">
 
-        {/* 이전 페이지 연결 맥락 — ko 모드에서는 영어 미표시 */}
-        {currentPage > 1 && prevTailRef.current && !isKo && (
-          <div className="mb-6 pb-5 border-b border-violet-900/30">
-            <div className="text-[11px] text-violet-600 mb-2 uppercase tracking-wider">← 이전 페이지에서 이어짐</div>
-            {isSplit ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <p className="text-violet-800/60 text-sm leading-7 font-serif line-clamp-2">{prevTailRef.current}</p>
-                <p className="text-violet-800/40 text-sm leading-7 line-clamp-2">
-                  {/* 이전 페이지 꼬리 번역은 생략 (현재 페이지 번역에 집중) */}
-                </p>
-              </div>
-            ) : (
-              <p className="text-violet-800/60 text-sm leading-7 font-serif line-clamp-2">{prevTailRef.current}</p>
-            )}
+        {/* 챕터 제목 */}
+        {chapterTitle && (
+          <div className="mb-8 text-center">
+            <p className="text-xs text-gray-400 uppercase tracking-widest mb-2 font-medium">Chapter</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-serif">{chapterTitle}</h2>
+            <div className="mt-4 mx-auto w-12 h-px bg-gray-300" />
           </div>
         )}
 
-        {/* 번역 로딩 */}
-        {translating && (
-          <div className="flex items-center gap-2 text-violet-500 text-sm mb-6">
-            <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-            페이지 번역 중...
+        {/* 이전 페이지 연결 맥락 */}
+        {currentPage > 1 && prevTailRef.current && !isKo && (
+          <div className="mb-6 pb-5 border-b border-gray-200">
+            <div className="text-[11px] text-gray-400 mb-2 uppercase tracking-wider">← 이전 페이지에서 이어짐</div>
+            <p className="text-gray-400 text-sm leading-7 font-serif line-clamp-2">{prevTailRef.current}</p>
           </div>
         )}
 
         {/* 본문 텍스트 */}
         {isSplit ? (
-          /* 영한 병렬 뷰 */
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-px">
-            {/* 왼쪽: 영어 */}
-            <div className="md:pr-6 md:border-r md:border-violet-900/30 space-y-6">
-              <div className="text-[11px] text-violet-600 uppercase tracking-wider mb-4 hidden md:block">English</div>
+          /* 영한 분할 뷰 — 세로 (영어 위, 한국어 아래) */
+          <div className="flex-1 flex flex-col">
+            {/* 영어 섹션 */}
+            <div className="pb-8 space-y-5">
+              <div className="text-[11px] text-gray-400 uppercase tracking-widest font-medium">English</div>
               {currentParagraphs.map((para, idx) => (
-                <p key={idx} className="text-[#e8e3f5] text-[15px] sm:text-[17px] leading-[1.9] font-serif">{para}</p>
+                <p key={idx} className="text-gray-900 text-[15px] sm:text-[17px] leading-[1.9] font-serif">{para}</p>
               ))}
             </div>
-            {/* 오른쪽: 한국어 */}
-            <div className="mt-6 md:mt-0 md:pl-6 space-y-6 border-t border-violet-900/30 pt-6 md:border-t-0 md:pt-0">
-              <div className="text-[11px] text-violet-600 uppercase tracking-wider mb-4 hidden md:block">한국어</div>
+            <hr className="border-gray-200" />
+            {/* 한국어 섹션 */}
+            <div className="pt-8 pb-4 space-y-5">
+              <div className="text-[11px] text-gray-400 uppercase tracking-widest font-medium">한국어</div>
               {translating ? (
                 <div className="space-y-4">
                   {currentParagraphs.map((_, idx) => (
-                    <div key={idx} className="h-4 bg-violet-900/30 rounded animate-pulse" />
+                    <div key={idx} className="h-4 bg-gray-100 rounded animate-pulse" />
                   ))}
                 </div>
               ) : (
                 currentParagraphs.map((_, idx) => (
-                  <p key={idx} className="text-[#c8c0e0] text-[15px] sm:text-[17px] leading-[1.9]">
+                  <p key={idx} className="text-gray-800 text-[15px] sm:text-[17px] leading-[1.9]">
                     {pageTranslations[idx] ?? ''}
                   </p>
                 ))
@@ -470,12 +529,12 @@ export default function BookPage() {
             {translating ? (
               <div className="space-y-4">
                 {currentParagraphs.map((_, idx) => (
-                  <div key={idx} className="h-5 bg-violet-900/30 rounded animate-pulse" />
+                  <div key={idx} className="h-5 bg-gray-100 rounded animate-pulse" />
                 ))}
               </div>
             ) : (
               currentParagraphs.map((_, idx) => (
-                <p key={idx} className="text-[#e8e3f5] text-[16px] sm:text-[18px] leading-[1.95]">
+                <p key={idx} className="text-gray-900 text-[16px] sm:text-[18px] leading-[1.95]">
                   {pageTranslations[idx] ?? ''}
                 </p>
               ))
@@ -483,7 +542,7 @@ export default function BookPage() {
           </div>
         ) : (
           /* 영어 전용 뷰 */
-          <div className="flex-1 space-y-6 text-[#e8e3f5] text-[16px] sm:text-[18px] leading-[1.95] font-serif select-text">
+          <div className="flex-1 space-y-6 text-gray-900 text-[16px] sm:text-[18px] leading-[1.95] font-serif select-text">
             {currentParagraphs.map((para, idx) => (
               <p key={idx}>{para}</p>
             ))}
@@ -492,22 +551,22 @@ export default function BookPage() {
 
       </main>
 
-      {/* 하단 네비게이션 — 항상 고정 */}
-      <nav className="shrink-0 border-t border-violet-900/40 bg-[#0f0d1a]/95 backdrop-blur px-4 py-3">
-        <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+      {/* 하단 네비게이션 */}
+      <nav className="shrink-0 border-t border-gray-200 bg-white px-4 py-5">
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl border border-violet-800 text-violet-400 hover:border-violet-600 hover:text-violet-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
           >
             ← 이전
           </button>
 
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-white text-sm font-semibold">{currentPage} / {totalPages}</div>
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="text-gray-900 text-sm font-bold">{currentPage} / {totalPages}</div>
             <button
               onClick={() => router.push('/')}
-              className="text-violet-500 hover:text-violet-300 text-xs transition-colors"
+              className="text-violet-500 hover:text-violet-700 text-xs transition-colors font-medium"
             >
               🏠 목록으로
             </button>
@@ -516,7 +575,7 @@ export default function BookPage() {
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-bold"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-bold"
           >
             다음 →
           </button>

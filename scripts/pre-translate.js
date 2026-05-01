@@ -41,10 +41,25 @@ if (!GEMINI_API_KEY) {
   process.exit(1)
 }
 
+// ── 구텐베르크 헤더/푸터 제거 (frontend와 동일) ─────────────────────
+function stripGutenbergWrapper(text) {
+  const startRe = /\*{3}\s*START OF [^\n]+\n/i
+  const startMatch = text.match(startRe)
+  let content = text
+  if (startMatch?.index !== undefined) {
+    content = text.slice(startMatch.index + startMatch[0].length)
+  }
+  const endRe = /\*{3}\s*END OF [^\n]+/i
+  const endIdx = content.search(endRe)
+  if (endIdx !== -1) content = content.slice(0, endIdx)
+  return content
+}
+
 // ── 페이지 분할 (frontend와 완전히 동일한 알고리즘) ───────────────────
 function splitIntoPages(text) {
   const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-  const paragraphs = normalized
+  const stripped = stripGutenbergWrapper(normalized)
+  const paragraphs = stripped
     .split(/\n{2,}/)
     .map(p => p.replace(/\n/g, ' ').trim())
     .filter(p => p.length > 30)

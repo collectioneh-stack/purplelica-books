@@ -2,12 +2,107 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import AdBanner from '@/components/AdBanner'
 import type { CatalogBook } from '@/lib/catalog'
 import { getCatalogCoverUrl, getWeeklyRecommended } from '@/lib/catalog'
 import koreanTitlesRaw from '@/lib/korean-titles.json'
 
 const KOREAN_TITLES: Record<string, string> = koreanTitlesRaw as Record<string, string>
+
+const BOOK_DESCRIPTIONS: Record<string, string> = {
+  '84': '과학자 빅터 프랑켄슈타인이 새 생명을 창조했지만 그 존재로 인해 비극을 맞이하는 공포 소설. 메리 셸리의 불멸의 걸작으로 근대 SF의 시초.',
+  '1342': '편견과 오만을 넘어선 엘리자베스 베넷과 다아시의 사랑 이야기. 제인 오스틴의 대표작이자 영문 로맨스 소설의 정수.',
+  '11': '앨리스가 토끼를 따라 이상한 나라로 떨어지는 환상 동화. 어른도 즐길 수 있는 숨겨진 철학과 유머가 가득.',
+  '2701': '선장 에이헤브의 흰 고래 모비딕에 대한 집착과 복수를 그린 대서사시. 인간의 야망과 자연의 위력을 탁월하게 묘사.',
+  '1952': '드라큘라 백작과 그를 쫓는 영웅들의 대결. 뱀파이어 소설의 원형이자 고딕 공포의 영원한 걸작.',
+  '98': '프랑스 혁명을 배경으로 런던과 파리 두 도시에 걸친 사랑과 희생의 이야기. 찰스 디킨스의 역사 대하소설.',
+  '1661': '셜록 홈즈의 첫 등장. 피로 쓰인 수수께끼를 풀어가는 탐정 소설의 고전으로 추리 장르의 시초.',
+  '74': '미시시피 강을 떠내려가는 허클베리 핀의 자유로운 모험기. 마크 트웨인이 그린 미국의 자유와 우정.',
+  '2554': '가난한 청년의 살인과 그에 따른 죄의식을 심층 탐구한 심리 소설. 도스토예프스키의 철학적 걸작.',
+  '76': '인디언 조의 보물을 찾아나서는 톰 소여의 유쾌한 모험기. 마크 트웨인의 활기찬 소년 성장 소설.',
+  '5200': '하룻밤 사이에 벌레로 변해버린 그레고르의 이야기. 카프카의 부조리 문학 대표작으로 현대인의 소외를 상징.',
+  '1080': '지킬 박사가 약물로 또 다른 자아 하이드를 만들어내는 이중 인격 공포 소설. 인간 내면의 선악을 탐구.',
+  '174': '아름다운 청년 도리언 그레이의 타락과 절망을 그린 오스카 와일드의 유일한 장편소설. 미와 도덕의 충돌.',
+  '120': '어른이 되기를 거부하는 피터 팬이 아이들을 이끌고 네버랜드로 가는 환상 동화.',
+  '16': '앨리스가 거울 속 세계를 탐험하는 이상한 나라의 속편. 체스 게임을 배경으로 펼쳐지는 환상 모험.',
+  '1260': '해양 탐험가 걸리버가 소인국·거인국·이상한 나라를 여행하는 풍자 소설. 인간 사회를 날카롭게 비판.',
+  '345': '브램 스토커의 드라큘라. 서간문 형식으로 전개되는 뱀파이어 공포의 원전.',
+  '1400': '샬럿 브론테의 자전적 소설. 고아 제인 에어가 역경을 딛고 사랑을 찾아가는 이야기.',
+  '158': '에마 우드하우스가 주변 사람들의 사랑을 주선하다가 자신의 마음을 깨닫는 오스틴의 걸작 코미디.',
+  '768': '황야의 폭풍 같은 사랑, 히스클리프와 캐서린의 파국적 열정. 에밀리 브론테의 유일한 소설.',
+}
+
+function BookDetailModal({ book, onClose }: { book: CatalogBook; onClose: () => void }) {
+  const router = useRouter()
+  const [imgError, setImgError] = useState(false)
+  const koTitle = KOREAN_TITLES[String(book.id)]
+  const desc = BOOK_DESCRIPTIONS[String(book.id)] ?? 'Project Gutenberg에서 무료로 제공하는 영문 고전 작품입니다.'
+  const cover = getCatalogCoverUrl(book.id)
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
+        {/* 닫기 버튼 */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+        >
+          ✕
+        </button>
+
+        <div className="flex gap-5 p-6 pb-0">
+          {/* 표지 */}
+          <div className="shrink-0 w-24 h-36 rounded-lg overflow-hidden shadow-md bg-gray-100">
+            {!imgError ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={cover} alt={book.title} className="w-full h-full object-cover" onError={() => setImgError(true)} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center p-2 bg-violet-50">
+                <p className="text-violet-700 text-[10px] text-center leading-tight line-clamp-4">{book.title}</p>
+              </div>
+            )}
+          </div>
+
+          {/* 메타 */}
+          <div className="flex-1 min-w-0 pt-1">
+            {koTitle && (
+              <p className="text-violet-600 text-xs font-semibold mb-1 tracking-wide">{koTitle}</p>
+            )}
+            <h2 className="text-gray-900 font-bold text-lg leading-tight line-clamp-3" style={{ fontFamily: 'Georgia, serif' }}>
+              {book.title}
+            </h2>
+            <p className="text-gray-500 text-sm mt-1.5">{book.author}</p>
+            {book.year > 0 && (
+              <span className="inline-block mt-2 text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                {book.year}년
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* 소개 */}
+        <div className="px-6 pt-5 pb-2">
+          <p className="text-gray-600 text-sm leading-relaxed">{desc}</p>
+        </div>
+
+        {/* 읽기 버튼 */}
+        <div className="p-6 pt-4">
+          <button
+            onClick={() => router.push(`/book/${book.id}`)}
+            className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-base transition-colors shadow-lg shadow-violet-200"
+          >
+            📖 읽기 시작
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const GENRES = [
   { label: '전체', value: '' },
@@ -73,10 +168,10 @@ function BookCover({ book, className = '' }: { book: CatalogBook; className?: st
   )
 }
 
-function BookCard({ book }: { book: CatalogBook }) {
+function BookCard({ book, onClick }: { book: CatalogBook; onClick: () => void }) {
   return (
-    <Link href={`/book/${book.id}`}>
-      <div className="book-card bg-paper-2 border border-paper-3 overflow-hidden cursor-pointer" style={{ borderRadius: '4px' }}>
+    <div onClick={onClick} className="cursor-pointer">
+      <div className="book-card bg-paper-2 border border-paper-3 overflow-hidden" style={{ borderRadius: '4px' }}>
         <div className="aspect-[2/3] overflow-hidden relative">
           <BookCover book={book} />
           <div
@@ -105,7 +200,7 @@ function BookCard({ book }: { book: CatalogBook }) {
           <p className="text-ink-4 text-xs">{book.author}</p>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 
@@ -114,6 +209,7 @@ export default function Home() {
   const [query, setQuery] = useState('')
   const [genre, setGenre] = useState('')
   const [loading, setLoading] = useState(true)
+  const [selectedBook, setSelectedBook] = useState<CatalogBook | null>(null)
 
   useEffect(() => {
     fetch('/api/catalog')
@@ -143,6 +239,7 @@ export default function Home() {
   const showingAll = !query && !genre
 
   return (
+    <>
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--paper)', color: 'var(--ink)' }}>
 
       {/* ── 헤더 ── */}
@@ -284,7 +381,7 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
                 {weekly.map((book) => (
-                  <BookCard key={book.id} book={book} />
+                  <BookCard key={book.id} book={book} onClick={() => setSelectedBook(book)} />
                 ))}
               </div>
               <div className="rule mt-12" />
@@ -339,7 +436,7 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {filtered.map((book) => (
-                <BookCard key={book.id} book={book} />
+                <BookCard key={book.id} book={book} onClick={() => setSelectedBook(book)} />
               ))}
             </div>
           )}
@@ -387,5 +484,10 @@ export default function Home() {
       </footer>
 
     </div>
+
+    {selectedBook && (
+      <BookDetailModal book={selectedBook} onClose={() => setSelectedBook(null)} />
+    )}
+    </>
   )
 }
