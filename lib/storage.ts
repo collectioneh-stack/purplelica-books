@@ -2,8 +2,8 @@ import type { CharacterMemo, BookAnalysis } from './types'
 
 const MEMO_KEY = 'bookmap_memos'
 const ANALYSIS_KEY = 'bookmap_analysis_v2'
-const TEXT_KEY = 'bookmap_text_v1'
-const TRANSLATION_KEY = 'bookmap_trans_v1'
+const TEXT_KEY = 'bookmap_text_v2'
+const TRANSLATION_KEY = 'bookmap_trans_v2'
 
 // ─── 인물 메모 ───────────────────────────────────────────
 export function saveMemo(bookId: string, characterId: string, memo: string): void {
