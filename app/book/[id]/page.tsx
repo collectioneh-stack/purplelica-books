@@ -382,54 +382,60 @@ export default function BookPage() {
     <div className="h-screen bg-white flex flex-col overflow-hidden" onMouseUp={handleMouseUp}>
 
       {/* 헤더 */}
-      <header className="shrink-0 z-20 bg-[#0f0d1a]/95 backdrop-blur border-b border-violet-900/40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <header className="shrink-0 z-20 bg-[#0f0d1a] border-b border-violet-900/40">
+
+        {/* 1행: 홈 버튼 + 책 제목 */}
+        <div className="flex items-center px-4 pt-4 pb-3 gap-3">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-1 text-violet-300 hover:text-white text-sm font-medium transition-colors shrink-0"
+            className="flex flex-col items-center gap-0.5 text-violet-300 hover:text-white transition-colors shrink-0 min-w-[48px]"
           >
-            ← 목록
+            <span className="text-xl leading-none">🏠</span>
+            <span className="text-[11px] font-medium">홈</span>
           </button>
 
           <div className="text-center min-w-0 flex-1">
-            <div className="text-white text-sm font-semibold truncate">{book?.title}</div>
-            <div className="text-violet-500 text-xs">{book ? getAuthorName(book) : ''}</div>
+            <div className="text-white text-sm font-semibold truncate leading-tight">{book?.title}</div>
+            <div className="text-violet-400 text-xs mt-0.5">{book ? getAuthorName(book) : ''}</div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {/* 뷰 모드 선택 */}
-            <div className="flex bg-violet-900/40 rounded-lg p-0.5 text-xs">
-              {(['en', 'split', 'ko'] as ViewMode[]).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                    viewMode === mode
-                      ? 'bg-violet-600 text-white'
-                      : 'text-violet-400 hover:text-violet-200'
-                  }`}
-                >
-                  {VIEW_LABELS[mode]}
-                </button>
-              ))}
-            </div>
+          {/* 페이지 번호 */}
+          <div className="text-right shrink-0 min-w-[48px]">
+            <div className="text-white text-sm font-bold">{currentPage}</div>
+            <div className="text-violet-500 text-[11px]">/ {totalPages}</div>
+          </div>
+        </div>
 
+        {/* 2행: 뷰 모드 + 관계도 */}
+        <div className="flex items-center gap-2 px-4 pb-4">
+          {(['en', 'split', 'ko'] as ViewMode[]).map((mode) => (
             <button
-              onClick={handleAnalyze}
-              className="flex items-center gap-1 bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                viewMode === mode
+                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/50'
+                  : 'bg-violet-900/40 text-violet-400 hover:text-violet-200 hover:bg-violet-900/60'
+              }`}
             >
-              🗺️ 관계도
+              {VIEW_LABELS[mode]}
             </button>
-          </div>
+          ))}
+          <button
+            onClick={handleAnalyze}
+            className="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-violet-900/40 text-violet-300 hover:bg-violet-600 hover:text-white transition-all"
+          >
+            🗺️ 관계도
+          </button>
         </div>
 
         {/* 진행률 바 */}
-        <div className="h-0.5 bg-violet-900/40">
+        <div className="h-1 bg-violet-900/40">
           <div className="h-full bg-violet-500 transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
 
-        {/* 헤더 하단 광고 띠 — 320×50 고정 */}
-        <div className="bg-[#0f0d1a] border-t border-violet-900/30 h-[50px] flex items-center justify-center">
+        {/* 광고 */}
+        <div className="bg-[#0f0d1a] h-[50px] flex items-center justify-center">
           <AdBanner slot="4978135753" width={320} height={50} />
         </div>
       </header>
@@ -561,34 +567,30 @@ export default function BookPage() {
 
       {/* 하단 네비게이션 */}
       <nav className="shrink-0 border-t border-gray-200 bg-white">
-        {/* 이전 / 페이지 정보 / 다음 */}
         <div className="flex items-stretch divide-x divide-gray-200">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="flex-1 flex flex-col items-center justify-center py-5 gap-1 text-gray-600 hover:bg-gray-50 active:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex flex-col items-center justify-center py-6 gap-1.5 text-gray-700 hover:bg-gray-50 active:bg-gray-100 disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
           >
-            <span className="text-2xl leading-none">←</span>
-            <span className="text-xs font-medium text-gray-500">이전</span>
+            <span className="text-3xl leading-none font-light">←</span>
+            <span className="text-sm font-semibold">이전</span>
           </button>
 
-          <div className="flex flex-col items-center justify-center px-6 py-4 gap-2 min-w-[120px]">
-            <div className="text-gray-900 text-base font-bold">{currentPage} / {totalPages}</div>
-            <button
-              onClick={() => router.push('/')}
-              className="text-xs text-violet-500 hover:text-violet-700 transition-colors font-medium px-3 py-1 rounded-full hover:bg-violet-50"
-            >
-              🏠 목록
-            </button>
+          <div className="flex flex-col items-center justify-center px-4 py-4 gap-1.5 min-w-[100px]">
+            <div className="text-gray-900 text-base font-bold tracking-wide">{currentPage} / {totalPages}</div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div className="bg-violet-500 h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+            </div>
           </div>
 
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex-1 flex flex-col items-center justify-center py-5 gap-1 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex flex-col items-center justify-center py-6 gap-1.5 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
           >
-            <span className="text-2xl leading-none">→</span>
-            <span className="text-xs font-medium opacity-90">다음</span>
+            <span className="text-3xl leading-none font-light">→</span>
+            <span className="text-sm font-semibold">다음</span>
           </button>
         </div>
       </nav>
