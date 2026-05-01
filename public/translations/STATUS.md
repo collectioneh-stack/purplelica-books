@@ -15,6 +15,11 @@
 | pg1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | 94 | 2026-05-01 |
 | pg41 | 슬리피 할로우의 전설 | The Legend of Sleepy Hollow | 14 | 2026-05-01 |
 | pg345 | 드라큘라 | Dracula | 148 | 2026-05-02 |
+| pg1064 | 붉은 죽음의 가면 | The Masque of the Red Death | 5 | 2026-05-02 |
+| pg1080 | 겸손한 제안 | A Modest Proposal | 6 | 2026-05-02 |
+| pg1952 | 노란 벽지 | The Yellow Wallpaper | 8 | 2026-05-02 |
+| pg1934 | 순수의 노래와 경험의 노래 | Songs of Innocence and of Experience | 8 | 2026-05-02 |
+| pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 14 | 2026-05-02 |
 
 ## 번역 대기 (우선순위 순)
 
