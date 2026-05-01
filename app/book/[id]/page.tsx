@@ -552,32 +552,35 @@ export default function BookPage() {
       </main>
 
       {/* 하단 네비게이션 */}
-      <nav className="shrink-0 border-t border-gray-200 bg-white px-4 py-5">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
+      <nav className="shrink-0 border-t border-gray-200 bg-white">
+        {/* 이전 / 페이지 정보 / 다음 */}
+        <div className="flex items-stretch divide-x divide-gray-200">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"
+            className="flex-1 flex flex-col items-center justify-center py-5 gap-1 text-gray-600 hover:bg-gray-50 active:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            ← 이전
+            <span className="text-2xl leading-none">←</span>
+            <span className="text-xs font-medium text-gray-500">이전</span>
           </button>
 
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="text-gray-900 text-sm font-bold">{currentPage} / {totalPages}</div>
+          <div className="flex flex-col items-center justify-center px-6 py-4 gap-2 min-w-[120px]">
+            <div className="text-gray-900 text-base font-bold">{currentPage} / {totalPages}</div>
             <button
               onClick={() => router.push('/')}
-              className="text-violet-500 hover:text-violet-700 text-xs transition-colors font-medium"
+              className="text-xs text-violet-500 hover:text-violet-700 transition-colors font-medium px-3 py-1 rounded-full hover:bg-violet-50"
             >
-              🏠 목록으로
+              🏠 목록
             </button>
           </div>
 
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-bold"
+            className="flex-1 flex flex-col items-center justify-center py-5 gap-1 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            다음 →
+            <span className="text-2xl leading-none">→</span>
+            <span className="text-xs font-medium opacity-90">다음</span>
           </button>
         </div>
       </nav>
