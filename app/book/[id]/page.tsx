@@ -2,33 +2,14 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import dynamic from 'next/dynamic'
-import WordPopup from '@/components/WordPopup'
 import AdBanner from '@/components/AdBanner'
 import { getBook, fetchBookText, getAuthorName, type GutenbergBook } from '@/lib/gutenberg'
-import { getAnalysis, saveAnalysis, getBookText, saveBookText, getTranslations, saveTranslations } from '@/lib/storage'
-import type { BookAnalysis, Character } from '@/lib/types'
+import { getBookText, saveBookText, getTranslations, saveTranslations } from '@/lib/storage'
 
-const CharacterGraph = dynamic(() => import('@/components/CharacterGraph'), { ssr: false })
-const CharacterPanel = dynamic(() => import('@/components/CharacterPanel'), { ssr: false })
-
-const WORDS_PER_PAGE = 1200  // ~5분 분량 (영어 250wpm 기준)
+const WORDS_PER_PAGE = 1200
 
 type ViewMode = 'en' | 'split' | 'ko'
-
-interface WordData {
-  word: string
-  pronunciation: string
-  meaning: string
-  example: string
-  example_ko: string
-}
-
-interface WordPopupState {
-  word: string
-  sentence: string
-  position: { x: number; y: number }
-}
+const VIEW_LABELS: Record<ViewMode, string> = { en: '영어', split: '영한', ko: '한국어' }
 
 // ─── 구텐베르크 헤더/푸터 제거 ──────────────────────────────────────────
 function stripGutenbergWrapper(text: string): string {
@@ -86,7 +67,7 @@ function buildChapterMap(rawText: string, pages: string[][]): Map<number, string
   return map
 }
 
-// ─── 페이지 분할 (구텐베르크 헤더 제거 후) ────────────────────────────────
+// ─── 페이지 분할 ──────────────────────────────────────────────────────────
 function splitIntoPages(text: string): string[][] {
   const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
   const stripped = stripGutenbergWrapper(normalized)
@@ -114,19 +95,6 @@ function splitIntoPages(text: string): string[][] {
   return pages
 }
 
-function getSelectedWord(): { word: string; sentence: string; position: { x: number; y: number } } | null {
-  const selection = window.getSelection()
-  if (!selection || selection.isCollapsed) return null
-  const word = selection.toString().trim()
-  if (!word || word.includes(' ') || word.length > 30) return null
-  const range = selection.getRangeAt(0)
-  const rect = range.getBoundingClientRect()
-  const sentence = selection.anchorNode?.parentElement?.textContent ?? ''
-  return { word, sentence, position: { x: rect.left + rect.width / 2, y: rect.bottom } }
-}
-
-const VIEW_LABELS: Record<ViewMode, string> = { en: '영어', split: '영한', ko: '한국어' }
-
 export default function BookPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -139,34 +107,18 @@ export default function BookPage() {
   const [loading, setLoading] = useState(true)
   const [loadingStep, setLoadingStep] = useState<'meta' | 'text' | 'parse'>('meta')
   const [error, setError] = useState<string | null>(null)
-  // 뷰 모드 (기본값: 영한 분할 — 영어는 항상 보이게)
   const [viewMode, setViewMode] = useState<ViewMode>('split')
-
-  // 챕터 맵 (페이지번호 → 챕터 제목)
   const [chapterMap, setChapterMap] = useState<Map<number, string>>(new Map())
-
-  // 번역 (split/ko 모드에서 전체 페이지 번역)
   const [pageTranslations, setPageTranslations] = useState<string[]>([])
-  const [translating, setTranslating] = useState(false)
-
-  // 단어 팝업
-  const [wordPopup, setWordPopup] = useState<WordPopupState | null>(null)
-  const [wordData, setWordData] = useState<WordData | null>(null)
-  const [wordLoading, setWordLoading] = useState(false)
-
-  // 인물 관계도
-  const [showGraph, setShowGraph] = useState(false)
-  const [analysis, setAnalysis] = useState<BookAnalysis | null>(null)
-  const [analyzing, setAnalyzing] = useState(false)
-  const [selectedChar, setSelectedChar] = useState<Character | null>(null)
-
-  // 이전 페이지 마지막 문단 (연결 맥락)
   const prevTailRef = useRef<string>('')
 
   const bookId = `gutenberg_${id}`
   const totalPages = pages.length
   const currentParagraphs = pages[currentPage - 1] ?? []
   const prevParagraphs = pages[currentPage - 2] ?? []
+  const progress = totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0
+  const isSplit = viewMode === 'split'
+  const isKo = viewMode === 'ko'
 
   // 책 로드
   useEffect(() => {
@@ -200,143 +152,70 @@ export default function BookPage() {
     load()
   }, [id])
 
-  // 페이지 변경 시 이전 페이지 꼬리 저장
+  // 이전 페이지 꼬리 저장
   useEffect(() => {
-    if (prevParagraphs.length > 0) {
-      prevTailRef.current = prevParagraphs[prevParagraphs.length - 1]
-    } else {
-      prevTailRef.current = ''
-    }
+    prevTailRef.current = prevParagraphs.length > 0
+      ? prevParagraphs[prevParagraphs.length - 1]
+      : ''
   }, [currentPage, prevParagraphs])
 
-  // 뷰모드 변경 또는 페이지 변경 시 번역 실행
+  // 번역 로드: 페이지 이동 시 항상 백그라운드 캐시 (viewMode 무관)
   useEffect(() => {
-    if ((viewMode === 'split' || viewMode === 'ko') && currentParagraphs.length > 0) {
-      translatePage(currentParagraphs, currentPage)
+    if (currentParagraphs.length === 0) return
+    const pgMatch = bookId.match(/gutenberg_(\d+)/)
+    if (!pgMatch) return
+    const pgId = pgMatch[1]
+    const pageNum = currentPage
+
+    const cached = getTranslations(bookId, pageNum)
+    if (cached) {
+      setPageTranslations(cached)
+      return
+    }
+
+    // 백그라운드 fetch — skeleton 없이, 완료되면 즉시 표시
+    fetch(`/translations/pg${pgId}/p${pageNum}.json`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (Array.isArray(d)) {
+          const translations = d.map(String)
+          saveTranslations(bookId, pageNum, translations)
+          setPageTranslations(translations)
+        }
+      })
+      .catch(() => {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, pages])
+
+  // viewMode 변경 시: 이미 캐시된 번역 즉시 표시
+  useEffect(() => {
+    if (isSplit || isKo) {
+      const cached = getTranslations(bookId, currentPage)
+      if (cached) setPageTranslations(cached)
     } else {
       setPageTranslations([])
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode, currentPage, pages])
-
-  async function translatePage(paragraphs: string[], page: number) {
-    // 캐시 확인
-    const cached = getTranslations(bookId, page)
-    if (cached) { setPageTranslations(cached); return }
-
-    setTranslating(true)
-    try {
-      // 1차: CDN 정적 사전번역 파일 직접 fetch (서버리스 readFileSync 대신)
-      const pgMatch = bookId.match(/gutenberg_(\d+)/)
-      if (pgMatch) {
-        try {
-          const preRes = await fetch(`/translations/pg${pgMatch[1]}/p${page}.json`)
-          if (preRes.ok) {
-            const preData: unknown = await preRes.json()
-            if (Array.isArray(preData) && preData.length === paragraphs.length) {
-              const translations = preData.map(String)
-              setPageTranslations(translations)
-              saveTranslations(bookId, page, translations)
-              return
-            }
-          }
-        } catch {
-          // 사전번역 없음 → Gemini fallback
-        }
-      }
-
-      // 2차: Gemini API 번역
-      const res = await fetch('/api/translate-batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texts: paragraphs, bookId, page }),
-      })
-      const data = await res.json()
-      const translations: string[] = data.translations ?? []
-      setPageTranslations(translations)
-      // 절반 이상 성공한 경우만 캐시 저장 (실패 결과 저장 방지)
-      const successCount = translations.filter((t) => t.trim() !== '').length
-      if (successCount >= paragraphs.length / 2) {
-        saveTranslations(bookId, page, translations)
-      }
-    } catch {
-      setPageTranslations([])
-    } finally {
-      setTranslating(false)
-    }
-  }
+  }, [viewMode])
 
   const goToPage = useCallback((page: number) => {
     setPageTranslations([])
-    setWordPopup(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     router.push(`/book/${id}?page=${page}`)
-    // 다음 페이지 번역 미리 로드 (캐시 없을 때만)
-    if ((viewMode === 'split' || viewMode === 'ko') && pages[page]) {
-      const nextParagraphs = pages[page]
+    // 다음 페이지 미리 캐시 (viewMode 무관)
+    if (pages[page]) {
       const nextPage = page + 1
       if (!getTranslations(bookId, nextPage)) {
         const pgMatch = bookId.match(/gutenberg_(\d+)/)
         if (pgMatch) {
           fetch(`/translations/pg${pgMatch[1]}/p${nextPage}.json`)
             .then((r) => r.ok ? r.json() : null)
-            .then((pre) => {
-              if (Array.isArray(pre) && pre.length === nextParagraphs.length) {
-                saveTranslations(bookId, nextPage, pre.map(String))
-              } else {
-                fetch('/api/translate-batch', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ texts: nextParagraphs, bookId, page: nextPage }),
-                })
-                  .then((r) => r.json())
-                  .then((d) => saveTranslations(bookId, nextPage, d.translations ?? []))
-                  .catch(() => {})
-              }
-            })
+            .then((d) => { if (Array.isArray(d)) saveTranslations(bookId, nextPage, d.map(String)) })
             .catch(() => {})
         }
       }
     }
-  }, [id, router, viewMode, pages, bookId])
-
-  const handleMouseUp = useCallback(() => {
-    if (viewMode === 'ko') return // 한국어 전용 모드에선 팝업 불필요
-    const selected = getSelectedWord()
-    if (!selected) return
-    setWordPopup(selected)
-    setWordData(null)
-    setWordLoading(true)
-    fetch('/api/word', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ word: selected.word, sentence: selected.sentence }),
-    })
-      .then((r) => r.json())
-      .then((d) => { setWordData(d); setWordLoading(false) })
-      .catch(() => setWordLoading(false))
-  }, [viewMode])
-
-  const handleAnalyze = useCallback(async () => {
-    setShowGraph(true)
-    const cached = getAnalysis(bookId)
-    if (cached) { setAnalysis(cached); return }
-    setAnalyzing(true)
-    const text = pages.slice(0, 5).flat().join('\n\n')
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
-    })
-    const data = await res.json()
-    saveAnalysis(bookId, data)
-    setAnalysis(data)
-    setAnalyzing(false)
-  }, [bookId, pages])
-
-  const progress = totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0
-  const isSplit = viewMode === 'split'
-  const isKo = viewMode === 'ko'
+  }, [id, router, pages, bookId])
 
   const LOADING_MESSAGES = {
     meta: { text: '책 정보 조회 중...', sub: null },
@@ -354,12 +233,7 @@ export default function BookPage() {
           {msg.sub && <p className="text-gray-400 text-xs max-w-xs">{msg.sub}</p>}
           <div className="flex gap-2 justify-center mt-2">
             {(['meta', 'text', 'parse'] as const).map((step) => (
-              <div
-                key={step}
-                className={`h-1 w-8 rounded-full transition-colors ${
-                  step === loadingStep ? 'bg-violet-500' : 'bg-gray-200'
-                }`}
-              />
+              <div key={step} className={`h-1 w-8 rounded-full transition-colors ${step === loadingStep ? 'bg-violet-500' : 'bg-gray-200'}`} />
             ))}
           </div>
         </div>
@@ -379,18 +253,23 @@ export default function BookPage() {
   const chapterTitle = chapterMap.get(currentPage)
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden" onMouseUp={handleMouseUp}>
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
 
-      {/* 헤더 */}
+      {/* 광고 — 헤더 위에 배치 */}
+      <div className="shrink-0 bg-[#0f0d1a] h-[50px] flex items-center justify-center border-b border-violet-900/20">
+        <AdBanner slot="4978135753" width={320} height={50} />
+      </div>
+
+      {/* 헤더 내비 — 하단 내비와 동일한 높이(py-6) */}
       <header className="shrink-0 z-20 bg-[#0f0d1a] border-b border-violet-900/40">
 
-        {/* 1행: 홈 버튼 + 책 제목 */}
-        <div className="flex items-center px-4 pt-4 pb-3 gap-3">
+        {/* 1행: 홈 + 책 제목 + 페이지 — py-6으로 하단 내비와 동일 높이 */}
+        <div className="flex items-center px-4 py-6 gap-3">
           <button
             onClick={() => router.push('/')}
-            className="flex flex-col items-center gap-0.5 text-violet-300 hover:text-white transition-colors shrink-0 min-w-[48px]"
+            className="flex flex-col items-center gap-0.5 text-violet-300 hover:text-white transition-colors shrink-0 min-w-[52px]"
           >
-            <span className="text-xl leading-none">🏠</span>
+            <span className="text-2xl leading-none">🏠</span>
             <span className="text-[11px] font-medium">홈</span>
           </button>
 
@@ -399,20 +278,19 @@ export default function BookPage() {
             <div className="text-violet-400 text-xs mt-0.5">{book ? getAuthorName(book) : ''}</div>
           </div>
 
-          {/* 페이지 번호 */}
-          <div className="text-right shrink-0 min-w-[48px]">
-            <div className="text-white text-sm font-bold">{currentPage}</div>
+          <div className="text-right shrink-0 min-w-[52px]">
+            <div className="text-white text-base font-bold">{currentPage}</div>
             <div className="text-violet-500 text-[11px]">/ {totalPages}</div>
           </div>
         </div>
 
-        {/* 2행: 뷰 모드 + 관계도 */}
-        <div className="flex items-center gap-2 px-4 pb-4">
+        {/* 2행: 뷰 모드 선택 — py-6 동일 높이 */}
+        <div className="flex items-center gap-2 px-4 py-6 border-t border-violet-900/30">
           {(['en', 'split', 'ko'] as ViewMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
-              className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
                 viewMode === mode
                   ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/50'
                   : 'bg-violet-900/40 text-violet-400 hover:text-violet-200 hover:bg-violet-900/60'
@@ -421,83 +299,36 @@ export default function BookPage() {
               {VIEW_LABELS[mode]}
             </button>
           ))}
-          <button
-            onClick={handleAnalyze}
-            className="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-violet-900/40 text-violet-300 hover:bg-violet-600 hover:text-white transition-all"
-          >
-            🗺️ 관계도
-          </button>
         </div>
 
         {/* 진행률 바 */}
         <div className="h-1 bg-violet-900/40">
           <div className="h-full bg-violet-500 transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
-
-        {/* 광고 */}
-        <div className="bg-[#0f0d1a] h-[50px] flex items-center justify-center">
-          <AdBanner slot="4978135753" width={320} height={50} />
-        </div>
       </header>
 
-      {/* 인물 관계도 오버레이 */}
-      {showGraph && (
-        <div className="fixed inset-0 z-30 bg-[#0f0d1a]/98 backdrop-blur flex flex-col">
-          <div className="flex items-center justify-between px-6 py-3 border-b border-violet-900/50 shrink-0">
-            <div className="flex items-center gap-2">
-              <span>🗺️</span>
-              <span className="text-white font-bold">인물 관계도</span>
-              {analysis && <span className="text-violet-500 text-sm">· {analysis.title}</span>}
-            </div>
-            <button onClick={() => setShowGraph(false)} className="text-violet-500 hover:text-white text-xl">✕</button>
-          </div>
-          <div className="flex flex-1 overflow-hidden">
-            {analyzing ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center space-y-3">
-                  <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                  <p className="text-violet-400 text-sm">AI가 인물을 분석 중입니다...</p>
-                </div>
-              </div>
-            ) : analysis ? (
-              <>
-                <div className="flex-1">
-                  <CharacterGraph
-                    analysis={analysis}
-                    onCharacterClick={(c) => setSelectedChar((prev) => prev?.id === c.id ? null : c)}
-                    selectedCharacterId={selectedChar?.id}
-                  />
-                </div>
-                {selectedChar && (
-                  <CharacterPanel
-                    character={selectedChar}
-                    relationships={analysis.relationships}
-                    allCharacters={analysis.characters}
-                    bookId={bookId}
-                    onClose={() => setSelectedChar(null)}
-                  />
-                )}
-              </>
-            ) : null}
-          </div>
-        </div>
-      )}
+      {/* 본문 — clamp로 해상도 적응형 폰트 크기 */}
+      <main className="flex-1 overflow-y-auto mx-auto w-full px-4 sm:px-8 md:px-12 py-6 sm:py-8 flex flex-col max-w-2xl">
 
-      {/* 본문 */}
-      <main className="flex-1 overflow-y-auto mx-auto w-full px-6 sm:px-12 py-8 flex flex-col max-w-2xl">
-
-        {/* 챕터 제목 */}
+        {/* 챕터 제목 — 장이 시작되는 페이지에만 표시 */}
         {chapterTitle && (
-          <div className="mb-8 text-center">
-            <p className="text-xs text-gray-400 uppercase tracking-widest mb-2 font-medium">Chapter</p>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-serif">{chapterTitle}</h2>
-            <div className="mt-4 mx-auto w-12 h-px bg-gray-300" />
+          <div className="mb-10 pb-8 border-b-2 border-gray-100 text-center">
+            <p className="text-[11px] text-violet-400 uppercase tracking-[0.2em] mb-3 font-semibold">
+              — Chapter —
+            </p>
+            <h2
+              className="text-2xl sm:text-3xl text-gray-900 leading-tight"
+              style={{ fontFamily: 'Georgia, serif', fontWeight: 500 }}
+            >
+              {chapterTitle}
+            </h2>
+            <div className="mt-5 mx-auto w-16 h-px bg-gray-300" />
           </div>
         )}
 
-        {/* 이전 페이지 연결 맥락 */}
+        {/* 이전 페이지 연결 맥락 (영어 포함 모드에서만) */}
         {currentPage > 1 && prevTailRef.current && !isKo && (
-          <div className="mb-6 pb-5 border-b border-gray-200">
+          <div className="mb-6 pb-5 border-b border-gray-100">
             <div className="text-[11px] text-gray-400 mb-2 uppercase tracking-wider">← 이전 페이지에서 이어짐</div>
             <p className="text-gray-400 text-sm leading-7 font-serif line-clamp-2">{prevTailRef.current}</p>
           </div>
@@ -505,30 +336,22 @@ export default function BookPage() {
 
         {/* 본문 텍스트 */}
         {isSplit ? (
-          /* 영한 분할 뷰 — 세로 (영어 위, 한국어 아래) */
+          /* 영한 분할 — 영어(위) → 구분선 → 한국어(아래) */
           <div className="flex-1 flex flex-col">
-            {/* 영어 섹션 */}
             <div className="pb-8 space-y-5">
               <div className="text-[11px] text-gray-400 uppercase tracking-widest font-medium">English</div>
               {currentParagraphs.map((para, idx) => (
-                <p key={idx} className="text-gray-900 text-[15px] sm:text-[17px] leading-[1.9] font-serif">{para}</p>
+                <p key={idx} className="text-gray-900 leading-[1.9] font-serif" style={{ fontSize: 'clamp(14px, 2.5vw, 18px)' }}>{para}</p>
               ))}
             </div>
-            <hr className="border-gray-200" />
-            {/* 한국어 섹션 */}
+            <hr className="border-gray-200 my-2" />
             <div className="pt-8 pb-4 space-y-5">
               <div className="text-[11px] text-gray-400 uppercase tracking-widest font-medium">한국어</div>
-              {translating ? (
-                <div className="space-y-4">
-                  {currentParagraphs.map((_, idx) => (
-                    <div key={idx} className="h-4 bg-gray-100 rounded animate-pulse" />
-                  ))}
-                </div>
-              ) : pageTranslations.every((t) => !t.trim()) ? (
-                <p className="text-gray-400 text-sm italic">번역을 불러오는 중입니다...</p>
+              {pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
+                <p className="text-gray-400 text-sm italic">이 페이지의 한국어 번역이 준비되지 않았습니다.</p>
               ) : (
                 currentParagraphs.map((_, idx) => (
-                  <p key={idx} className="text-gray-800 text-[15px] sm:text-[17px] leading-[1.9]">
+                  <p key={idx} className="text-gray-800 leading-[1.9]" style={{ fontSize: 'clamp(14px, 2.5vw, 18px)' }}>
                     {pageTranslations[idx] ?? ''}
                   </p>
                 ))
@@ -536,27 +359,21 @@ export default function BookPage() {
             </div>
           </div>
         ) : isKo ? (
-          /* 한국어 전용 뷰 */
+          /* 한국어 전용 */
           <div className="flex-1 space-y-6">
-            {translating ? (
-              <div className="space-y-4">
-                {currentParagraphs.map((_, idx) => (
-                  <div key={idx} className="h-5 bg-gray-100 rounded animate-pulse" />
-                ))}
-              </div>
-            ) : pageTranslations.every((t) => !t.trim()) ? (
-              <p className="text-gray-400 text-sm italic">번역을 불러오는 중입니다...</p>
+            {pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
+              <p className="text-gray-400 text-sm italic">이 페이지의 한국어 번역이 준비되지 않았습니다.</p>
             ) : (
               currentParagraphs.map((_, idx) => (
-                <p key={idx} className="text-gray-900 text-[16px] sm:text-[18px] leading-[1.95]">
+                <p key={idx} className="text-gray-900 leading-[1.95]" style={{ fontSize: 'clamp(15px, 2.8vw, 19px)' }}>
                   {pageTranslations[idx] ?? ''}
                 </p>
               ))
             )}
           </div>
         ) : (
-          /* 영어 전용 뷰 */
-          <div className="flex-1 space-y-6 text-gray-900 text-[16px] sm:text-[18px] leading-[1.95] font-serif select-text">
+          /* 영어 전용 */
+          <div className="flex-1 space-y-6 text-gray-900 leading-[1.95] font-serif" style={{ fontSize: 'clamp(15px, 2.8vw, 19px)' }}>
             {currentParagraphs.map((para, idx) => (
               <p key={idx}>{para}</p>
             ))}
@@ -594,16 +411,6 @@ export default function BookPage() {
           </button>
         </div>
       </nav>
-
-      {/* 단어 팝업 (영어 모드에서만) */}
-      {wordPopup && viewMode !== 'ko' && (
-        <WordPopup
-          data={wordData}
-          loading={wordLoading}
-          position={wordPopup.position}
-          onClose={() => setWordPopup(null)}
-        />
-      )}
 
     </div>
   )
