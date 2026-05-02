@@ -383,69 +383,39 @@ export default function BookPage() {
             </div>
           </div>
         ) : isKo ? (
-          /* 한국어 전용 — 모바일: 1컬럼 / 데스크탑: 단락 절반씩 좌우 2컬럼 */
-          (() => {
-            const hasTranslation = pageTranslations.length > 0 && pageTranslations.some((t) => t.trim())
-            if (!hasTranslation) return (
-              <p className="text-gray-400 text-sm italic">이 페이지의 한국어 번역이 준비되지 않았습니다.</p>
-            )
-            const half = Math.ceil(currentParagraphs.length / 2)
-            const leftItems = currentParagraphs.slice(0, half)
-            const rightItems = currentParagraphs.slice(half)
-            return (
-              <>
-                {/* 모바일: 단일 컬럼 */}
-                <div className="flex-1 space-y-5 lg:hidden">
-                  {currentParagraphs.map((_, idx) => (
-                    <p key={idx} className="text-gray-900 leading-[1.95]" style={{ fontSize: 'clamp(15px, 2.8vw, 18px)' }}>
-                      {pageTranslations[idx] ?? ''}
-                    </p>
-                  ))}
-                </div>
-                {/* 데스크탑: 좌우 2컬럼 */}
-                <div className="hidden lg:flex flex-1 flex-row gap-12">
-                  <div className="flex-1 space-y-5 border-r border-gray-100 pr-12">
-                    {leftItems.map((_, idx) => (
-                      <p key={idx} className="text-gray-900 leading-[1.95]" style={{ fontSize: 'clamp(15px, 1.1vw, 18px)' }}>
-                        {pageTranslations[idx] ?? ''}
-                      </p>
-                    ))}
-                  </div>
-                  <div className="flex-1 space-y-5">
-                    {rightItems.map((_, idx) => (
-                      <p key={idx} className="text-gray-900 leading-[1.95]" style={{ fontSize: 'clamp(15px, 1.1vw, 18px)' }}>
-                        {pageTranslations[half + idx] ?? ''}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )
-          })()
+          /* 한국어 전용 — CSS columns: 모바일 1컬럼 / 데스크탑 2컬럼 자동 흐름 */
+          pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
+            <p className="text-gray-400 text-sm italic">이 페이지의 한국어 번역이 준비되지 않았습니다.</p>
+          ) : (
+            <div className="flex-1 w-full" style={{
+              columns: 'var(--cols, 1)',
+              columnGap: '3rem',
+              columnRule: '1px solid #f3f4f6',
+            }}>
+              <style>{`@media (min-width: 1024px) { :root { --cols: 2; } }`}</style>
+              {currentParagraphs.map((_, idx) => (
+                <p key={idx}
+                   className="text-gray-900 leading-[1.95] mb-5 break-inside-avoid"
+                   style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}>
+                  {pageTranslations[idx] ?? ''}
+                </p>
+              ))}
+            </div>
+          )
         ) : (
-          /* 영어 전용 — 모바일: 1컬럼 / 데스크탑: 단락 절반씩 좌우 2컬럼 */
-          (() => {
-            const half = Math.ceil(currentParagraphs.length / 2)
-            const leftItems = currentParagraphs.slice(0, half)
-            const rightItems = currentParagraphs.slice(half)
-            return (
-              <>
-                {/* 모바일: 단일 컬럼 */}
-                <div className="flex-1 space-y-5 font-serif text-gray-900 lg:hidden" style={{ fontSize: 'clamp(15px, 2.8vw, 18px)', lineHeight: '1.95' }}>
-                  {currentParagraphs.map((para, idx) => <p key={idx}>{para}</p>)}
-                </div>
-                {/* 데스크탑: 좌우 2컬럼 */}
-                <div className="hidden lg:flex flex-1 flex-row gap-12 font-serif text-gray-900" style={{ lineHeight: '1.95' }}>
-                  <div className="flex-1 space-y-5 border-r border-gray-100 pr-12" style={{ fontSize: 'clamp(15px, 1.1vw, 18px)' }}>
-                    {leftItems.map((para, idx) => <p key={idx}>{para}</p>)}
-                  </div>
-                  <div className="flex-1 space-y-5" style={{ fontSize: 'clamp(15px, 1.1vw, 18px)' }}>
-                    {rightItems.map((para, idx) => <p key={idx}>{para}</p>)}
-                  </div>
-                </div>
-              </>
-            )
-          })()
+          /* 영어 전용 — CSS columns: 모바일 1컬럼 / 데스크탑 2컬럼 자동 흐름 */
+          <div className="flex-1 w-full font-serif text-gray-900" style={{
+            columns: 'var(--cols, 1)',
+            columnGap: '3rem',
+            columnRule: '1px solid #f3f4f6',
+            lineHeight: '1.95',
+            fontSize: 'clamp(14px, 1.2vw, 18px)',
+          }}>
+            <style>{`@media (min-width: 1024px) { :root { --cols: 2; } }`}</style>
+            {currentParagraphs.map((para, idx) => (
+              <p key={idx} className="mb-5 break-inside-avoid">{para}</p>
+            ))}
+          </div>
         )}
 
       </main>
