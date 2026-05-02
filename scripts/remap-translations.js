@@ -110,7 +110,15 @@ function splitIntoChapterPages(text) {
   if (current.blocks.length > 0 || current.title !== null) chapters.push(current)
 
   if (chapters.length === 0 || (chapters.length === 1 && chapters[0].title === null)) {
-    return { pages: wordCountSplit(allBlocks.filter(b => b.length > 20)), preChapterCount: 0 }
+    // 챕터 구분 없는 책: 앞부분 Gutenberg 메타 블록 수 계산 후 skip
+    const GUTENBERG_META_RE = /project gutenberg|www\.gutenberg\.org|\*{3}|ebooks\//i
+    const contentBlocks = allBlocks.filter(b => b.length > 20)
+    let preChapterCount = 0
+    for (const block of contentBlocks) {
+      if (GUTENBERG_META_RE.test(block)) preChapterCount++
+      else break
+    }
+    return { pages: wordCountSplit(contentBlocks.slice(preChapterCount)), preChapterCount }
   }
 
   // pre-chapter 단락 수 계산 (flat 배열에서 skip할 개수)
@@ -189,8 +197,20 @@ async function remapBook(pgId) {
     console.log(`  ✓ pre-chapter 단락 ${preChapterCount}개 skip (flat 배열 오프셋 보정)`)
   }
 
-  // 4. 단락 수 차이 체크 (pre-chapter 제외 후 비교)
-  const effectiveFlat = existingFlat.slice(preChapterCount)
+  // 4. 번역 flat 배열에서 앞부분 Gutenberg boilerplate(한국어) 추가 skip
+  //    원문에 boilerplate가 없어도 번역 파일 자체에 boilerplate가 있는 경우 처리
+  const KO_GUTENBERG_RE = /프로젝트 구텐베르크|gutenberg\.org|전자책 #|\*{3}|저작권 지침|출시일:|^제목:|^저자:|^번역:|^제작:|^크레딧:|^언어:|^출판사:|^캐릭터 세트/i
+  let extraBoilerplateSkip = 0
+  for (const para of existingFlat.slice(preChapterCount)) {
+    if (KO_GUTENBERG_RE.test(para)) extraBoilerplateSkip++
+    else break
+  }
+  if (extraBoilerplateSkip > 0) {
+    console.log(`  ✓ 번역 파일 boilerplate ${extraBoilerplateSkip}개 추가 skip`)
+  }
+
+  // 4b. 단락 수 차이 체크 (pre-chapter + boilerplate 제외 후 비교)
+  const effectiveFlat = existingFlat.slice(preChapterCount + extraBoilerplateSkip)
   const diff = totalNewParas - effectiveFlat.length
   if (Math.abs(diff) > effectiveFlat.length * 0.1) {
     console.warn(`  ⚠ 단락 수 차이 큼: 기존 ${effectiveFlat.length}개 → 새 ${totalNewParas}개 (${diff > 0 ? '+' : ''}${diff})`)
