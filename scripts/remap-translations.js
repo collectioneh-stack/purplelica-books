@@ -110,8 +110,12 @@ function splitIntoChapterPages(text) {
   if (current.blocks.length > 0 || current.title !== null) chapters.push(current)
 
   if (chapters.length === 0 || (chapters.length === 1 && chapters[0].title === null)) {
-    return wordCountSplit(allBlocks.filter(b => b.length > 20))
+    return { pages: wordCountSplit(allBlocks.filter(b => b.length > 20)), preChapterCount: 0 }
   }
+
+  // pre-chapter 단락 수 계산 (flat 배열에서 skip할 개수)
+  const nullChapter = chapters.find(c => c.title === null)
+  const preChapterCount = nullChapter ? nullChapter.blocks.length : 0
 
   const pages = []
   for (const chapter of chapters) {
@@ -119,16 +123,19 @@ function splitIntoChapterPages(text) {
     if (chapter.blocks.length === 0) continue
     pages.push(...wordCountSplit(chapter.blocks))
   }
-  return pages
+  return { pages, preChapterCount }
 }
 
-// ─── 기존 번역 flat 배열 로드 ─────────────────────────────────────────────────
+// ─── 기존 번역 flat 배열 로드 (_backup/ 우선 사용 — 원본 보존) ─────────────────
 function loadExistingTranslations(pgId) {
   const dir = path.join(TRANSLATIONS_DIR, `pg${pgId}`)
   if (!fs.existsSync(dir)) return null
 
-  // p1.json, p2.json ... 순서대로 수집
-  const files = fs.readdirSync(dir)
+  // _backup/ 이 있으면 원본 파일 우선 사용 (이전 리맵 오류 방지)
+  const backupDir = path.join(dir, '_backup')
+  const sourceDir = fs.existsSync(backupDir) ? backupDir : dir
+
+  const files = fs.readdirSync(sourceDir)
     .filter(f => /^p\d+\.json$/.test(f))
     .sort((a, b) => {
       const na = parseInt(a.match(/\d+/)[0])
@@ -141,13 +148,14 @@ function loadExistingTranslations(pgId) {
   const flat = []
   for (const f of files) {
     try {
-      const data = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'))
+      const data = JSON.parse(fs.readFileSync(path.join(sourceDir, f), 'utf8'))
       if (Array.isArray(data)) flat.push(...data)
     } catch {
       // 파싱 실패 파일은 건너뜀
     }
   }
 
+  if (sourceDir === backupDir) console.log(`  ✓ _backup/ 원본 로드 (총 ${flat.length}개)`)
   return flat
 }
 
@@ -173,15 +181,19 @@ async function remapBook(pgId) {
     return
   }
 
-  // 3. 새 알고리즘으로 페이지 분할
-  const newPages = splitIntoChapterPages(text)
+  // 3. 새 알고리즘으로 페이지 분할 + pre-chapter 단락 수 계산
+  const { pages: newPages, preChapterCount } = splitIntoChapterPages(text)
   const totalNewParas = newPages.reduce((s, p) => s + p.length, 0)
   console.log(`  ✓ 새 페이지 분할: ${newPages.length}페이지, ${totalNewParas}개 단락`)
+  if (preChapterCount > 0) {
+    console.log(`  ✓ pre-chapter 단락 ${preChapterCount}개 skip (flat 배열 오프셋 보정)`)
+  }
 
-  // 4. 단락 수 차이 체크
-  const diff = totalNewParas - existingFlat.length
-  if (Math.abs(diff) > existingFlat.length * 0.1) {
-    console.warn(`  ⚠ 단락 수 차이 큼: 기존 ${existingFlat.length}개 → 새 ${totalNewParas}개 (${diff > 0 ? '+' : ''}${diff})`)
+  // 4. 단락 수 차이 체크 (pre-chapter 제외 후 비교)
+  const effectiveFlat = existingFlat.slice(preChapterCount)
+  const diff = totalNewParas - effectiveFlat.length
+  if (Math.abs(diff) > effectiveFlat.length * 0.1) {
+    console.warn(`  ⚠ 단락 수 차이 큼: 기존 ${effectiveFlat.length}개 → 새 ${totalNewParas}개 (${diff > 0 ? '+' : ''}${diff})`)
     console.warn(`    번역이 밀리거나 빈칸이 생길 수 있습니다.`)
   } else if (diff !== 0) {
     console.log(`  △ 단락 수 미세 차이: ${diff > 0 ? '+' : ''}${diff}개 (패딩/트림 처리)`)
@@ -190,11 +202,10 @@ async function remapBook(pgId) {
   // 5. 기존 번역을 새 페이지 구조에 재배분
   const outDir = path.join(TRANSLATIONS_DIR, `pg${pgId}`)
 
-  // 백업 폴더 생성
+  // 백업 폴더 생성 (최초 1회만)
   const backupDir = path.join(outDir, '_backup')
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir, { recursive: true })
-    // 기존 파일 백업
     const existingFiles = fs.readdirSync(outDir).filter(f => /^p\d+\.json$/.test(f))
     for (const f of existingFiles) {
       fs.copyFileSync(path.join(outDir, f), path.join(backupDir, f))
@@ -206,14 +217,14 @@ async function remapBook(pgId) {
   const oldFiles = fs.readdirSync(outDir).filter(f => /^p\d+\.json$/.test(f))
   for (const f of oldFiles) fs.unlinkSync(path.join(outDir, f))
 
-  // 새 파일 저장
+  // 새 파일 저장 (pre-chapter skip 후 flat 인덱스 시작)
   let flatIdx = 0
   for (let i = 0; i < newPages.length; i++) {
     const pageParaCount = newPages[i].length
     const translations = []
 
     for (let j = 0; j < pageParaCount; j++) {
-      translations.push(existingFlat[flatIdx] ?? '')  // 번역 없으면 빈 문자열
+      translations.push(effectiveFlat[flatIdx] ?? '')
       flatIdx++
     }
 
@@ -222,8 +233,8 @@ async function remapBook(pgId) {
   }
 
   console.log(`  ✓ 리맵핑 완료: ${newPages.length}개 파일 생성`)
-  if (flatIdx < existingFlat.length) {
-    console.log(`  △ 사용 안 된 기존 번역: ${existingFlat.length - flatIdx}개 단락 (버림)`)
+  if (flatIdx < effectiveFlat.length) {
+    console.log(`  △ 사용 안 된 기존 번역: ${effectiveFlat.length - flatIdx}개 단락 (버림)`)
   }
 }
 
