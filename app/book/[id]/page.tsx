@@ -405,7 +405,10 @@ export default function BookPage() {
         ) : isKo ? (
           /* 한국어 전용 — CSS columns: 모바일 1컬럼 / 데스크탑 2컬럼 자동 흐름 */
           pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
-            <p className="text-gray-400 text-sm italic">이 페이지의 한국어 번역이 준비되지 않았습니다.</p>
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <div className="w-6 h-6 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" />
+              <p className="text-gray-400 text-sm">번역 불러오는 중...</p>
+            </div>
           ) : (
             <div className="flex-1 w-full" style={{
               columns: 'var(--cols, 1)',

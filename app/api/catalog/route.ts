@@ -3,10 +3,12 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import type { CatalogBook } from '@/lib/catalog'
 
-// Books with pre-translated CDN files — only these are shown (no real-time API delay)
+// 번역 완성도 90%+ 서비스 가능 도서만 노출
+// 미완성: pg35(Time Machine), pg103(20K Leagues), pg219(Heart of Darkness),
+//         pg345(Dracula 79%), pg526(Call of Wild), pg1342(Pride 64%), pg2701(Moby Dick 53%)
 const TRANSLATED_IDS = new Set([
-  11, 16, 35, 41, 43, 46, 84, 103, 219, 345, 526, 721,
-  1064, 1080, 1342, 1661, 1934, 1952, 2500, 2542, 2701, 5200,
+  11, 16, 41, 43, 46, 84, 721,
+  1064, 1080, 1661, 1934, 1952, 2500, 2542, 5200,
 ])
 
 // Minimal fallback if catalog.json not yet generated

@@ -1,9 +1,6 @@
 import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
-
-const geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
 
 export const metadata: Metadata = {
   title: 'Purplelica Books — 영어 원서 읽기',
@@ -12,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className={geist.variable}>
-      <body className="min-h-screen bg-stone-950 text-white antialiased">
+    <html lang="ko">
+      <body>
         {children}
       </body>
       <Script
