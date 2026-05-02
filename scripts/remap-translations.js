@@ -115,6 +115,7 @@ function splitIntoChapterPages(text) {
 
   const pages = []
   for (const chapter of chapters) {
+    if (chapter.title === null) continue  // page.tsx와 동일하게 pre-chapter 제외
     if (chapter.blocks.length === 0) continue
     pages.push(...wordCountSplit(chapter.blocks))
   }
