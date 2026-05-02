@@ -20,6 +20,7 @@
 | pg2542 | 인형의 집 | A Doll's House | 19 | 2026-05-01 |
 | pg5200 | 변신 | Metamorphosis | 24 | 2026-05-01 |
 | pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 14 | 2026-05-02 |
+| pg43 | 지킬 박사와 하이드 씨 | The Strange Case of Dr. Jekyll and Mr. Hyde | 27 | 2026-05-02 |
 
 ## 복구 필요 (파일 소실 — 최우선 작업)
 
