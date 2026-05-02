@@ -6,6 +6,7 @@ import type { CatalogBook } from '@/lib/catalog'
 // 번역 완성도 90%+ 서비스 가능 도서만 노출
 // 미완성: pg35(Time Machine), pg103(20K Leagues), pg219(Heart of Darkness),
 //         pg345(Dracula 79%), pg526(Call of Wild), pg1342(Pride 64%), pg2701(Moby Dick 53%)
+// 참고: pg1934 = Songs of Innocence and Experience (Blake) — catalog.json 에 Around the World로 잘못 기재되어 있었음, 수정 완료
 const TRANSLATED_IDS = new Set([
   11, 16, 41, 43, 46, 84, 721,
   1064, 1080, 1661, 1934, 1952, 2500, 2542, 5200,
