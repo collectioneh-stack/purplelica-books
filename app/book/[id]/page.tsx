@@ -6,12 +6,23 @@ import AdBanner from '@/components/AdBanner'
 import { getBook, fetchBookText, getAuthorName, type GutenbergBook } from '@/lib/gutenberg'
 import { getBookText, saveBookText, getTranslations, saveTranslations } from '@/lib/storage'
 
-const WORDS_PER_PAGE = 1200
-
+// ─── 타입 ────────────────────────────────────────────────────────────────────
 type ViewMode = 'en' | 'split' | 'ko'
 const VIEW_LABELS: Record<ViewMode, string> = { en: '영어', split: '영한', ko: '한국어' }
 
-// ─── 구텐베르크 헤더/푸터 제거 ──────────────────────────────────────────
+interface PageData {
+  paragraphs: string[]
+  chapterTitle: string | null   // 해당 챕터 제목 (없으면 null)
+  isChapterStart: boolean       // 챕터 첫 페이지 여부
+}
+
+// ─── 상수 ────────────────────────────────────────────────────────────────────
+const MAX_WORDS_PER_PAGE = 600
+
+// ─── 챕터 제목 판별 ──────────────────────────────────────────────────────────
+const CHAPTER_RE = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act|SECTION|Section|PROLOGUE|Prologue|EPILOGUE|Epilogue|PREFACE|Preface|INTRODUCTION|Introduction|VOLUME|Volume)\b/
+
+// ─── 구텐베르크 헤더/푸터 제거 ──────────────────────────────────────────────
 function stripGutenbergWrapper(text: string): string {
   const startRe = /\*{3}\s*START OF [^\n]+\n/i
   const startMatch = text.match(startRe)
@@ -25,76 +36,76 @@ function stripGutenbergWrapper(text: string): string {
   return content
 }
 
-// ─── 챕터 제목 판별 ──────────────────────────────────────────────────────
-const CHAPTER_RE = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act|SECTION|Section|PROLOGUE|Prologue|EPILOGUE|Epilogue|PREFACE|Preface|INTRODUCTION|Introduction|VOLUME|Volume)\b/
+// ─── 단어 수 기준 서브페이지 분할 ────────────────────────────────────────────
+function wordCountSplit(blocks: string[], chapterTitle: string | null): PageData[] {
+  const pages: PageData[] = []
+  let current: string[] = []
+  let wordCount = 0
+  let isFirst = true
 
-function isChapterTitle(text: string): boolean {
-  return CHAPTER_RE.test(text.trim())
+  for (const block of blocks) {
+    const words = block.split(/\s+/).length
+    if (wordCount + words > MAX_WORDS_PER_PAGE && current.length > 0) {
+      pages.push({ paragraphs: current, chapterTitle: isFirst ? chapterTitle : null, isChapterStart: isFirst })
+      current = [block]
+      wordCount = words
+      isFirst = false
+    } else {
+      current.push(block)
+      wordCount += words
+    }
+  }
+  if (current.length > 0) {
+    pages.push({ paragraphs: current, chapterTitle: isFirst ? chapterTitle : null, isChapterStart: isFirst })
+  }
+  return pages
 }
 
-// ─── 페이지별 챕터 제목 추출 ─────────────────────────────────────────────
-function buildChapterMap(rawText: string, pages: string[][]): Map<number, string> {
-  const map = new Map<number, string>()
-  const normalized = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+// ─── 챕터 기반 페이지 분할 (메인 알고리즘) ──────────────────────────────────
+function splitIntoChapterPages(text: string): PageData[] {
+  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
   const stripped = stripGutenbergWrapper(normalized)
+
   const allBlocks = stripped
     .split(/\n{2,}/)
     .map((p) => p.replace(/\n/g, ' ').trim())
     .filter((p) => p.length > 0)
 
-  const pageSizes = pages.map((p) => p.length)
-  let paraIdx = 0
-  let pendingChapter = ''
+  // 챕터별로 그룹핑
+  type Chapter = { title: string | null; blocks: string[] }
+  const chapters: Chapter[] = []
+  let current: Chapter = { title: null, blocks: [] }
 
   for (const block of allBlocks) {
-    if (isChapterTitle(block)) {
-      pendingChapter = block
-    } else if (block.length > 30) {
-      if (pendingChapter) {
-        let cum = 0
-        for (let i = 0; i < pageSizes.length; i++) {
-          if (paraIdx >= cum && paraIdx < cum + pageSizes[i]) {
-            if (!map.has(i + 1)) map.set(i + 1, pendingChapter)
-            break
-          }
-          cum += pageSizes[i]
-        }
-        pendingChapter = ''
+    if (CHAPTER_RE.test(block.trim()) && block.length < 200) {
+      if (current.blocks.length > 0 || current.title !== null) {
+        chapters.push(current)
       }
-      paraIdx++
+      current = { title: block.trim(), blocks: [] }
+    } else if (block.length > 20) {
+      current.blocks.push(block)
     }
   }
-  return map
-}
-
-// ─── 페이지 분할 ──────────────────────────────────────────────────────────
-function splitIntoPages(text: string): string[][] {
-  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-  const stripped = stripGutenbergWrapper(normalized)
-  const paragraphs = stripped
-    .split(/\n{2,}/)
-    .map((p) => p.replace(/\n/g, ' ').trim())
-    .filter((p) => p.length > 30)
-
-  const pages: string[][] = []
-  let current: string[] = []
-  let wordCount = 0
-
-  for (const para of paragraphs) {
-    const words = para.split(/\s+/).length
-    if (wordCount + words > WORDS_PER_PAGE && current.length > 0) {
-      pages.push(current)
-      current = [para]
-      wordCount = words
-    } else {
-      current.push(para)
-      wordCount += words
-    }
+  if (current.blocks.length > 0 || current.title !== null) {
+    chapters.push(current)
   }
-  if (current.length > 0) pages.push(current)
+
+  // 챕터가 감지되지 않으면 단어 수 기준 분할로 폴백
+  if (chapters.length === 0 || (chapters.length === 1 && chapters[0].title === null)) {
+    return wordCountSplit(allBlocks.filter((b) => b.length > 20), null)
+  }
+
+  // 각 챕터를 서브페이지로 분할
+  const pages: PageData[] = []
+  for (const chapter of chapters) {
+    if (chapter.blocks.length === 0) continue
+    pages.push(...wordCountSplit(chapter.blocks, chapter.title))
+  }
+
   return pages
 }
 
+// ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
 export default function BookPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -103,19 +114,19 @@ export default function BookPage() {
   const currentPage = Math.max(1, Number(searchParams.get('page') ?? '1'))
 
   const [book, setBook] = useState<GutenbergBook | null>(null)
-  const [pages, setPages] = useState<string[][]>([])
+  const [pages, setPages] = useState<PageData[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingStep, setLoadingStep] = useState<'meta' | 'text' | 'parse'>('meta')
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('split')
-  const [chapterMap, setChapterMap] = useState<Map<number, string>>(new Map())
   const [pageTranslations, setPageTranslations] = useState<string[]>([])
   const prevTailRef = useRef<string>('')
 
   const bookId = `gutenberg_${id}`
   const totalPages = pages.length
-  const currentParagraphs = pages[currentPage - 1] ?? []
-  const prevParagraphs = pages[currentPage - 2] ?? []
+  const pageData = pages[currentPage - 1] ?? { paragraphs: [], chapterTitle: null, isChapterStart: false }
+  const currentParagraphs = pageData.paragraphs
+  const prevParagraphs = pages[currentPage - 2]?.paragraphs ?? []
   const progress = totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0
   const isSplit = viewMode === 'split'
   const isKo = viewMode === 'ko'
@@ -131,17 +142,13 @@ export default function BookPage() {
         const cached = getBookText(`gutenberg_${id}`)
         if (cached) {
           setLoadingStep('parse')
-          const pagesData = splitIntoPages(cached)
-          setPages(pagesData)
-          setChapterMap(buildChapterMap(cached, pagesData))
+          setPages(splitIntoChapterPages(cached))
         } else {
           setLoadingStep('text')
           const text = await fetchBookText(bookData)
           saveBookText(`gutenberg_${id}`, text)
           setLoadingStep('parse')
-          const pagesData = splitIntoPages(text)
-          setPages(pagesData)
-          setChapterMap(buildChapterMap(text, pagesData))
+          setPages(splitIntoChapterPages(text))
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : '로드 실패')
@@ -154,9 +161,7 @@ export default function BookPage() {
 
   // 이전 페이지 꼬리 저장
   useEffect(() => {
-    prevTailRef.current = prevParagraphs.length > 0
-      ? prevParagraphs[prevParagraphs.length - 1]
-      : ''
+    prevTailRef.current = prevParagraphs.length > 0 ? prevParagraphs[prevParagraphs.length - 1] : ''
   }, [currentPage, prevParagraphs])
 
   // 번역 로드: 페이지 이동 시 항상 백그라운드 캐시 (viewMode 무관)
@@ -168,12 +173,8 @@ export default function BookPage() {
     const pageNum = currentPage
 
     const cached = getTranslations(bookId, pageNum)
-    if (cached) {
-      setPageTranslations(cached)
-      return
-    }
+    if (cached) { setPageTranslations(cached); return }
 
-    // 백그라운드 fetch — skeleton 없이, 완료되면 즉시 표시
     fetch(`/translations/pg${pgId}/p${pageNum}.json`)
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
@@ -187,7 +188,7 @@ export default function BookPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pages])
 
-  // viewMode 변경 시: 이미 캐시된 번역 즉시 표시
+  // viewMode 변경 시: 캐시된 번역 즉시 표시
   useEffect(() => {
     if (isSplit || isKo) {
       const cached = getTranslations(bookId, currentPage)
@@ -202,7 +203,7 @@ export default function BookPage() {
     setPageTranslations([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
     router.push(`/book/${id}?page=${page}`)
-    // 다음 페이지 미리 캐시 (viewMode 무관)
+    // 다음 페이지 미리 캐시
     if (pages[page]) {
       const nextPage = page + 1
       if (!getTranslations(bookId, nextPage)) {
@@ -217,6 +218,7 @@ export default function BookPage() {
     }
   }, [id, router, pages, bookId])
 
+  // ─── 로딩 / 에러 ─────────────────────────────────────────────────────────
   const LOADING_MESSAGES = {
     meta: { text: '책 정보 조회 중...', sub: null },
     text: { text: '본문 다운로드 중...', sub: '첫 방문 시 원문 텍스트를 가져옵니다 (약 3~10초)' },
@@ -250,8 +252,7 @@ export default function BookPage() {
     </div>
   )
 
-  const chapterTitle = chapterMap.get(currentPage)
-
+  // ─── 렌더 ────────────────────────────────────────────────────────────────
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
 
@@ -260,10 +261,10 @@ export default function BookPage() {
         <AdBanner slot="4978135753" width={320} height={50} />
       </div>
 
-      {/* 헤더 내비 — 하단 내비와 동일한 높이(py-6) */}
+      {/* 헤더 */}
       <header className="shrink-0 z-20 bg-[#0f0d1a] border-b border-violet-900/40">
 
-        {/* 1행: 홈 + 책 제목 + 페이지 — py-6으로 하단 내비와 동일 높이 */}
+        {/* 1행: 홈 + 책 제목 + 페이지 */}
         <div className="flex items-center px-4 py-6 gap-3">
           <button
             onClick={() => router.push('/')}
@@ -284,7 +285,7 @@ export default function BookPage() {
           </div>
         </div>
 
-        {/* 2행: 뷰 모드 선택 — py-6 동일 높이 */}
+        {/* 2행: 뷰 모드 선택 */}
         <div className="flex items-center gap-2 px-4 py-6 border-t border-violet-900/30">
           {(['en', 'split', 'ko'] as ViewMode[]).map((mode) => (
             <button
@@ -307,11 +308,11 @@ export default function BookPage() {
         </div>
       </header>
 
-      {/* 본문 — clamp로 해상도 적응형 폰트 크기 */}
+      {/* 본문 */}
       <main className="flex-1 overflow-y-auto mx-auto w-full px-4 sm:px-8 md:px-12 py-6 sm:py-8 flex flex-col max-w-2xl">
 
-        {/* 챕터 제목 — 장이 시작되는 페이지에만 표시 */}
-        {chapterTitle && (
+        {/* 챕터 제목 — 챕터 첫 페이지만 크게, 이후 페이지는 작은 배지로 */}
+        {pageData.isChapterStart && pageData.chapterTitle ? (
           <div className="mb-10 pb-8 border-b-2 border-gray-100 text-center">
             <p className="text-[11px] text-violet-400 uppercase tracking-[0.2em] mb-3 font-semibold">
               — Chapter —
@@ -320,13 +321,34 @@ export default function BookPage() {
               className="text-2xl sm:text-3xl text-gray-900 leading-tight"
               style={{ fontFamily: 'Georgia, serif', fontWeight: 500 }}
             >
-              {chapterTitle}
+              {pageData.chapterTitle}
             </h2>
             <div className="mt-5 mx-auto w-16 h-px bg-gray-300" />
           </div>
+        ) : pages[currentPage - 2]?.chapterTitle !== null && !pageData.isChapterStart && (
+          /* 챕터 속 2번째+ 페이지: 작은 배지로 현재 챕터 표시 */
+          (() => {
+            // 현재 속한 챕터 제목 찾기 (앞으로 거슬러 올라가서)
+            let chTitle: string | null = null
+            for (let i = currentPage - 1; i >= 0; i--) {
+              if (pages[i]?.isChapterStart && pages[i].chapterTitle) {
+                chTitle = pages[i].chapterTitle
+                break
+              }
+            }
+            return chTitle ? (
+              <div className="mb-6 flex items-center gap-2">
+                <div className="h-px flex-1 bg-gray-100" />
+                <span className="text-[11px] text-violet-400 font-medium px-3 py-1 bg-violet-50 rounded-full border border-violet-100">
+                  {chTitle}
+                </span>
+                <div className="h-px flex-1 bg-gray-100" />
+              </div>
+            ) : null
+          })()
         )}
 
-        {/* 이전 페이지 연결 맥락 (영어 포함 모드에서만) */}
+        {/* 이전 페이지 꼬리 맥락 (영어 포함 모드) */}
         {currentPage > 1 && prevTailRef.current && !isKo && (
           <div className="mb-6 pb-5 border-b border-gray-100">
             <div className="text-[11px] text-gray-400 mb-2 uppercase tracking-wider">← 이전 페이지에서 이어짐</div>
@@ -336,7 +358,7 @@ export default function BookPage() {
 
         {/* 본문 텍스트 */}
         {isSplit ? (
-          /* 영한 분할 — 영어(위) → 구분선 → 한국어(아래) */
+          /* 영한 분할 */
           <div className="flex-1 flex flex-col">
             <div className="pb-8 space-y-5">
               <div className="text-[11px] text-gray-400 uppercase tracking-widest font-medium">English</div>
