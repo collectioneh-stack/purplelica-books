@@ -95,10 +95,11 @@ function splitIntoChapterPages(text: string): PageData[] {
     return wordCountSplit(allBlocks.filter((b) => b.length > 20), null)
   }
 
-  // 각 챕터를 서브페이지로 분할
+  // 챕터가 있는 책: 첫 챕터 이전 메타데이터(제목/저자 등) 제거
   const pages: PageData[] = []
   for (const chapter of chapters) {
     if (chapter.blocks.length === 0) continue
+    if (chapter.title === null) continue  // 챕터 이전 메타데이터 스킵
     pages.push(...wordCountSplit(chapter.blocks, chapter.title))
   }
 
@@ -118,7 +119,7 @@ export default function BookPage() {
   const [loading, setLoading] = useState(true)
   const [loadingStep, setLoadingStep] = useState<'meta' | 'text' | 'parse'>('meta')
   const [error, setError] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<ViewMode>('split')
+  const [viewMode, setViewMode] = useState<ViewMode>('ko')
   const [pageTranslations, setPageTranslations] = useState<string[]>([])
   const prevTailRef = useRef<string>('')
 
@@ -309,7 +310,7 @@ export default function BookPage() {
       </header>
 
       {/* 본문 */}
-      <main className="flex-1 overflow-y-auto mx-auto w-full px-4 sm:px-8 md:px-12 py-6 sm:py-8 flex flex-col max-w-2xl">
+      <main className="flex-1 overflow-y-auto w-full px-4 sm:px-8 lg:px-16 py-6 sm:py-8 flex flex-col mx-auto max-w-7xl">
 
         {/* 챕터 제목 — 챕터 첫 페이지만 크게, 이후 페이지는 작은 배지로 */}
         {pageData.isChapterStart && pageData.chapterTitle ? (
@@ -358,22 +359,23 @@ export default function BookPage() {
 
         {/* 본문 텍스트 */}
         {isSplit ? (
-          /* 영한 분할 */
-          <div className="flex-1 flex flex-col">
-            <div className="pb-8 space-y-5">
-              <div className="text-[11px] text-gray-400 uppercase tracking-widest font-medium">English</div>
+          /* 영한 분할 — 항상 좌우 2컬럼 */
+          <div className="flex-1 flex flex-row gap-4 sm:gap-8 lg:gap-12">
+            {/* 영어 */}
+            <div className="flex-1 space-y-4 border-r border-gray-100 pr-4 sm:pr-8 lg:pr-12">
+              <div className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">English</div>
               {currentParagraphs.map((para, idx) => (
-                <p key={idx} className="text-gray-900 leading-[1.9] font-serif" style={{ fontSize: 'clamp(14px, 2.5vw, 18px)' }}>{para}</p>
+                <p key={idx} className="text-gray-900 leading-[1.85] font-serif" style={{ fontSize: 'clamp(12px, 1.8vw, 16px)' }}>{para}</p>
               ))}
             </div>
-            <hr className="border-gray-200 my-2" />
-            <div className="pt-8 pb-4 space-y-5">
-              <div className="text-[11px] text-gray-400 uppercase tracking-widest font-medium">한국어</div>
+            {/* 한국어 */}
+            <div className="flex-1 space-y-4">
+              <div className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">한국어</div>
               {pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
-                <p className="text-gray-400 text-sm italic">이 페이지의 한국어 번역이 준비되지 않았습니다.</p>
+                <p className="text-gray-400 text-xs italic">번역 준비 중</p>
               ) : (
                 currentParagraphs.map((_, idx) => (
-                  <p key={idx} className="text-gray-800 leading-[1.9]" style={{ fontSize: 'clamp(14px, 2.5vw, 18px)' }}>
+                  <p key={idx} className="text-gray-800 leading-[1.85]" style={{ fontSize: 'clamp(12px, 1.8vw, 16px)' }}>
                     {pageTranslations[idx] ?? ''}
                   </p>
                 ))
@@ -381,21 +383,21 @@ export default function BookPage() {
             </div>
           </div>
         ) : isKo ? (
-          /* 한국어 전용 */
-          <div className="flex-1 space-y-6">
+          /* 한국어 전용 — 데스크탑은 중앙 최적 너비 */
+          <div className="flex-1 space-y-6 mx-auto w-full max-w-2xl">
             {pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
               <p className="text-gray-400 text-sm italic">이 페이지의 한국어 번역이 준비되지 않았습니다.</p>
             ) : (
               currentParagraphs.map((_, idx) => (
-                <p key={idx} className="text-gray-900 leading-[1.95]" style={{ fontSize: 'clamp(15px, 2.8vw, 19px)' }}>
+                <p key={idx} className="text-gray-900 leading-[1.95]" style={{ fontSize: 'clamp(15px, 1.3vw, 19px)' }}>
                   {pageTranslations[idx] ?? ''}
                 </p>
               ))
             )}
           </div>
         ) : (
-          /* 영어 전용 */
-          <div className="flex-1 space-y-6 text-gray-900 leading-[1.95] font-serif" style={{ fontSize: 'clamp(15px, 2.8vw, 19px)' }}>
+          /* 영어 전용 — 데스크탑은 중앙 최적 너비 */
+          <div className="flex-1 space-y-6 text-gray-900 leading-[1.95] font-serif mx-auto w-full max-w-2xl" style={{ fontSize: 'clamp(15px, 1.3vw, 19px)' }}>
             {currentParagraphs.map((para, idx) => (
               <p key={idx}>{para}</p>
             ))}
