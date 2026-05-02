@@ -266,14 +266,34 @@ export default function BookPage() {
       <header className="shrink-0 z-20 bg-[#0f0d1a] border-b border-violet-900/40">
 
         {/* 1행: 홈 + 책 제목 + 페이지 */}
-        <div className="flex items-center px-4 py-6 gap-3">
+        <div className="flex items-center px-4 py-8 gap-4">
+          {/* 홈 버튼 — 로고 포함 */}
           <button
             onClick={() => router.push('/')}
-            className="flex flex-col items-center gap-0.5 text-violet-300 hover:text-white transition-colors shrink-0 min-w-[52px]"
+            className="flex flex-col items-center justify-center gap-1 shrink-0 group"
+            style={{ minWidth: 72 }}
           >
-            <span className="text-2xl leading-none">🏠</span>
-            <span className="text-[11px] font-medium">홈</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-violet-400 group-hover:text-violet-200 transition-colors" style={{ fontSize: 22 }}>📚</span>
+            </div>
+            <div className="flex flex-col items-center leading-none">
+              <span
+                className="text-violet-200 group-hover:text-white transition-colors font-bold tracking-tight"
+                style={{ fontSize: 13, fontFamily: 'Georgia, serif', letterSpacing: '0.01em' }}
+              >
+                Purplica
+              </span>
+              <span
+                className="text-violet-400 group-hover:text-violet-200 transition-colors font-semibold"
+                style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 1 }}
+              >
+                Books
+              </span>
+            </div>
           </button>
+
+          {/* 구분선 */}
+          <div className="w-px self-stretch bg-violet-900/60 shrink-0" />
 
           <div className="text-center min-w-0 flex-1">
             <div className="text-white text-sm font-semibold truncate leading-tight">{book?.title}</div>
