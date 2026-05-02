@@ -24,6 +24,7 @@
 | pg5200 | 변신 | Metamorphosis | 24 | 2026-05-01 |
 | pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 14 | 2026-05-02 |
 | pg43 | 지킬 박사와 하이드 씨 | The Strange Case of Dr. Jekyll and Mr. Hyde | 27 | 2026-05-02 |
+| pg46 | 크리스마스 캐럴 | A Christmas Carol | 27 | 2026-05-02 |
 | pg16 | 피터 팬 | Peter Pan | 40 | 2026-05-02 (리맵핑 대기) |
 | pg2500 | 싯다르타 | Siddhartha | 71 | 2026-05-02 (리맵핑 대기) |
 | pg103 | 해저 2만리 | Twenty Thousand Leagues Under the Sea | 0 | 번역 대기 |
