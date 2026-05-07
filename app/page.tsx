@@ -3,15 +3,13 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import AdBanner from '@/components/AdBanner'
 import type { CatalogBook } from '@/lib/catalog'
 import { getCatalogCoverUrl, getWeeklyRecommended } from '@/lib/catalog'
 import koreanTitlesRaw from '@/lib/korean-titles.json'
 
 const KOREAN_TITLES: Record<string, string> = koreanTitlesRaw as Record<string, string>
 
-
-
+/* ── 장르 ── */
 const GENRES = [
   { label: '전체', value: '' },
   { label: '소설', value: 'fiction' },
@@ -31,6 +29,13 @@ const GENRE_KEYWORDS: Record<string, string[]> = {
   classic:     ['Homer', 'Odyssey', 'Iliad', 'Dante', 'Cervantes', 'Quixote', 'Arabian', 'Aesop', 'Grimm', 'Alighieri'],
 }
 
+function matchesGenre(book: CatalogBook, genre: string): boolean {
+  if (!genre) return true
+  const keywords = GENRE_KEYWORDS[genre] ?? []
+  const haystack = `${book.title} ${book.author}`.toLowerCase()
+  return keywords.some((kw) => haystack.includes(kw.toLowerCase()))
+}
+
 function matchesKorean(book: CatalogBook, q: string): boolean {
   const koTitle = KOREAN_TITLES[String(book.id)]
   if (!koTitle) return false
@@ -39,80 +44,51 @@ function matchesKorean(book: CatalogBook, q: string): boolean {
   return koNoSpace.includes(noSpace) || noSpace.includes(koNoSpace)
 }
 
-function matchesGenre(book: CatalogBook, genre: string): boolean {
-  if (!genre) return true
-  const keywords = GENRE_KEYWORDS[genre] ?? []
-  const haystack = `${book.title} ${book.author}`.toLowerCase()
-  return keywords.some((kw) => haystack.includes(kw.toLowerCase()))
-}
-
-function BookCover({ book, className = '' }: { book: CatalogBook; className?: string }) {
+/* ── 책 커버 ── */
+function BookCover({ book }: { book: CatalogBook }) {
   const [imgError, setImgError] = useState(false)
   const cover = getCatalogCoverUrl(book.id)
 
   if (!imgError) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={cover}
-        alt={book.title}
-        className={`w-full h-full object-cover ${className}`}
-        onError={() => setImgError(true)}
-      />
+      <img src={cover} alt={book.title} className="w-full h-full object-cover" onError={() => setImgError(true)} />
     )
   }
 
   return (
-    <div
-      className={`w-full h-full flex flex-col items-center justify-center gap-2 px-3 ${className}`}
-      style={{
-        background: 'repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 2px, transparent 2px 8px), var(--paper-2)',
-        fontFamily: 'var(--serif)',
-      }}
-    >
-      <p className="text-ink-3 text-xs text-center leading-snug line-clamp-3">{book.title}</p>
-      <p className="text-ink-5 text-[10px] text-center">{book.author}</p>
+    <div className="w-full h-full flex flex-col items-center justify-center gap-2 px-4"
+         style={{ background: 'linear-gradient(160deg, #F5F0EB 0%, #E8E2DB 100%)' }}>
+      <span className="text-3xl">📖</span>
+      <p className="text-[#8C8C8C] text-xs text-center leading-snug line-clamp-3" style={{ fontFamily: 'var(--serif)' }}>{book.title}</p>
     </div>
   )
 }
 
+/* ── 책 카드 ── */
 function BookCard({ book }: { book: CatalogBook }) {
   const router = useRouter()
+  const koTitle = KOREAN_TITLES[String(book.id)]
+
   return (
-    <div onClick={() => router.push(`/book/${book.id}/info`)} className="cursor-pointer">
-      <div className="book-card bg-paper-2 border border-paper-3 overflow-hidden" style={{ borderRadius: '4px' }}>
-        <div className="aspect-[2/3] overflow-hidden relative">
-          <BookCover book={book} />
-          <div
-            className="absolute bottom-2 right-2 coord"
-            style={{
-              background: 'rgba(20,19,15,0.7)',
-              color: 'var(--paper)',
-              padding: '2px 6px',
-              borderRadius: '2px',
-              fontSize: '9px',
-            }}
-          >
-            {book.year > 0 ? book.year : '고전'}
-          </div>
-        </div>
-        <div className="p-3 space-y-0.5">
-          <h3
-            className="text-ink text-sm leading-snug line-clamp-2"
-            style={{ fontFamily: 'var(--serif)', fontWeight: 500 }}
-          >
-            {book.title}
-          </h3>
-          {KOREAN_TITLES[String(book.id)] && (
-            <p className="text-accent-ink text-xs font-medium leading-tight">{KOREAN_TITLES[String(book.id)]}</p>
-          )}
-          <p className="text-ink-4 text-xs">{book.author}</p>
-        </div>
+    <div onClick={() => router.push(`/book/${book.id}/info`)} className="group cursor-pointer w-full">
+      <div className="aspect-[2/3] rounded-xl overflow-hidden bg-[#F5F5F3] shadow-[0_2px_12px_rgba(0,0,0,0.06)] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 group-hover:-translate-y-1">
+        <BookCover book={book} />
+      </div>
+      <div className="mt-3.5 px-0.5">
+        <h3 className="text-[#1A1A1A] text-[14px] sm:text-[15px] font-semibold leading-snug line-clamp-2">
+          {book.title}
+        </h3>
+        {koTitle && (
+          <p className="text-[#8C8C8C] text-[12px] sm:text-[13px] mt-1 line-clamp-1">{koTitle}</p>
+        )}
+        <p className="text-[#B0B0B0] text-[12px] mt-0.5">{book.author}</p>
       </div>
     </div>
   )
 }
 
+/* ── 메인 페이지 ── */
 export default function Home() {
   const [allBooks, setAllBooks] = useState<CatalogBook[]>([])
   const [query, setQuery] = useState('')
@@ -144,252 +120,214 @@ export default function Home() {
     return books
   }, [allBooks, genre, query])
 
-  const showingAll = !query && !genre
+  const isSearching = !!(query || genre)
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--paper)', color: 'var(--ink)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
 
-      {/* ── 헤더 ── */}
-      <header className="sticky top-0 z-20" style={{ background: 'var(--accent-deep)', borderBottom: '1px solid var(--accent-ink)' }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-14 py-4 flex items-center justify-between gap-6">
+      {/* ── 네비게이션 ── */}
+      <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur-md" style={{ borderBottom: '1px solid #F0F0EE' }}>
+        <div className="max-w-[1080px] mx-auto px-5 sm:px-8 h-16 flex items-center gap-5">
+          <Link href="/" className="shrink-0">
+            <span className="text-[#1A1A1A] text-lg tracking-tight" style={{ fontFamily: 'var(--serif)', fontWeight: 600 }}>
+              Purplelica
+            </span>
+          </Link>
 
-          {/* 로고 + 좌표 */}
-          <div className="shrink-0 flex items-center gap-4">
-            <div>
-              <span className="text-paper font-semibold text-base tracking-tight" style={{ fontFamily: 'var(--serif)' }}>
-                Purplelica Books
-              </span>
-              <span className="hidden sm:block coord mt-0.5" style={{ color: 'var(--accent-soft)', opacity: 0.7 }}>
-                51.51°N · 0.12°W — London
-              </span>
-            </div>
-          </div>
-
-          {/* 검색 */}
           <div className="flex-1 max-w-sm">
             <div className="relative">
+              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[14px] h-[14px] text-[#B0B0B0] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
+              </svg>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="제목, 작가 검색..."
-                className="w-full text-sm px-4 py-2 pr-9 outline-none transition-colors"
-                style={{
-                  background: 'rgba(250,250,247,0.1)',
-                  border: '1px solid rgba(250,250,247,0.2)',
-                  borderRadius: '4px',
-                  color: 'var(--paper)',
-                  fontFamily: 'var(--sans)',
-                }}
+                placeholder="책 제목, 작가 검색"
+                className="w-full text-sm py-2.5 bg-[#F5F5F3] border-none rounded-xl outline-none focus:ring-2 focus:ring-[#E8E8E6] transition-all placeholder:text-[#B0B0B0]"
+                style={{ paddingLeft: '2.5rem', paddingRight: '2.25rem' }}
               />
               {query && (
-                <button
-                  onClick={() => setQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs transition-opacity opacity-60 hover:opacity-100"
-                  style={{ color: 'var(--paper)' }}
-                >
-                  ✕
+                <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B0B0B0] hover:text-[#4A4A4A]">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               )}
             </div>
           </div>
 
-          {/* 이번 주 추천 */}
-          <Link href="/recommended" className="btn-ghost shrink-0 hidden sm:inline-flex" style={{ color: 'var(--paper)', borderColor: 'rgba(250,250,247,0.4)', height: '36px', padding: '0 16px', fontSize: '13px' }}>
-            이번 주 추천
+          <Link href="/recommended" className="hidden sm:block text-[13px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
+            추천
           </Link>
         </div>
+      </nav>
 
-        {/* 광고 */}
-        <div className="h-[50px] flex items-center justify-center" style={{ borderTop: '1px solid rgba(250,250,247,0.08)' }}>
-          <AdBanner slot="4978135753" width={320} height={50} />
-        </div>
-      </header>
-
-      {/* ── 히어로 ── */}
-      <section className="pt-12 pb-12" style={{ background: 'var(--accent-deep)' }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-          <div>
-            <p className="eyebrow mb-4" style={{ color: 'var(--accent-soft)', opacity: 0.6 }}>
-              Classic Literature · 100 Works · Open Access
+      {/* ── 히어로 (검색 안 할 때) ── */}
+      {!isSearching && !loading && (
+        <section className="py-16 sm:py-24" style={{ background: '#FAFAF8' }}>
+          <div className="max-w-[1080px] mx-auto px-5 sm:px-8 text-center">
+            <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[#B0B0B0] mb-5">
+              Classic Literature · {allBooks.length} Works
             </p>
-            <h1
-              className="text-paper mb-4"
-              style={{
-                fontFamily: 'var(--serif)',
-                fontWeight: 400,
-                fontSize: 'clamp(28px, 3.2vw, 46px)',
-                letterSpacing: '-0.02em',
-                lineHeight: 1.15,
-              }}
-            >
-              영어 원서로 읽는<br />
-              <em style={{ fontStyle: 'italic', color: 'var(--accent-soft)' }}>즐거움</em>을 발견하세요
+            <h1 className="text-[#1A1A1A] mb-5" style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(28px, 5vw, 46px)',
+              fontWeight: 400,
+              lineHeight: 1.25,
+              letterSpacing: '-0.02em',
+            }}>
+              원서의 즐거움을,<br />
+              <span style={{ fontWeight: 600 }}>가장 쉽게</span>
             </h1>
-            <p style={{ fontFamily: 'var(--sans)', fontSize: '14px', color: 'var(--accent-soft)', opacity: 0.6, lineHeight: 1.6 }}>
-              단어 클릭 → AI 즉시 설명 &nbsp;·&nbsp; 한국어 번역 &nbsp;·&nbsp; 인물 관계도
+            <p className="text-[#8C8C8C] text-[15px] sm:text-[16px] leading-relaxed max-w-md mx-auto mb-10">
+              AI 번역과 단어 풀이로 영어 원서의 벽을 낮췄습니다.<br className="hidden sm:block" />
+              회원가입 없이, 지금 바로 읽어보세요.
             </p>
-          </div>
-          <p className="hidden sm:block coord shrink-0 pb-1" style={{ color: 'var(--accent-soft)', opacity: 0.35, fontSize: '11px' }}>
-            51.51°N · 0.12°W<br />London, 1818
-          </p>
-        </div>
-      </section>
 
-      {/* ── 오늘의 좌표 (featured) ── */}
-      {showingAll && !loading && featured && (
-        <section className="py-12" style={{ background: 'var(--paper-2)' }}>
-          <div className="max-w-7xl mx-auto px-6 sm:px-14">
-            <p className="eyebrow mb-6">오늘의 좌표</p>
-            <Link href={`/book/${featured.id}`}>
-              <div
-                className="book-card flex gap-8 items-center cursor-pointer p-6 sm:p-8"
-                style={{ background: 'var(--paper)', border: '1px solid var(--paper-3)', borderRadius: '4px', maxWidth: '640px' }}
-              >
-                <div className="shrink-0 w-28 sm:w-36 aspect-[2/3] overflow-hidden" style={{ borderRadius: '4px' }}>
-                  <BookCover book={featured} />
+            {/* 숫자 신뢰 지표 */}
+            <div className="flex items-center justify-center gap-6 sm:gap-10">
+              {[
+                { num: `${allBooks.length}`, label: '클래식 작품' },
+                { num: '3', label: '읽기 모드' },
+                { num: '0', label: '원, 완전 무료' },
+              ].map(({ num, label }) => (
+                <div key={label}>
+                  <div className="text-[#1A1A1A] text-2xl sm:text-3xl font-bold" style={{ fontFamily: 'var(--serif)' }}>{num}</div>
+                  <div className="text-[#B0B0B0] text-[11px] sm:text-[12px] mt-1">{label}</div>
                 </div>
-                <div className="flex-1 min-w-0 space-y-3">
-                  <p className="eyebrow">추천 도서</p>
-                  <h2
-                    className="text-ink leading-snug"
-                    style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 'clamp(20px, 3vw, 28px)' }}
-                  >
-                    {featured.title}
-                  </h2>
-                  {KOREAN_TITLES[String(featured.id)] && (
-                    <p className="text-accent-ink text-sm font-medium">{KOREAN_TITLES[String(featured.id)]}</p>
-                  )}
-                  <p className="text-ink-3 text-sm">{featured.author}</p>
-                  {featured.year > 0 && (
-                    <p className="coord">{featured.year}</p>
-                  )}
-                  <span className="btn-primary inline-flex" style={{ height: '36px', padding: '0 18px', fontSize: '13px', marginTop: '8px' }}>
-                    지금 읽기
-                  </span>
-                </div>
-              </div>
-            </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ── 책 그리드 ── */}
-      <section className="flex-1 py-10" style={{ background: 'var(--paper)' }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-14">
+      {/* ── 이번 주 추천 (검색 안 할 때) ── */}
+      {!isSearching && !loading && weekly.length > 0 && (
+        <section className="py-14 sm:py-20">
+          <div className="max-w-[1080px] mx-auto px-5 sm:px-8">
 
-          {/* 이번 주 추천 그리드 */}
-          {showingAll && !loading && weekly.length > 0 && (
-            <div className="mb-12">
-              <div className="flex items-center justify-between mb-5">
-                <p className="eyebrow">이번 주 추천</p>
-                <Link href="/recommended" className="text-ink-3 text-xs uhover" style={{ fontFamily: 'var(--sans)' }}>
-                  전체 보기
-                </Link>
+            <div className="flex items-baseline justify-between mb-10">
+              <div>
+                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#B0B0B0] mb-2">Weekly Picks</p>
+                <h2 className="text-[#1A1A1A] text-2xl sm:text-[28px] font-semibold" style={{ fontFamily: 'var(--serif)' }}>
+                  이번 주 추천
+                </h2>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-                {weekly.map((book) => (
+              <Link href="/recommended" className="text-[13px] font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors">
+                전체 보기 &rarr;
+              </Link>
+            </div>
+
+            {/* 첫 번째 책 피처드 + 나머지 그리드 */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-14">
+              {/* 피처드 카드 */}
+              {featured && (
+                <Link href={`/book/${featured.id}/info`} className="group">
+                  <div className="flex gap-6 sm:gap-8 p-6 sm:p-8 rounded-2xl transition-all duration-300 hover:shadow-lg"
+                       style={{ background: '#FAFAF8', border: '1px solid #F0F0EE' }}>
+                    <div className="w-32 sm:w-40 shrink-0 aspect-[2/3] rounded-xl overflow-hidden bg-[#F5F5F3] shadow-sm">
+                      <BookCover book={featured} />
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-[#B0B0B0] mb-3">Editor&apos;s Pick</p>
+                      <h3 className="text-[#1A1A1A] text-lg sm:text-xl font-semibold leading-snug line-clamp-2 mb-2"
+                          style={{ fontFamily: 'var(--serif)' }}>
+                        {featured.title}
+                      </h3>
+                      {KOREAN_TITLES[String(featured.id)] && (
+                        <p className="text-[#8C8C8C] text-[14px] mb-1">{KOREAN_TITLES[String(featured.id)]}</p>
+                      )}
+                      <p className="text-[#B0B0B0] text-[13px] mb-5">{featured.author}</p>
+                      <span className="inline-flex items-center gap-2 text-[#1A1A1A] text-[14px] font-semibold group-hover:gap-3 transition-all">
+                        읽기 시작
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )}
+
+              {/* 나머지 추천 */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-x-5 gap-y-8">
+                {weekly.slice(1, 7).map((book) => (
                   <BookCard key={book.id} book={book} />
                 ))}
               </div>
-              <div className="rule mt-12" />
             </div>
-          )}
+          </div>
+        </section>
+      )}
 
-          {/* 장르 필터 */}
-          <div className="flex items-center gap-2 flex-wrap mb-6">
-            <p className="eyebrow mr-2">장르</p>
+      {/* ── 전체 목록 ── */}
+      <section className="py-14 sm:py-20 flex-1" style={{ background: isSearching ? '#FFFFFF' : '#FAFAF8' }}>
+        <div className="max-w-[1080px] mx-auto px-5 sm:px-8">
+
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="text-[#1A1A1A] text-2xl sm:text-[28px] font-semibold" style={{ fontFamily: 'var(--serif)' }}>
+              {isSearching ? '검색 결과' : '전체 목록'}
+            </h2>
+            <span className="text-[#B0B0B0] text-[13px]">{filtered.length}권</span>
+          </div>
+
+          {/* 장르 탭 */}
+          <div className="flex gap-2 flex-wrap mb-10 sm:mb-12">
             {GENRES.map((g) => (
               <button
                 key={g.value}
                 onClick={() => setGenre(genre === g.value ? '' : g.value)}
-                className={`chip ${genre === g.value ? 'active' : 'soft'}`}
+                className={`px-5 py-2.5 rounded-full text-[13px] font-medium transition-all ${
+                  genre === g.value
+                    ? 'bg-[#1A1A1A] text-white'
+                    : 'bg-white text-[#4A4A4A] hover:bg-[#EBEBEA]'
+                }`}
+                style={genre !== g.value ? { border: '1px solid #E8E8E6' } : {}}
               >
                 {g.label}
               </button>
             ))}
           </div>
 
-          {/* 결과 수 */}
-          <div className="flex items-center justify-between mb-5">
-            <h2
-              className="text-ink text-lg"
-              style={{ fontFamily: 'var(--serif)', fontWeight: 500 }}
-            >
-              {query || genre ? '검색 결과' : '전체 목록'}
-            </h2>
-            {!loading && (
-              <span className="coord">{filtered.length}권</span>
-            )}
-          </div>
-
-          {/* 책 그리드 */}
+          {/* 그리드 */}
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="animate-pulse" style={{ borderRadius: '4px', overflow: 'hidden' }}>
-                  <div className="aspect-[2/3]" style={{ background: 'var(--paper-3)' }} />
-                  <div className="p-3 space-y-2" style={{ background: 'var(--paper-2)' }}>
-                    <div className="h-3 rounded" style={{ background: 'var(--paper-3)' }} />
-                    <div className="h-2 rounded w-2/3" style={{ background: 'var(--paper-3)' }} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-10">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-[2/3] bg-white rounded-xl" />
+                  <div className="mt-3.5 space-y-2">
+                    <div className="h-4 rounded bg-white" />
+                    <div className="h-3 rounded bg-white w-2/3" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-24 text-ink-4">
-              <p className="eyebrow mb-2">결과 없음</p>
-              <p className="text-sm" style={{ fontFamily: 'var(--sans)' }}>검색 결과가 없습니다</p>
+            <div className="text-center py-24">
+              <p className="text-[#1A1A1A] text-lg font-semibold mb-2">결과 없음</p>
+              <p className="text-[#8C8C8C] text-sm">다른 키워드로 검색해보세요</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-10">
               {filtered.map((book) => (
                 <BookCard key={book.id} book={book} />
               ))}
             </div>
           )}
-
-          {/* 기능 소개 */}
-          <div className="mt-16 pt-10 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ borderTop: '1px solid var(--paper-3)' }}>
-            {[
-              { eyebrow: 'AI ASSIST', title: '단어 즉시 풀이', desc: '모르는 단어 드래그 → 발음·의미·예문 즉시 표시' },
-              { eyebrow: 'TRANSLATION', title: '한국어 번역', desc: '기본값 한국어 · 영한 병렬 · 영어 전용 선택 가능' },
-              { eyebrow: 'CHARACTER MAP', title: '인물 관계도', desc: 'AI가 등장인물과 관계를 자동으로 시각화' },
-            ].map(({ eyebrow, title, desc }) => (
-              <div
-                key={title}
-                className="p-6 space-y-3"
-                style={{ background: 'var(--paper-2)', borderRadius: '4px' }}
-              >
-                <p className="eyebrow">{eyebrow}</p>
-                <h3 className="text-ink text-base" style={{ fontFamily: 'var(--serif)', fontWeight: 500 }}>{title}</h3>
-                <p className="text-ink-3 text-sm leading-relaxed" style={{ fontFamily: 'var(--sans)' }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-
         </div>
       </section>
 
       {/* ── 푸터 ── */}
-      <footer className="py-8 text-center space-y-1" style={{ background: 'var(--accent-deep)', borderTop: '1px solid rgba(250,250,247,0.08)' }}>
-        <p className="text-sm" style={{ color: 'var(--accent-soft)', opacity: 0.6, fontFamily: 'var(--sans)' }}>
-          본 서비스는{' '}
-          <a
-            href="https://www.gutenberg.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2"
-            style={{ color: 'var(--accent-soft)' }}
-          >
-            Project Gutenberg
-          </a>
-          에서 제공하는 저작권 만료 공개 도서를 활용합니다.
-        </p>
-        <p className="coord" style={{ opacity: 0.4 }}>
-          Powered by Project Gutenberg · © 2026 Purplelica Books
-        </p>
+      <footer className="py-10" style={{ borderTop: '1px solid #F0F0EE' }}>
+        <div className="max-w-[1080px] mx-auto px-5 sm:px-8 text-center space-y-2">
+          <span className="text-[#1A1A1A] text-sm font-semibold" style={{ fontFamily: 'var(--serif)' }}>Purplelica Books</span>
+          <p className="text-[#B0B0B0] text-xs">
+            본 서비스는{' '}
+            <a href="https://www.gutenberg.org" target="_blank" rel="noopener noreferrer"
+              className="text-[#8C8C8C] hover:text-[#1A1A1A] underline underline-offset-2 transition-colors">
+              Project Gutenberg
+            </a>
+            에서 제공하는 저작권 만료 공개 도서를 활용합니다.
+          </p>
+          <p className="text-[#B0B0B0] text-xs">&copy; 2026 Purplelica Books</p>
+        </div>
       </footer>
-
     </div>
   )
 }

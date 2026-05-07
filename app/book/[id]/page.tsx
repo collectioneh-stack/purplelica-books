@@ -103,6 +103,73 @@ function splitIntoChapterPages(text: string): PageData[] {
   return pages
 }
 
+// ─── 희곡/대본 텍스트 포맷팅 ─────────────────────────────────────────────────
+// _[지문]_ 패턴 → 이탤릭 + 작은 글씨 + muted 색상
+// 화자명. 패턴 (문단 시작) → 볼드 처리
+function formatDramaText(
+  text: string,
+  style: { text: string; muted: string },
+): React.ReactNode {
+  // 1) _[...]_ 지문 패턴 분리
+  const stageDirectionRe = /_\[([^\]]*)\]_/g
+  const parts: React.ReactNode[] = []
+  let lastIdx = 0
+  let match: RegExpExecArray | null
+
+  while ((match = stageDirectionRe.exec(text)) !== null) {
+    // 지문 앞 텍스트
+    if (match.index > lastIdx) {
+      parts.push(formatSpeaker(text.slice(lastIdx, match.index), style, parts.length === 0))
+    }
+    // 지문 자체
+    parts.push(
+      <span
+        key={`sd-${match.index}`}
+        style={{
+          fontStyle: 'italic',
+          fontSize: '0.88em',
+          color: style.muted,
+          opacity: 0.85,
+        }}
+      >
+        [{match[1]}]
+      </span>
+    )
+    lastIdx = match.index + match[0].length
+  }
+
+  // 나머지 텍스트
+  if (lastIdx < text.length) {
+    parts.push(formatSpeaker(text.slice(lastIdx), style, parts.length === 0))
+  }
+
+  return parts.length > 0 ? parts : text
+}
+
+// 화자명. 패턴 (문단 시작 부분만)
+function formatSpeaker(
+  text: string,
+  style: { text: string; muted: string },
+  isStart: boolean,
+): React.ReactNode {
+  if (!isStart || !text.trim()) return text
+
+  // 한글 화자: "노라." / "헬메르." / 영문: "NORA." / "Nora."
+  const speakerRe = /^(\s*)([\p{L}\p{M}]{1,20})\.\s/u
+  const m = text.match(speakerRe)
+  if (m) {
+    return (
+      <>
+        {m[1]}
+        <span style={{ fontWeight: 700, color: style.text }}>{m[2]}.</span>
+        {' '}
+        {text.slice(m[0].length)}
+      </>
+    )
+  }
+  return text
+}
+
 // ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
 export default function BookPage() {
   const { id } = useParams<{ id: string }>()
@@ -539,7 +606,7 @@ export default function BookPage() {
               <div className="split-col split-col-en space-y-4">
                 <div className="text-[10px] text-[#B0B0B0] uppercase tracking-widest font-medium">English</div>
                 {currentParagraphs.map((para, idx) => (
-                  <p key={idx} className={`leading-[1.85] font-serif split-text-${fontSize}`} style={{ color: themeStyle.text }}>{para}</p>
+                  <p key={idx} className={`leading-[1.85] font-serif split-text-${fontSize}`} style={{ color: themeStyle.text }}>{formatDramaText(para, themeStyle)}</p>
                 ))}
               </div>
               <div className="split-col space-y-4">
@@ -549,7 +616,7 @@ export default function BookPage() {
                 ) : (
                   currentParagraphs.map((_, idx) => (
                     <p key={idx} className={`text-[#4A4A4A] leading-[1.85] split-text-${fontSize}`} style={{ letterSpacing: '-0.03em' }}>
-                      {pageTranslations[idx] ?? ''}
+                      {formatDramaText(pageTranslations[idx] ?? '', themeStyle)}
                     </p>
                   ))
                 )}
@@ -568,7 +635,7 @@ export default function BookPage() {
                   <p key={idx}
                      className={`leading-[1.95] mb-5 sm:mb-6 break-inside-avoid reader-text-${fontSize}`}
                      style={{ letterSpacing: '-0.03em', color: themeStyle.text }}>
-                    {pageTranslations[idx] ?? ''}
+                    {formatDramaText(pageTranslations[idx] ?? '', themeStyle)}
                   </p>
                 ))}
               </div>
@@ -577,7 +644,7 @@ export default function BookPage() {
             /* ── 영어 전용 ── */
             <div className={`flex-1 w-full font-serif reader-cols-auto reader-text-${fontSize}`} style={{ lineHeight: '1.95', color: themeStyle.text }}>
               {currentParagraphs.map((para, idx) => (
-                <p key={idx} className="mb-5 sm:mb-6 break-inside-avoid">{para}</p>
+                <p key={idx} className="mb-5 sm:mb-6 break-inside-avoid">{formatDramaText(para, themeStyle)}</p>
               ))}
             </div>
           )}
