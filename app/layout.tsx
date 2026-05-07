@@ -14,6 +14,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        <meta name="google-site-verification" content="-lT4p_Vn3OdhYuWDCTyoEoAG8tBMmB302Gw_lgnTL64" />
+      </head>
       <body>
         <div className="w-full flex items-center justify-center py-1 relative" style={{ background: '#FAFAF8' }}>
           <a href="/" className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-[#EBEBEA] transition-colors group z-10">
