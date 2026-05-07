@@ -1,10 +1,7 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import type { CatalogBook } from '@/lib/catalog'
+import type { Metadata } from 'next'
 import { getCatalogCoverUrl } from '@/lib/catalog'
 import koreanTitlesRaw from '@/lib/korean-titles.json'
+import BookInfoClient from './BookInfoClient'
 
 const KOREAN_TITLES: Record<string, string> = koreanTitlesRaw as Record<string, string>
 
@@ -34,7 +31,7 @@ const KOREAN_AUTHORS: Record<string, string> = {
   '5200': '프란츠 카프카',
 }
 
-// ─── 머리말 없는 책 서머리 (빌드타임 사전 작성) ───────────────────────────────
+// ─── 머리말 없는 책 서머리 ───────────────────────────────────────────
 const BOOK_SUMMARIES: Record<string, string> = {
   '11':   '앨리스가 토끼굴을 따라 들어간 이상한 나라의 모험. 일상의 논리가 완전히 뒤집힌 환상의 세계에서 앨리스는 트럼프 여왕, 모자 장수, 체셔 고양이 등 기묘한 존재들과 마주칩니다. 루이스 캐럴이 빚어낸 불멸의 동화로, 어른도 읽을수록 새로운 의미를 발견하는 작품입니다.',
   '16':   '어른이 되기 싫은 소년 피터 팬이 웬디와 그의 남동생들을 네버랜드로 이끕니다. 인디언, 해적, 요정 팅커벨이 가득한 섬에서 펼쳐지는 무한한 모험. J.M. 배리가 그린 영원한 동심의 세계입니다.',
@@ -59,224 +56,95 @@ const BOOK_SUMMARIES: Record<string, string> = {
   '5200': '어느 아침, 그레고르 잠자는 눈을 뜨니 거대한 벌레가 되어 있었습니다. 가족의 생계를 책임지던 그는 이제 방에 갇혀 천천히 잊혀집니다. 프란츠 카프카가 그린 소외와 인간 존재의 부조리입니다.',
 }
 
-// ─── 챕터 RE (머리말 추출용) ──────────────────────────────────────────────────
-const CHAPTER_RE = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act|SECTION|Section|PROLOGUE|Prologue|EPILOGUE|Epilogue|PREFACE|Preface|INTRODUCTION|Introduction|VOLUME|Volume)\b/
-
-function extractPreface(text: string): string | null {
-  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-  const startRe = /\*{3}\s*START OF [^\n]+\n/i
-  const startMatch = normalized.match(startRe)
-  let content = normalized
-  if (startMatch?.index !== undefined) {
-    content = normalized.slice(startMatch.index + startMatch[0].length)
+// ─── 카탈로그에서 영문 제목 조회 (서버 사이드) ─────────────────────────────────
+async function getBookFromCatalog(bookId: string) {
+  const fs = await import('fs/promises')
+  const path = await import('path')
+  const catalogPath = path.join(process.cwd(), 'public', 'books', 'catalog.json')
+  try {
+    const raw = await fs.readFile(catalogPath, 'utf-8')
+    const catalog = JSON.parse(raw) as Array<{ id: number; title: string; author: string; year: number }>
+    return catalog.find(b => String(b.id) === bookId) ?? null
+  } catch {
+    return null
   }
-  const endRe = /\*{3}\s*END OF [^\n]+/i
-  const endIdx = content.search(endRe)
-  if (endIdx !== -1) content = content.slice(0, endIdx)
-
-  const allBlocks = content
-    .split(/\n{2,}/)
-    .map(p => p.replace(/\n/g, ' ').trim())
-    .filter(p => p.length > 30)
-
-  const preBlocks: string[] = []
-  for (const block of allBlocks) {
-    if (CHAPTER_RE.test(block.trim()) && block.length < 200) break
-    preBlocks.push(block)
-  }
-
-  if (preBlocks.length === 0) return null
-  return preBlocks.slice(0, 6).join('\n\n')
 }
 
-// ─── 구텐베르크 텍스트 URL ────────────────────────────────────────────────────
-function gutenbergTextUrl(id: string): string {
-  return `/api/book-text?url=https://www.gutenberg.org/cache/epub/${id}/pg${id}.txt`
+// ─── SSR 메타데이터 생성 ─────────────────────────────────────────────────────
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id: bookId } = await params
+
+  const koTitle = KOREAN_TITLES[bookId] ?? null
+  const koAuthor = KOREAN_AUTHORS[bookId] ?? null
+  const summary = BOOK_SUMMARIES[bookId] ?? null
+  const catalogBook = await getBookFromCatalog(bookId)
+
+  const enTitle = catalogBook?.title ?? `Book #${bookId}`
+  const enAuthor = catalogBook?.author ?? ''
+
+  // 제목: "피터 팬 - Peter Pan | 영한 병렬 무료 읽기"
+  const title = koTitle
+    ? `${koTitle} - ${enTitle} | 영한 병렬 무료 읽기`
+    : `${enTitle} | 영한 병렬 무료 읽기 - Purplelica Books`
+
+  // 설명: 한국어 서머리 또는 기본 설명
+  const description = summary
+    ? `${summary.slice(0, 155)}...`
+    : `${enTitle} by ${enAuthor} — 영어 원서를 한국어 번역과 함께 무료로 읽어보세요. AI 단어 풀이, 인물 관계도 제공.`
+
+  const coverUrl = getCatalogCoverUrl(Number(bookId))
+  const pageUrl = `https://books.purplelica.com/book/${bookId}/info`
+
+  return {
+    title,
+    description,
+    keywords: [
+      koTitle, enTitle, koAuthor, enAuthor,
+      '영어 원서', '무료 읽기', '영한 병렬', '한국어 번역',
+      '고전 문학', 'AI 단어 풀이', '구텐베르크',
+    ].filter(Boolean) as string[],
+    authors: enAuthor ? [{ name: `${enAuthor}${koAuthor ? ` (${koAuthor})` : ''}` }] : undefined,
+    openGraph: {
+      title: koTitle ? `${koTitle} (${enTitle})` : enTitle,
+      description,
+      url: pageUrl,
+      siteName: 'Purplelica Books',
+      images: [{ url: coverUrl, width: 400, height: 600, alt: `${koTitle ?? enTitle} 표지` }],
+      type: 'article',
+      locale: 'ko_KR',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: koTitle ? `${koTitle} - ${enTitle}` : enTitle,
+      description,
+      images: [coverUrl],
+    },
+    alternates: {
+      canonical: pageUrl,
+    },
+  }
 }
 
-export default function BookInfoPage() {
-  const params = useParams()
-  const router = useRouter()
-  const bookId = String(params.id)
+// ─── 페이지 컴포넌트 (서버) ─────────────────────────────────────────────────
+export default async function BookInfoPage(
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: bookId } = await params
 
-  const [book, setBook] = useState<CatalogBook | null>(null)
-  const [imgError, setImgError] = useState(false)
-  const [preface, setPreface] = useState<string | null>(null)
-  const [prefaceLoading, setPrefaceLoading] = useState(true)
-
-  // 카탈로그 로드
-  useEffect(() => {
-    fetch('/api/catalog')
-      .then(r => r.json())
-      .then((data: CatalogBook[]) => {
-        const found = data.find(b => String(b.id) === bookId)
-        setBook(found ?? null)
-      })
-      .catch(() => setBook(null))
-  }, [bookId])
-
-  // 구텐베르크 텍스트에서 머리말 추출
-  useEffect(() => {
-    setPrefaceLoading(true)
-    fetch(gutenbergTextUrl(bookId))
-      .then(r => r.ok ? r.text() : null)
-      .then(text => {
-        if (text) {
-          const extracted = extractPreface(text)
-          setPreface(extracted)
-        }
-      })
-      .catch(() => {})
-      .finally(() => setPrefaceLoading(false))
-  }, [bookId])
-
-  const koTitle   = KOREAN_TITLES[bookId] ?? null
-  const koAuthor  = KOREAN_AUTHORS[bookId] ?? null
-  const summary   = BOOK_SUMMARIES[bookId] ?? 'Project Gutenberg에서 무료로 제공하는 영문 고전 작품입니다.'
-  const cover     = book ? getCatalogCoverUrl(book.id) : null
-
-  const displayContent = preface ?? summary
+  const koTitle = KOREAN_TITLES[bookId] ?? null
+  const koAuthor = KOREAN_AUTHORS[bookId] ?? null
+  const summary = BOOK_SUMMARIES[bookId] ?? 'Project Gutenberg에서 무료로 제공하는 영문 고전 작품입니다.'
+  const hasKoSummary = bookId in BOOK_SUMMARIES
 
   return (
-    <div className="h-screen bg-[#0f0d1a] flex flex-col overflow-hidden">
-
-      {/* 헤더 */}
-      <header className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-violet-900/40 z-10">
-        <button
-          onClick={() => router.push('/')}
-          className="flex items-center gap-2 text-violet-300 hover:text-white transition-colors text-sm font-medium"
-        >
-          ← 목록으로
-        </button>
-        <span
-          className="text-violet-200 font-bold tracking-tight"
-          style={{ fontFamily: 'Georgia, serif', fontSize: 15 }}
-        >
-          Purplica<span className="text-violet-500 font-semibold" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', marginLeft: 4 }}>Books</span>
-        </span>
-        <div className="w-16" />
-      </header>
-
-      {/* 본문 — 좌우 분할 */}
-      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
-
-        {/* 왼쪽: 표지 */}
-        <div className="shrink-0 flex items-center justify-center
-                        px-6 pt-8 pb-4
-                        lg:w-[42%] lg:py-0 lg:border-r lg:border-violet-900/30">
-          <div className="relative w-48 lg:w-64 xl:w-72 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/60"
-               style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-            {!imgError && cover ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={cover}
-                alt={book?.title ?? ''}
-                className="w-full h-full object-cover"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-6"
-                   style={{ background: 'linear-gradient(135deg, #1e1b3a 0%, #2d1b69 100%)' }}>
-                <span className="text-5xl">📚</span>
-                <p className="text-violet-200 text-sm text-center leading-snug"
-                   style={{ fontFamily: 'Georgia, serif' }}>
-                  {book?.title ?? ''}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 오른쪽: 정보 + 머리말 */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-10 lg:py-10 flex flex-col gap-6">
-
-          {/* 제목/작가 */}
-          <div className="space-y-1">
-            {koTitle && (
-              <p className="text-violet-400 text-sm font-semibold tracking-wide">{koTitle}</p>
-            )}
-            <h1 className="text-white leading-tight"
-                style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(20px, 2.5vw, 30px)', fontWeight: 500 }}>
-              {book?.title ?? <span className="animate-pulse bg-violet-900/40 rounded h-8 w-48 inline-block" />}
-            </h1>
-            <div className="pt-1 space-y-0.5">
-              <p className="text-violet-300 text-sm">{book?.author ?? ''}</p>
-              {koAuthor && (
-                <p className="text-violet-500 text-xs font-medium">{koAuthor}</p>
-              )}
-              {book?.year && book.year > 0 && (
-                <p className="text-violet-700 text-xs">{book.year}년</p>
-              )}
-            </div>
-          </div>
-
-          {/* 구분선 */}
-          <div className="h-px bg-violet-900/50" />
-
-          {/* 머리말 / 서머리 */}
-          <div className="flex-1">
-            {prefaceLoading ? (
-              <div className="space-y-2 animate-pulse">
-                {[100, 90, 95, 85, 70].map((w, i) => (
-                  <div key={i} className="h-3 rounded bg-violet-900/40" style={{ width: `${w}%` }} />
-                ))}
-              </div>
-            ) : (
-              <div>
-                {preface && (
-                  <p className="text-violet-400 text-[11px] uppercase tracking-widest font-semibold mb-3">
-                    — 머리말 —
-                  </p>
-                )}
-                <div className="text-violet-200 leading-relaxed space-y-4"
-                     style={{ fontSize: 'clamp(13px, 1.1vw, 15px)', lineHeight: 1.85 }}>
-                  {displayContent.split('\n\n').map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 읽기 시작 버튼 */}
-          <button
-            onClick={() => router.push(`/book/${bookId}?page=1`)}
-            className="w-full py-4 rounded-2xl font-bold text-base tracking-wide transition-all active:scale-95
-                       bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/50"
-          >
-            📖 읽기 시작
-          </button>
-
-          {/* 구분선 */}
-          <div className="h-px bg-violet-900/30" />
-
-          {/* 프로젝트 구텐베르크 라이선스 고지 */}
-          <div className="text-violet-700 space-y-1.5" style={{ fontSize: 11 }}>
-            <p className="font-semibold text-violet-600">
-              프로젝트 구텐베르크 전자책 {koTitle ? `《${koTitle}》` : book ? `"${book.title}"` : ''}
-            </p>
-            <p>
-              이 전자책은 미국 내 모든 사람들과 세계 대부분의 지역에서 거의 아무런 제약 없이
-              무료로 이용할 수 있습니다. 이 전자책에 포함된 프로젝트 구텐베르크 라이선스 조항에
-              따라 복사하거나 배포하거나 재사용할 수 있습니다.
-            </p>
-            <p>
-              전자책 #{bookId} ·{' '}
-              <a
-                href={`https://www.gutenberg.org/ebooks/${bookId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-violet-500 transition-colors"
-              >
-                www.gutenberg.org/ebooks/{bookId}
-              </a>
-            </p>
-          </div>
-
-          {/* 하단 여백 */}
-          <div className="h-4" />
-        </div>
-      </div>
-    </div>
+    <BookInfoClient
+      bookId={bookId}
+      koTitle={koTitle}
+      koAuthor={koAuthor}
+      summary={summary}
+      hasKoSummary={hasKoSummary}
+    />
   )
 }
