@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import AdBanner from '@/components/AdBanner'
 import { getBook, fetchBookText, getAuthorName, type GutenbergBook } from '@/lib/gutenberg'
 import { getBookText, saveBookText, getTranslations, saveTranslations } from '@/lib/storage'
+import { getBookmark, saveBookmark, getReaderTheme, saveReaderTheme, THEME_STYLES, type ReaderTheme } from '@/lib/reading-state'
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
 type ViewMode = 'en' | 'split' | 'ko'
@@ -12,8 +12,8 @@ const VIEW_LABELS: Record<ViewMode, string> = { en: '영어', split: '영한', k
 
 interface PageData {
   paragraphs: string[]
-  chapterTitle: string | null   // 해당 챕터 제목 (없으면 null)
-  isChapterStart: boolean       // 챕터 첫 페이지 여부
+  chapterTitle: string | null
+  isChapterStart: boolean
 }
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ function wordCountSplit(blocks: string[], chapterTitle: string | null): PageData
   return pages
 }
 
-// ─── 챕터 기반 페이지 분할 (메인 알고리즘) ──────────────────────────────────
+// ─── 챕터 기반 페이지 분할 ──────────────────────────────────────────────
 function splitIntoChapterPages(text: string): PageData[] {
   const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
   const stripped = stripGutenbergWrapper(normalized)
@@ -71,7 +71,6 @@ function splitIntoChapterPages(text: string): PageData[] {
     .map((p) => p.replace(/\n/g, ' ').trim())
     .filter((p) => p.length > 0)
 
-  // 챕터별로 그룹핑
   type Chapter = { title: string | null; blocks: string[] }
   const chapters: Chapter[] = []
   let current: Chapter = { title: null, blocks: [] }
@@ -90,16 +89,14 @@ function splitIntoChapterPages(text: string): PageData[] {
     chapters.push(current)
   }
 
-  // 챕터가 감지되지 않으면 단어 수 기준 분할로 폴백
   if (chapters.length === 0 || (chapters.length === 1 && chapters[0].title === null)) {
     return wordCountSplit(allBlocks.filter((b) => b.length > 20), null)
   }
 
-  // 챕터가 있는 책: 첫 챕터 이전 메타데이터(제목/저자 등) 제거
   const pages: PageData[] = []
   for (const chapter of chapters) {
     if (chapter.blocks.length === 0) continue
-    if (chapter.title === null) continue  // 챕터 이전 메타데이터 스킵
+    if (chapter.title === null) continue
     pages.push(...wordCountSplit(chapter.blocks, chapter.title))
   }
 
@@ -120,8 +117,16 @@ export default function BookPage() {
   const [loadingStep, setLoadingStep] = useState<'meta' | 'text' | 'parse'>('meta')
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('ko')
+  const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>('md')
+  const [theme, setTheme] = useState<ReaderTheme>('light')
+
   const [pageTranslations, setPageTranslations] = useState<string[]>([])
   const prevTailRef = useRef<string>('')
+  const mainRef = useRef<HTMLElement>(null)
+
+  // 터치 스와이프
+  const touchStartX = useRef(0)
+  const touchStartY = useRef(0)
 
   const bookId = `gutenberg_${id}`
   const totalPages = pages.length
@@ -131,6 +136,31 @@ export default function BookPage() {
   const progress = totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0
   const isSplit = viewMode === 'split'
   const isKo = viewMode === 'ko'
+
+  const themeStyle = THEME_STYLES[theme]
+
+  // 테마 초기화
+  useEffect(() => {
+    setTheme(getReaderTheme())
+  }, [])
+
+  // 북마크 자동 저장 (페이지 이동 시)
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > 0) {
+      saveBookmark(id, currentPage)
+    }
+  }, [id, currentPage, totalPages])
+
+  // 북마크에서 복원 (첫 로드 시 page 파라미터 없으면)
+  useEffect(() => {
+    if (!searchParams.get('page') && pages.length > 0) {
+      const bm = getBookmark(id)
+      if (bm && bm.page > 1 && bm.page <= pages.length) {
+        router.replace(`/book/${id}?page=${bm.page}`)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages.length])
 
   // 책 로드
   useEffect(() => {
@@ -165,7 +195,7 @@ export default function BookPage() {
     prevTailRef.current = prevParagraphs.length > 0 ? prevParagraphs[prevParagraphs.length - 1] : ''
   }, [currentPage, prevParagraphs])
 
-  // 번역 로드: 페이지 이동 시 항상 백그라운드 캐시 (viewMode 무관)
+  // 번역 로드
   useEffect(() => {
     if (currentParagraphs.length === 0) return
     const pgMatch = bookId.match(/gutenberg_(\d+)/)
@@ -189,7 +219,7 @@ export default function BookPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pages])
 
-  // viewMode 변경 시: 캐시된 번역 즉시 표시
+  // viewMode 변경 시
   useEffect(() => {
     if (isSplit || isKo) {
       const cached = getTranslations(bookId, currentPage)
@@ -202,7 +232,7 @@ export default function BookPage() {
 
   const goToPage = useCallback((page: number) => {
     setPageTranslations([])
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (mainRef.current) mainRef.current.scrollTop = 0
     router.push(`/book/${id}?page=${page}`)
     // 다음 페이지 미리 캐시
     if (pages[page]) {
@@ -219,6 +249,31 @@ export default function BookPage() {
     }
   }, [id, router, pages, bookId])
 
+  // 키보드 네비게이션
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'ArrowLeft' && currentPage > 1) goToPage(currentPage - 1)
+      if (e.key === 'ArrowRight' && currentPage < totalPages) goToPage(currentPage + 1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [currentPage, totalPages, goToPage])
+
+  // 터치 스와이프 핸들러
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    // 수평 스와이프만 (수직보다 수평 이동이 클 때)
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx > 0 && currentPage > 1) goToPage(currentPage - 1)
+      if (dx < 0 && currentPage < totalPages) goToPage(currentPage + 1)
+    }
+  }
+
   // ─── 로딩 / 에러 ─────────────────────────────────────────────────────────
   const LOADING_MESSAGES = {
     meta: { text: '책 정보 조회 중...', sub: null },
@@ -229,14 +284,14 @@ export default function BookPage() {
   if (loading) {
     const msg = LOADING_MESSAGES[loadingStep]
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF8' }}>
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-violet-600 text-sm font-medium">{msg.text}</p>
-          {msg.sub && <p className="text-gray-400 text-xs max-w-xs">{msg.sub}</p>}
+          <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-[#4A4A4A] text-sm font-medium">{msg.text}</p>
+          {msg.sub && <p className="text-[#B0B0B0] text-xs max-w-xs">{msg.sub}</p>}
           <div className="flex gap-2 justify-center mt-2">
             {(['meta', 'text', 'parse'] as const).map((step) => (
-              <div key={step} className={`h-1 w-8 rounded-full transition-colors ${step === loadingStep ? 'bg-violet-500' : 'bg-gray-200'}`} />
+              <div key={step} className={`h-1 w-8 rounded-full transition-colors ${step === loadingStep ? 'bg-[#1A1A1A]' : 'bg-[#E8E8E6]'}`} />
             ))}
           </div>
         </div>
@@ -245,230 +300,318 @@ export default function BookPage() {
   }
 
   if (error) return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#FAFAF8' }}>
       <div className="text-center space-y-3">
-        <p className="text-red-500">⚠️ {error}</p>
-        <button onClick={() => router.back()} className="text-violet-600 text-sm hover:text-violet-800">← 돌아가기</button>
+        <p className="text-red-500 text-sm">{error}</p>
+        <button onClick={() => router.back()} className="text-[#8C8C8C] text-sm hover:text-[#1A1A1A] transition-colors">← 돌아가기</button>
       </div>
     </div>
   )
 
+  // 현재 챕터 제목 찾기
+  let currentChapterTitle: string | null = null
+  for (let i = currentPage - 1; i >= 0; i--) {
+    if (pages[i]?.isChapterStart && pages[i].chapterTitle) {
+      currentChapterTitle = pages[i].chapterTitle
+      break
+    }
+  }
+
   // ─── 렌더 ────────────────────────────────────────────────────────────────
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: themeStyle.bg, color: themeStyle.text, transition: 'background 0.3s, color 0.3s' }}>
 
-      {/* 광고 — 헤더 위에 배치 */}
-      <div className="shrink-0 bg-[#0f0d1a] h-[50px] flex items-center justify-center border-b border-violet-900/20">
-        <AdBanner slot="4978135753" width={320} height={50} />
-      </div>
+      {/* ── 적응형 스타일 ── */}
+      <style>{`
+        /* 본문 컨테이너 — 화면 크기에 따라 최적 폭 */
+        .reader-body {
+          width: 100%;
+          max-width: 100%;
+          margin: 0 auto;
+          padding: 1.25rem 1rem;
+        }
+        @media (min-width: 640px) {
+          .reader-body { max-width: 680px; padding: 1.5rem 2rem; }
+        }
+        @media (min-width: 1024px) {
+          .reader-body { max-width: 760px; padding: 2rem 2.5rem; }
+        }
+        @media (min-width: 1440px) {
+          .reader-body { max-width: 820px; padding: 2.5rem 3rem; }
+        }
+        /* split 모드일 때 더 넓게 */
+        .reader-body.split-mode {
+          max-width: 100%;
+        }
+        @media (min-width: 640px) {
+          .reader-body.split-mode { max-width: 900px; }
+        }
+        @media (min-width: 1024px) {
+          .reader-body.split-mode { max-width: 1100px; }
+        }
+        @media (min-width: 1440px) {
+          .reader-body.split-mode { max-width: 1200px; }
+        }
 
-      {/* 헤더 */}
-      <header className="shrink-0 z-20 bg-[#0f0d1a] border-b border-violet-900/40">
+        /* 영한 분할 레이아웃 */
+        .split-container { display: flex; flex-direction: column; gap: 1.5rem; }
+        @media (min-width: 640px) { .split-container { flex-direction: row; gap: 2rem; } }
+        @media (min-width: 1024px) { .split-container { gap: 3rem; } }
+        .split-col { flex: 1; min-width: 0; }
+        @media (min-width: 640px) {
+          .split-col-en { border-right: 1px solid #F0F0EE; padding-right: 1.5rem; }
+        }
+        @media (min-width: 1024px) {
+          .split-col-en { padding-right: 2.5rem; }
+        }
 
-        {/* 1행: 홈 + 책 제목 + 페이지 */}
-        <div className="flex items-center px-4 py-8 gap-4">
-          {/* 홈 버튼 — 로고 포함 */}
+        /* 자동 2컬럼: 와이드 가로 화면 */
+        .reader-cols-auto { columns: 1; column-gap: 3rem; column-rule: 1px solid #F0F0EE; }
+        @media (min-width: 1024px) and (min-aspect-ratio: 4/3) { .reader-cols-auto { columns: 2; } }
+
+        /* 폰트 컨트롤만 모바일에서 숨김 */
+        .font-controls { display: none; }
+        @media (min-width: 768px) {
+          .font-controls { display: flex !important; }
+        }
+
+        /* 적응형 폰트 크기 */
+        .reader-text-sm { font-size: clamp(14px, 2.8vw, 15px); }
+        .reader-text-md { font-size: clamp(15px, 3vw, 18px); }
+        .reader-text-lg { font-size: clamp(17px, 3.5vw, 22px); }
+        @media (min-width: 640px) {
+          .reader-text-sm { font-size: 15px; }
+          .reader-text-md { font-size: 17px; }
+          .reader-text-lg { font-size: 20px; }
+        }
+        @media (min-width: 1024px) {
+          .reader-text-sm { font-size: 15px; }
+          .reader-text-md { font-size: 18px; }
+          .reader-text-lg { font-size: 22px; }
+        }
+        .split-text-sm { font-size: clamp(13px, 2.5vw, 14px); }
+        .split-text-md { font-size: clamp(14px, 2.8vw, 16px); }
+        .split-text-lg { font-size: clamp(15px, 3vw, 19px); }
+        @media (min-width: 640px) {
+          .split-text-sm { font-size: 14px; }
+          .split-text-md { font-size: 16px; }
+          .split-text-lg { font-size: 18px; }
+        }
+
+        /* 하단 내비 적응형 */
+        .bottom-nav-btn { padding: 0.75rem 0; }
+        @media (min-width: 640px) { .bottom-nav-btn { padding: 0.875rem 0; } }
+        @media (max-width: 380px) {
+          .bottom-nav-center { min-width: 90px !important; padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+        }
+      `}</style>
+
+      {/* ── 헤더 ── */}
+      <header className="shrink-0 z-20" style={{ background: themeStyle.headerBg, transition: 'background 0.3s' }}>
+        {/* 1행: 홈 + 뷰모드 + 폰트(데스크톱) + 페이지 */}
+        <div className="flex items-center px-3 sm:px-5 py-2.5 gap-2 sm:gap-3">
+
+          {/* 홈 버튼 — 큼지막하게 */}
           <button
             onClick={() => router.push('/')}
-            className="flex flex-col items-center justify-center gap-1 shrink-0 group"
-            style={{ minWidth: 72 }}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all group"
           >
-            <div className="flex items-center gap-1.5">
-              <span className="text-violet-400 group-hover:text-violet-200 transition-colors" style={{ fontSize: 22 }}>📚</span>
-            </div>
-            <div className="flex flex-col items-center leading-none">
-              <span
-                className="text-violet-200 group-hover:text-white transition-colors font-bold tracking-tight"
-                style={{ fontSize: 13, fontFamily: 'Georgia, serif', letterSpacing: '0.01em' }}
-              >
-                Purplica
-              </span>
-              <span
-                className="text-violet-400 group-hover:text-violet-200 transition-colors font-semibold"
-                style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 1 }}
-              >
-                Books
-              </span>
-            </div>
+            <svg className="w-5 h-5 text-white group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-white text-[13px] font-semibold tracking-tight hidden sm:inline" style={{ fontFamily: 'Georgia, serif' }}>Purplelica</span>
           </button>
 
-          {/* 구분선 */}
-          <div className="w-px self-stretch bg-violet-900/60 shrink-0" />
-
-          <div className="text-center min-w-0 flex-1">
-            <div className="text-white text-sm font-semibold truncate leading-tight">{book?.title}</div>
-            <div className="text-violet-400 text-xs mt-0.5">{book ? getAuthorName(book) : ''}</div>
+          {/* 책 제목 (데스크톱만) */}
+          <div className="min-w-0 flex-1 hidden sm:block">
+            <div className="text-white text-xs font-semibold truncate leading-tight">{book?.title}</div>
+            <div className="text-[#8C8C8C] text-[10px] truncate">{book ? getAuthorName(book) : ''}</div>
           </div>
 
-          <div className="text-right shrink-0 min-w-[52px]">
-            <div className="text-white text-base font-bold">{currentPage}</div>
-            <div className="text-violet-500 text-[11px]">/ {totalPages}</div>
+          {/* 뷰 모드 — 항상 표시, 눈에 잘 보이게 */}
+          <div className="flex gap-1 sm:gap-1.5">
+            {(['en', 'split', 'ko'] as ViewMode[]).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`px-3.5 sm:px-4 py-2 rounded-xl font-bold text-[13px] sm:text-sm transition-all ${
+                  viewMode === mode
+                    ? 'bg-white text-[#1A1A1A] shadow-sm'
+                    : 'text-[#8C8C8C] hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {VIEW_LABELS[mode]}
+              </button>
+            ))}
           </div>
-        </div>
 
-        {/* 2행: 뷰 모드 선택 */}
-        <div className="flex items-center gap-2 px-4 py-6 border-t border-violet-900/30">
-          {(['en', 'split', 'ko'] as ViewMode[]).map((mode) => (
+          {/* 폰트 크기 (데스크톱만) */}
+          <div className="font-controls items-center gap-1 shrink-0">
             <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
-                viewMode === mode
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/50'
-                  : 'bg-violet-900/40 text-violet-400 hover:text-violet-200 hover:bg-violet-900/60'
-              }`}
-            >
-              {VIEW_LABELS[mode]}
-            </button>
-          ))}
+              onClick={() => setFontSize((s) => s === 'lg' ? 'md' : 'sm')}
+              disabled={fontSize === 'sm'}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 text-[#8C8C8C] hover:text-white hover:bg-white/15 disabled:opacity-30 transition-all text-xs font-bold"
+            >A-</button>
+            <button
+              onClick={() => setFontSize((s) => s === 'sm' ? 'md' : 'lg')}
+              disabled={fontSize === 'lg'}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 text-[#8C8C8C] hover:text-white hover:bg-white/15 disabled:opacity-30 transition-all text-sm font-bold"
+            >A+</button>
+          </div>
+
+          {/* 테마 전환 */}
+          <button
+            onClick={() => {
+              const next: ReaderTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'sepia' : 'light'
+              setTheme(next)
+              saveReaderTheme(next)
+            }}
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 text-[#8C8C8C] hover:text-white hover:bg-white/15 transition-all shrink-0"
+            title={theme === 'light' ? '야간모드' : theme === 'dark' ? '세피아' : '주간모드'}
+          >
+            {theme === 'light' ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+            ) : theme === 'dark' ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
+            ) : (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 3z" /></svg>
+            )}
+          </button>
+
+          {/* 페이지 */}
+          <div className="text-right shrink-0 min-w-[36px]">
+            <div className="text-white text-sm font-bold leading-none">{currentPage}</div>
+            <div className="text-[#8C8C8C] text-[10px]">/ {totalPages}</div>
+          </div>
         </div>
 
         {/* 진행률 바 */}
-        <div className="h-1 bg-violet-900/40">
-          <div className="h-full bg-violet-500 transition-all duration-300" style={{ width: `${progress}%` }} />
+        <div className="h-0.5 bg-white/10">
+          <div className="h-full bg-white transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
       </header>
 
-      {/* 본문 */}
-      <main className="flex-1 overflow-y-auto w-full px-4 sm:px-8 lg:px-16 py-6 sm:py-8 flex flex-col mx-auto max-w-7xl">
+      {/* ── 본문 ── */}
+      <main
+        ref={mainRef}
+        className="flex-1 overflow-y-auto"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <div className={`reader-body flex flex-col ${isSplit ? 'split-mode' : ''}`}>
 
-        {/* 챕터 제목 — 챕터 첫 페이지만 크게, 이후 페이지는 작은 배지로 */}
-        {pageData.isChapterStart && pageData.chapterTitle ? (
-          <div className="mb-10 pb-8 border-b-2 border-gray-100 text-center">
-            <p className="text-[11px] text-violet-400 uppercase tracking-[0.2em] mb-3 font-semibold">
-              — Chapter —
-            </p>
-            <h2
-              className="text-2xl sm:text-3xl text-gray-900 leading-tight"
-              style={{ fontFamily: 'Georgia, serif', fontWeight: 500 }}
-            >
-              {pageData.chapterTitle}
-            </h2>
-            <div className="mt-5 mx-auto w-16 h-px bg-gray-300" />
-          </div>
-        ) : pages[currentPage - 2]?.chapterTitle !== null && !pageData.isChapterStart && (
-          /* 챕터 속 2번째+ 페이지: 작은 배지로 현재 챕터 표시 */
-          (() => {
-            // 현재 속한 챕터 제목 찾기 (앞으로 거슬러 올라가서)
-            let chTitle: string | null = null
-            for (let i = currentPage - 1; i >= 0; i--) {
-              if (pages[i]?.isChapterStart && pages[i].chapterTitle) {
-                chTitle = pages[i].chapterTitle
-                break
-              }
-            }
-            return chTitle ? (
-              <div className="mb-6 flex items-center gap-2">
-                <div className="h-px flex-1 bg-gray-100" />
-                <span className="text-[11px] text-violet-400 font-medium px-3 py-1 bg-violet-50 rounded-full border border-violet-100">
-                  {chTitle}
-                </span>
-                <div className="h-px flex-1 bg-gray-100" />
-              </div>
-            ) : null
-          })()
-        )}
-
-        {/* 이전 페이지 꼬리 맥락 (영어 포함 모드) */}
-        {currentPage > 1 && prevTailRef.current && !isKo && (
-          <div className="mb-6 pb-5 border-b border-gray-100">
-            <div className="text-[11px] text-gray-400 mb-2 uppercase tracking-wider">← 이전 페이지에서 이어짐</div>
-            <p className="text-gray-400 text-sm leading-7 font-serif line-clamp-2">{prevTailRef.current}</p>
-          </div>
-        )}
-
-        {/* 본문 텍스트 */}
-        {isSplit ? (
-          /* 영한 분할 — 항상 좌우 2컬럼 */
-          <div className="flex-1 flex flex-row gap-4 sm:gap-8 lg:gap-12">
-            {/* 영어 */}
-            <div className="flex-1 space-y-4 border-r border-gray-100 pr-4 sm:pr-8 lg:pr-12">
-              <div className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">English</div>
-              {currentParagraphs.map((para, idx) => (
-                <p key={idx} className="text-gray-900 leading-[1.85] font-serif" style={{ fontSize: 'clamp(12px, 1.8vw, 16px)' }}>{para}</p>
-              ))}
+          {/* 챕터 제목 — 첫 페이지: 크게 / 이후: 작은 배지 */}
+          {pageData.isChapterStart && pageData.chapterTitle ? (
+            <div className="mb-8 sm:mb-10 pb-6 sm:pb-8 text-center" style={{ borderBottom: `2px solid ${themeStyle.border}` }}>
+              <p className="text-[11px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: themeStyle.muted }}>
+                — Chapter —
+              </p>
+              <h2
+                className="text-2xl sm:text-4xl lg:text-5xl leading-tight"
+                style={{ fontFamily: 'Georgia, serif', fontWeight: 500, color: themeStyle.text }}
+              >
+                {pageData.chapterTitle}
+              </h2>
+              <div className="mt-4 sm:mt-5 mx-auto w-12 sm:w-16 h-px" style={{ background: themeStyle.border }} />
             </div>
-            {/* 한국어 */}
-            <div className="flex-1 space-y-4">
-              <div className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">한국어</div>
-              {pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
-                <p className="text-gray-400 text-xs italic">번역 준비 중</p>
-              ) : (
-                currentParagraphs.map((_, idx) => (
-                  <p key={idx} className="text-gray-800 leading-[1.85]" style={{ fontSize: 'clamp(12px, 1.8vw, 16px)' }}>
+          ) : currentChapterTitle && !pageData.isChapterStart && (
+            <div className="mb-5 sm:mb-6 flex items-center gap-2">
+              <div className="h-px flex-1 bg-[#F0F0EE]" />
+              <span className="text-[11px] text-[#B0B0B0] font-medium px-3 py-1 bg-[#F5F5F3] rounded-full border border-[#E8E8E6]">
+                {currentChapterTitle}
+              </span>
+              <div className="h-px flex-1 bg-[#F0F0EE]" />
+            </div>
+          )}
+
+          {/* 이전 페이지 꼬리 맥락 */}
+          {currentPage > 1 && prevTailRef.current && !isKo && (
+            <div className="mb-5 sm:mb-6 pb-4 sm:pb-5" style={{ borderBottom: '1px solid #F0F0EE' }}>
+              <div className="text-[11px] text-[#B0B0B0] mb-2 uppercase tracking-wider">← 이전 페이지에서 이어짐</div>
+              <p className="text-[#B0B0B0] text-sm leading-7 font-serif line-clamp-2">{prevTailRef.current}</p>
+            </div>
+          )}
+
+          {/* 본문 텍스트 */}
+          {isSplit ? (
+            /* ── 영한 분할 ── */
+            <div className="flex-1 split-container">
+              <div className="split-col split-col-en space-y-4">
+                <div className="text-[10px] text-[#B0B0B0] uppercase tracking-widest font-medium">English</div>
+                {currentParagraphs.map((para, idx) => (
+                  <p key={idx} className={`leading-[1.85] font-serif split-text-${fontSize}`} style={{ color: themeStyle.text }}>{para}</p>
+                ))}
+              </div>
+              <div className="split-col space-y-4">
+                <div className="text-[10px] text-[#B0B0B0] uppercase tracking-widest font-medium">한국어</div>
+                {pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
+                  <p className="text-[#B0B0B0] text-xs italic">번역 준비 중</p>
+                ) : (
+                  currentParagraphs.map((_, idx) => (
+                    <p key={idx} className={`text-[#4A4A4A] leading-[1.85] split-text-${fontSize}`} style={{ letterSpacing: '-0.03em' }}>
+                      {pageTranslations[idx] ?? ''}
+                    </p>
+                  ))
+                )}
+              </div>
+            </div>
+          ) : isKo ? (
+            /* ── 한국어 전용 ── */
+            pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <div className="w-6 h-6 border-2 border-[#E8E8E6] border-t-[#1A1A1A] rounded-full animate-spin" />
+                <p className="text-[#B0B0B0] text-sm">번역 불러오는 중...</p>
+              </div>
+            ) : (
+              <div className="flex-1 w-full reader-cols-auto">
+                {currentParagraphs.map((_, idx) => (
+                  <p key={idx}
+                     className={`leading-[1.95] mb-5 sm:mb-6 break-inside-avoid reader-text-${fontSize}`}
+                     style={{ letterSpacing: '-0.03em', color: themeStyle.text }}>
                     {pageTranslations[idx] ?? ''}
                   </p>
-                ))
-              )}
-            </div>
-          </div>
-        ) : isKo ? (
-          /* 한국어 전용 — CSS columns: 모바일 1컬럼 / 데스크탑 2컬럼 자동 흐름 */
-          pageTranslations.length === 0 || pageTranslations.every((t) => !t.trim()) ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="w-6 h-6 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" />
-              <p className="text-gray-400 text-sm">번역 불러오는 중...</p>
-            </div>
+                ))}
+              </div>
+            )
           ) : (
-            <div className="flex-1 w-full" style={{
-              columns: 'var(--cols, 1)',
-              columnGap: '3rem',
-              columnRule: '1px solid #f3f4f6',
-            }}>
-              <style>{`@media (min-width: 1024px) { :root { --cols: 2; } }`}</style>
-              {currentParagraphs.map((_, idx) => (
-                <p key={idx}
-                   className="text-gray-900 leading-[1.95] mb-5 break-inside-avoid"
-                   style={{ fontSize: 'clamp(14px, 1.2vw, 18px)' }}>
-                  {pageTranslations[idx] ?? ''}
-                </p>
+            /* ── 영어 전용 ── */
+            <div className={`flex-1 w-full font-serif reader-cols-auto reader-text-${fontSize}`} style={{ lineHeight: '1.95', color: themeStyle.text }}>
+              {currentParagraphs.map((para, idx) => (
+                <p key={idx} className="mb-5 sm:mb-6 break-inside-avoid">{para}</p>
               ))}
             </div>
-          )
-        ) : (
-          /* 영어 전용 — CSS columns: 모바일 1컬럼 / 데스크탑 2컬럼 자동 흐름 */
-          <div className="flex-1 w-full font-serif text-gray-900" style={{
-            columns: 'var(--cols, 1)',
-            columnGap: '3rem',
-            columnRule: '1px solid #f3f4f6',
-            lineHeight: '1.95',
-            fontSize: 'clamp(14px, 1.2vw, 18px)',
-          }}>
-            <style>{`@media (min-width: 1024px) { :root { --cols: 2; } }`}</style>
-            {currentParagraphs.map((para, idx) => (
-              <p key={idx} className="mb-5 break-inside-avoid">{para}</p>
-            ))}
-          </div>
-        )}
-
+          )}
+        </div>
       </main>
 
-      {/* 하단 네비게이션 */}
-      <nav className="shrink-0 border-t border-gray-200 bg-white">
-        <div className="flex items-stretch divide-x divide-gray-200">
+      {/* ── 하단 네비게이션 ── */}
+      <nav className="shrink-0" style={{ background: themeStyle.bg, borderTop: `1px solid ${themeStyle.border}`, transition: 'background 0.3s' }}>
+        <div className="flex items-stretch">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="flex-1 flex flex-col items-center justify-center py-6 gap-1.5 text-gray-700 hover:bg-gray-50 active:bg-gray-100 disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 bottom-nav-btn disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+            style={{ borderRight: `1px solid ${themeStyle.border}`, color: themeStyle.text }}
           >
-            <span className="text-3xl leading-none font-light">←</span>
-            <span className="text-sm font-semibold">이전</span>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg>
+            <span className="text-sm font-semibold hidden sm:inline">이전</span>
           </button>
 
-          <div className="flex flex-col items-center justify-center px-4 py-4 gap-1.5 min-w-[100px]">
-            <div className="text-gray-900 text-base font-bold tracking-wide">{currentPage} / {totalPages}</div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div className="bg-violet-500 h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+          <div className="bottom-nav-center flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 min-w-[110px]" style={{ borderRight: `1px solid ${themeStyle.border}` }}>
+            <div className="text-[13px] sm:text-sm font-bold whitespace-nowrap" style={{ color: themeStyle.text }}>{currentPage} / {totalPages}</div>
+            <div className="w-12 sm:w-16 rounded-full h-1 hidden sm:block" style={{ background: themeStyle.border }}>
+              <div className="h-1 rounded-full transition-all" style={{ width: `${progress}%`, background: themeStyle.text }} />
             </div>
           </div>
 
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex-1 flex flex-col items-center justify-center py-6 gap-1.5 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 bottom-nav-btn disabled:opacity-25 disabled:cursor-not-allowed transition-colors hover:opacity-90"
+            style={{ background: themeStyle.headerBg, color: themeStyle.headerText }}
           >
-            <span className="text-3xl leading-none font-light">→</span>
-            <span className="text-sm font-semibold">다음</span>
+            <span className="text-sm font-semibold hidden sm:inline">다음</span>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 5l7 7-7 7" /></svg>
           </button>
         </div>
       </nav>
