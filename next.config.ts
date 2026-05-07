@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
     config.resolve.alias.canvas = false
     return config
   },
+  async rewrites() {
+    return [
+      {
+        source: '/google61df5c33f3fbcd72.html',
+        destination: '/api/google-verify',
+      },
+    ]
+  },
   async headers() {
     return [
       {
