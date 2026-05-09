@@ -202,6 +202,31 @@ export default function Home() {
         </section>
       )}
 
+      {/* ── MBTI 추천 배너 ── */}
+      {!isSearching && !loading && (
+        <section className="pt-10 sm:pt-14 pb-0">
+          <div className="max-w-[1080px] mx-auto px-5 sm:px-8">
+            <Link href="/recommended/mbti" className="block group">
+              <div className="rounded-2xl p-6 sm:p-8 flex items-center justify-between gap-4 transition-all duration-200 group-hover:shadow-lg"
+                   style={{ background: 'linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%)' }}>
+                <div>
+                  <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/40 mb-1.5">
+                    MBTI × Classic Literature
+                  </p>
+                  <p className="text-white text-[16px] sm:text-[19px] font-semibold" style={{ fontFamily: 'var(--serif)' }}>
+                    내 MBTI에 맞는 영어 원서는?
+                  </p>
+                  <p className="text-white/50 text-[13px] mt-1">16가지 성격 유형별 장르 궁합 확인하기</p>
+                </div>
+                <svg className="w-6 h-6 text-white/40 group-hover:text-white/70 group-hover:translate-x-1 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* ── 이번 주 추천 (검색 안 할 때) ── */}
       {!isSearching && !loading && weekly.length > 0 && (
         <section className="py-14 sm:py-20">
