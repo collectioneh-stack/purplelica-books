@@ -154,11 +154,13 @@ export default function Home() {
             </div>
           </div>
 
-          <Link href="/recommended" className="hidden sm:block text-[13px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
+          <Link href="/recommended" className="hidden sm:block text-[13px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors shrink-0">
             추천
           </Link>
-          <Link href="/recommended/mbti" className="hidden sm:block text-[13px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
-            MBTI
+          <Link href="/recommended/mbti"
+            className="shrink-0 px-3.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold transition-all duration-200 hover:opacity-85"
+            style={{ background: '#1A1A1A', color: '#FFFFFF' }}>
+            MBTI 추천
           </Link>
         </div>
       </nav>
