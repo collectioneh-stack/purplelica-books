@@ -157,6 +157,9 @@ export default function Home() {
           <Link href="/recommended" className="hidden sm:block text-[13px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
             추천
           </Link>
+          <Link href="/recommended/mbti" className="hidden sm:block text-[13px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
+            MBTI
+          </Link>
         </div>
       </nav>
 
