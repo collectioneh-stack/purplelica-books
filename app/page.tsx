@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { CatalogBook } from '@/lib/catalog'
 import { getCatalogCoverUrl, getWeeklyRecommended } from '@/lib/catalog'
 import koreanTitlesRaw from '@/lib/korean-titles.json'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight, BookOpen, Sparkles, Users, Search, X, Menu } from 'lucide-react'
 
 const KOREAN_TITLES: Record<string, string> = koreanTitlesRaw as Record<string, string>
 
@@ -29,6 +31,37 @@ const GENRE_KEYWORDS: Record<string, string[]> = {
   classic:     ['Homer', 'Odyssey', 'Iliad', 'Dante', 'Cervantes', 'Quixote', 'Arabian', 'Aesop', 'Grimm', 'Alighieri'],
 }
 
+const coverGradients: Record<string, string> = {
+  fiction: 'bg-gradient-to-br from-blue-600/80 via-blue-500/60 to-indigo-400/40',
+  mystery: 'bg-gradient-to-br from-amber-700/80 via-amber-600/60 to-yellow-500/40',
+  horror: 'bg-gradient-to-br from-red-800/80 via-red-600/60 to-rose-500/40',
+  adventure: 'bg-gradient-to-br from-emerald-700/80 via-green-600/60 to-teal-400/40',
+  philosophy: 'bg-gradient-to-br from-purple-700/80 via-violet-600/60 to-fuchsia-400/40',
+  classic: 'bg-gradient-to-br from-slate-700/80 via-gray-600/60 to-zinc-400/40',
+}
+
+const genreLabels: Record<string, string> = {
+  fiction: '소설', mystery: '미스터리', horror: '공포',
+  adventure: '모험', philosophy: '철학', classic: '고전',
+}
+
+const genreColors: Record<string, string> = {
+  fiction: 'bg-blue-50 text-blue-700',
+  mystery: 'bg-amber-50 text-amber-700',
+  horror: 'bg-red-50 text-red-700',
+  adventure: 'bg-green-50 text-green-700',
+  philosophy: 'bg-purple-50 text-purple-700',
+  classic: 'bg-gray-50 text-gray-700',
+}
+
+function getBookGenre(book: CatalogBook): string {
+  const haystack = `${book.title} ${book.author}`.toLowerCase()
+  for (const [genre, keywords] of Object.entries(GENRE_KEYWORDS)) {
+    if (keywords.some((kw) => haystack.includes(kw.toLowerCase()))) return genre
+  }
+  return 'fiction'
+}
+
 function matchesGenre(book: CatalogBook, genre: string): boolean {
   if (!genre) return true
   const keywords = GENRE_KEYWORDS[genre] ?? []
@@ -44,10 +77,17 @@ function matchesKorean(book: CatalogBook, q: string): boolean {
   return koNoSpace.includes(noSpace) || noSpace.includes(koNoSpace)
 }
 
-/* ── 책 커버 ── */
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 },
+}
+
+/* ── 책 커버 (이미지 or 장르 그라데이션) ── */
 function BookCover({ book }: { book: CatalogBook }) {
   const [imgError, setImgError] = useState(false)
   const cover = getCatalogCoverUrl(book.id)
+  const genre = getBookGenre(book)
 
   if (!imgError) {
     return (
@@ -57,34 +97,141 @@ function BookCover({ book }: { book: CatalogBook }) {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-2 px-4"
-         style={{ background: 'linear-gradient(160deg, #F5F0EB 0%, #E8E2DB 100%)' }}>
-      <span className="text-3xl">📖</span>
-      <p className="text-[#8C8C8C] text-xs text-center leading-snug line-clamp-3" style={{ fontFamily: 'var(--serif)' }}>{book.title}</p>
+    <div className={`w-full h-full flex items-center justify-center ${coverGradients[genre] || 'bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5'}`}>
+      <BookOpen className="w-10 h-10 text-white/40" />
     </div>
   )
 }
 
-/* ── 책 카드 ── */
-function BookCard({ book }: { book: CatalogBook }) {
+/* ── 책 카드 (리뉴얼 디자인) ── */
+function BookCard({ book, index = 0 }: { book: CatalogBook; index?: number }) {
   const router = useRouter()
   const koTitle = KOREAN_TITLES[String(book.id)]
+  const genre = getBookGenre(book)
 
   return (
-    <div onClick={() => router.push(`/book/${book.id}/info`)} className="group cursor-pointer w-full">
-      <div className="aspect-[2/3] rounded-xl overflow-hidden bg-[#F5F5F3] shadow-[0_2px_12px_rgba(0,0,0,0.06)] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 group-hover:-translate-y-1">
-        <BookCover book={book} />
-      </div>
-      <div className="mt-3.5 px-0.5">
-        <h3 className="text-[#1A1A1A] text-[14px] sm:text-[15px] font-semibold leading-snug line-clamp-2">
-          {book.title}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+    >
+      <div onClick={() => router.push(`/book/${book.id}/info`)} className="group cursor-pointer flex flex-col">
+        <div className="aspect-[3/4] rounded-xl mb-3 overflow-hidden relative group-hover:shadow-lg transition-all">
+          <BookCover book={book} />
+        </div>
+        <h3 className="text-sm font-semibold leading-tight mb-1 group-hover:text-primary transition-colors line-clamp-2">
+          {koTitle || book.title}
         </h3>
-        {koTitle && (
-          <p className="text-[#8C8C8C] text-[12px] sm:text-[13px] mt-1 line-clamp-1">{koTitle}</p>
-        )}
-        <p className="text-[#B0B0B0] text-[12px] mt-0.5">{book.author}</p>
+        <p className="text-xs text-muted-foreground mb-1.5 line-clamp-1">{book.title}</p>
+        <p className="text-xs text-muted-foreground mb-1.5">{book.author}</p>
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full w-fit ${genreColors[genre] || 'bg-gray-50 text-gray-700'}`}>
+          {genreLabels[genre] || '소설'}
+        </span>
       </div>
-    </div>
+    </motion.div>
+  )
+}
+
+/* ── Navbar ── */
+function Navbar({ query, setQuery }: { query: string; setQuery: (q: string) => void }) {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (searchOpen && inputRef.current) inputRef.current.focus()
+  }, [searchOpen])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <nav className="container flex items-center justify-between h-16">
+        <Link href="/" className="flex items-center gap-2 group">
+          <BookOpen className="w-6 h-6 text-primary transition-transform group-hover:scale-110" />
+          <span className="text-lg font-semibold tracking-tight text-foreground">
+            Purplelica <span className="text-primary">Books</span>
+          </span>
+        </Link>
+
+        <div className="hidden md:flex items-center gap-8">
+          <Link href="/recommended" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            추천
+          </Link>
+          <Link href="/recommended/mbti" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            MBTI 추천
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div ref={searchRef} className="relative">
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className="p-2 rounded-full hover:bg-accent transition-colors"
+            >
+              {searchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
+            </button>
+
+            <AnimatePresence>
+              {searchOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-12 w-80 bg-card rounded-xl shadow-xl border border-border p-3"
+                >
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="책 제목, 작가 검색..."
+                    className="w-full px-4 py-2.5 bg-secondary rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-full hover:bg-accent transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+      </nav>
+
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-border bg-background"
+          >
+            <div className="container py-4 flex flex-col gap-3">
+              <Link href="/recommended" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium py-2 text-muted-foreground hover:text-primary transition-colors">
+                추천
+              </Link>
+              <Link href="/recommended/mbti" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium py-2 text-muted-foreground hover:text-primary transition-colors">
+                MBTI 추천
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   )
 }
 
@@ -103,7 +250,7 @@ export default function Home() {
   }, [])
 
   const weekly = useMemo(() => getWeeklyRecommended(allBooks, 8), [allBooks])
-  const featured = weekly[0] ?? null
+  const editorPicks = useMemo(() => weekly.slice(0, 2), [weekly])
 
   const filtered = useMemo(() => {
     let books = allBooks
@@ -123,239 +270,258 @@ export default function Home() {
   const isSearching = !!(query || genre)
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#FFFFFF' }}>
+    <div className="min-h-screen flex flex-col">
+      <Navbar query={query} setQuery={setQuery} />
 
-      {/* ── 네비게이션 ── */}
-      <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur-md" style={{ borderBottom: '1px solid #F0F0EE' }}>
-        <div className="max-w-[1080px] mx-auto px-5 sm:px-8 h-16 flex items-center gap-5">
-          <Link href="/" className="shrink-0">
-            <span className="text-[#1A1A1A] text-lg tracking-tight" style={{ fontFamily: 'var(--serif)', fontWeight: 600 }}>
-              Purplelica
-            </span>
-          </Link>
+      {/* ── Hero Section ── */}
+      {!isSearching && !loading && (
+        <section className="pt-32 pb-20 md:pt-44 md:pb-32 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] to-transparent" />
+          <div className="absolute top-20 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary/[0.03] rounded-full blur-3xl" />
 
-          <div className="flex-1 max-w-sm">
-            <div className="relative">
-              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[14px] h-[14px] text-[#B0B0B0] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
-              </svg>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="책 제목, 작가 검색"
-                className="w-full text-sm py-2.5 bg-[#F5F5F3] border-none rounded-xl outline-none focus:ring-2 focus:ring-[#E8E8E6] transition-all placeholder:text-[#B0B0B0]"
-                style={{ paddingLeft: '2.5rem', paddingRight: '2.25rem' }}
-              />
-              {query && (
-                <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B0B0B0] hover:text-[#4A4A4A]">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 18L18 6M6 6l12 12" /></svg>
+          <div className="container relative">
+            <motion.div {...fadeUp} className="max-w-3xl mx-auto text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-primary text-xs font-medium mb-6">
+                <Sparkles className="w-3.5 h-3.5" />
+                Public Domain · 완전 무료 · 회원가입 불필요
+              </div>
+
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.15] mb-6">
+                세계 고전 문학을
+                <br />
+                <span className="text-primary">가장 우아하게</span> 읽는 법
+              </h1>
+
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
+                저작권이 만료된 영어 원서를 한글 번역과 함께 제공합니다.
+                <br className="hidden md:block" />
+                회원가입 없이, 지금 바로 읽어보세요.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button
+                  onClick={() => document.getElementById('all-books')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground rounded-xl font-medium text-sm hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  도서 탐색하기
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-              )}
+                <Link
+                  href="/recommended/mbti"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-secondary text-secondary-foreground rounded-xl font-medium text-sm hover:bg-accent transition-colors"
+                >
+                  MBTI별 추천 받기
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mt-16 grid grid-cols-3 max-w-lg mx-auto"
+            >
+              {[
+                { icon: BookOpen, value: String(allBooks.length), label: '클래식 작품' },
+                { icon: Users, value: '무료', label: '완전 무료' },
+                { icon: Sparkles, value: '한·영', label: '병렬 읽기' },
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <stat.icon className="w-5 h-5 mx-auto mb-2 text-primary/60" />
+                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Editor's Pick ── */}
+      {!isSearching && !loading && editorPicks.length > 0 && (
+        <section className="py-16 bg-secondary/30">
+          <div className="container">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <p className="text-xs font-medium text-primary uppercase tracking-wider mb-1">Editor&apos;s Pick</p>
+                <h2 className="text-2xl font-bold">에디터 추천</h2>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {editorPicks.map((book) => {
+                const koTitle = KOREAN_TITLES[String(book.id)]
+                const genre = getBookGenre(book)
+                return (
+                  <Link
+                    key={book.id}
+                    href={`/book/${book.id}/info`}
+                    className="group flex gap-6 p-6 bg-card rounded-2xl border border-border hover:border-primary/20 hover:shadow-lg transition-all"
+                  >
+                    <div className={`w-24 h-36 rounded-xl flex-shrink-0 overflow-hidden ${coverGradients[genre] || 'bg-gradient-to-br from-primary/30 to-primary/5'}`}>
+                      <BookCover book={book} />
+                    </div>
+                    <div className="flex flex-col justify-center min-w-0">
+                      <p className="text-xs font-medium text-primary mb-2">EDITOR&apos;S PICK</p>
+                      <h3 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">
+                        {koTitle || book.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-2">{book.title}</p>
+                      <p className="text-sm text-muted-foreground">{book.author}</p>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           </div>
+        </section>
+      )}
 
-          <Link href="/recommended" className="hidden sm:block text-[13px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors shrink-0">
-            추천
-          </Link>
-          <Link href="/recommended/mbti"
-            className="shrink-0 px-3.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold transition-all duration-200 hover:opacity-85"
-            style={{ background: '#1A1A1A', color: '#FFFFFF' }}>
-            MBTI 추천
-          </Link>
-        </div>
-      </nav>
-
-      {/* ── 히어로 (검색 안 할 때) ── */}
-      {!isSearching && !loading && (
-        <section className="py-16 sm:py-24" style={{ background: '#FAFAF8' }}>
-          <div className="max-w-[1080px] mx-auto px-5 sm:px-8 text-center">
-            <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[#B0B0B0] mb-5">
-              Classic Literature · {allBooks.length} Works
-            </p>
-            <h1 className="text-[#1A1A1A] mb-5" style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(28px, 5vw, 46px)',
-              fontWeight: 400,
-              lineHeight: 1.25,
-              letterSpacing: '-0.02em',
-            }}>
-              원서의 즐거움을,<br />
-              <span style={{ fontWeight: 600 }}>가장 쉽게</span>
-            </h1>
-            <p className="text-[#8C8C8C] text-[15px] sm:text-[16px] leading-relaxed max-w-md mx-auto mb-10">
-              AI 번역과 단어 풀이로 영어 원서의 벽을 낮췄습니다.<br className="hidden sm:block" />
-              회원가입 없이, 지금 바로 읽어보세요.
-            </p>
-
-            {/* 숫자 신뢰 지표 */}
-            <div className="flex items-center justify-center gap-6 sm:gap-10">
-              {[
-                { num: `${allBooks.length}`, label: '클래식 작품' },
-                { num: '3', label: '읽기 모드' },
-                { num: '0', label: '원, 완전 무료' },
-              ].map(({ num, label }) => (
-                <div key={label}>
-                  <div className="text-[#1A1A1A] text-2xl sm:text-3xl font-bold" style={{ fontFamily: 'var(--serif)' }}>{num}</div>
-                  <div className="text-[#B0B0B0] text-[11px] sm:text-[12px] mt-1">{label}</div>
-                </div>
+      {/* ── Weekly Picks ── */}
+      {!isSearching && !loading && weekly.length > 0 && (
+        <section className="py-16">
+          <div className="container">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <p className="text-xs font-medium text-primary uppercase tracking-wider mb-1">Weekly Picks</p>
+                <h2 className="text-2xl font-bold">이번 주 추천</h2>
+              </div>
+              <Link href="/recommended" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                전체 보기 <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+              {weekly.slice(0, 5).map((book, i) => (
+                <BookCard key={book.id} book={book} index={i} />
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* ── MBTI 추천 배너 ── */}
+      {/* ── MBTI CTA ── */}
       {!isSearching && !loading && (
-        <section className="pt-10 sm:pt-14 pb-0">
-          <div className="max-w-[1080px] mx-auto px-5 sm:px-8">
-            <Link href="/recommended/mbti" className="block group">
-              <div className="rounded-2xl p-6 sm:p-8 flex items-center justify-between gap-4 transition-all duration-200 group-hover:shadow-lg"
-                   style={{ background: 'linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%)' }}>
-                <div>
-                  <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/40 mb-1.5">
-                    MBTI × Classic Literature
-                  </p>
-                  <p className="text-white text-[16px] sm:text-[19px] font-semibold" style={{ fontFamily: 'var(--serif)' }}>
-                    내 MBTI에 맞는 영어 원서는?
-                  </p>
-                  <p className="text-white/50 text-[13px] mt-1">16가지 성격 유형별 장르 궁합 확인하기</p>
-                </div>
-                <svg className="w-6 h-6 text-white/40 group-hover:text-white/70 group-hover:translate-x-1 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </div>
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* ── 이번 주 추천 (검색 안 할 때) ── */}
-      {!isSearching && !loading && weekly.length > 0 && (
-        <section className="py-14 sm:py-20">
-          <div className="max-w-[1080px] mx-auto px-5 sm:px-8">
-
-            <div className="flex items-baseline justify-between mb-10">
-              <div>
-                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#B0B0B0] mb-2">Weekly Picks</p>
-                <h2 className="text-[#1A1A1A] text-2xl sm:text-[28px] font-semibold" style={{ fontFamily: 'var(--serif)' }}>
-                  이번 주 추천
-                </h2>
-              </div>
-              <Link href="/recommended" className="text-[13px] font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors">
-                전체 보기 &rarr;
+        <section className="py-20">
+          <div className="container">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/10 p-10 md:p-16 text-center">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 relative">
+                내 MBTI에 맞는 책은?
+              </h2>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto relative">
+                16가지 성격 유형별로 엄선한 고전 문학을 추천받아 보세요.
+              </p>
+              <Link
+                href="/recommended/mbti"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground rounded-xl font-medium text-sm hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] relative"
+              >
+                MBTI 추천 보기
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-
-            {/* 첫 번째 책 피처드 + 나머지 그리드 */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-14">
-              {/* 피처드 카드 */}
-              {featured && (
-                <Link href={`/book/${featured.id}/info`} className="group">
-                  <div className="flex gap-6 sm:gap-8 p-6 sm:p-8 rounded-2xl transition-all duration-300 hover:shadow-lg"
-                       style={{ background: '#FAFAF8', border: '1px solid #F0F0EE' }}>
-                    <div className="w-32 sm:w-40 shrink-0 aspect-[2/3] rounded-xl overflow-hidden bg-[#F5F5F3] shadow-sm">
-                      <BookCover book={featured} />
-                    </div>
-                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-[#B0B0B0] mb-3">Editor&apos;s Pick</p>
-                      <h3 className="text-[#1A1A1A] text-lg sm:text-xl font-semibold leading-snug line-clamp-2 mb-2"
-                          style={{ fontFamily: 'var(--serif)' }}>
-                        {featured.title}
-                      </h3>
-                      {KOREAN_TITLES[String(featured.id)] && (
-                        <p className="text-[#8C8C8C] text-[14px] mb-1">{KOREAN_TITLES[String(featured.id)]}</p>
-                      )}
-                      <p className="text-[#B0B0B0] text-[13px] mb-5">{featured.author}</p>
-                      <span className="inline-flex items-center gap-2 text-[#1A1A1A] text-[14px] font-semibold group-hover:gap-3 transition-all">
-                        읽기 시작
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              )}
-
-              {/* 나머지 추천 */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-x-5 gap-y-8">
-                {weekly.slice(1, 7).map((book) => (
-                  <BookCard key={book.id} book={book} />
-                ))}
-              </div>
-            </div>
           </div>
         </section>
       )}
 
-      {/* ── 전체 목록 ── */}
-      <section className="py-14 sm:py-20 flex-1" style={{ background: isSearching ? '#FFFFFF' : '#FAFAF8' }}>
-        <div className="max-w-[1080px] mx-auto px-5 sm:px-8">
-
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-[#1A1A1A] text-2xl sm:text-[28px] font-semibold" style={{ fontFamily: 'var(--serif)' }}>
-              {isSearching ? '검색 결과' : '전체 목록'}
+      {/* ── 전체 도서 ── */}
+      <section id="all-books" className={`py-16 flex-1 ${isSearching ? '' : 'bg-secondary/20'}`}>
+        <div className="container">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">
+              {isSearching ? '검색 결과' : '전체 도서'}
             </h2>
-            <span className="text-[#B0B0B0] text-[13px]">{filtered.length}권</span>
+            <span className="text-sm text-muted-foreground">{filtered.length}권</span>
           </div>
 
-          {/* 장르 탭 */}
-          <div className="flex gap-2 flex-wrap mb-10 sm:mb-12">
+          {/* Genre Filter Pills */}
+          <div className="flex flex-wrap gap-2 mb-10">
             {GENRES.map((g) => (
               <button
                 key={g.value}
                 onClick={() => setGenre(genre === g.value ? '' : g.value)}
-                className={`px-5 py-2.5 rounded-full text-[13px] font-medium transition-all ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   genre === g.value
-                    ? 'bg-[#1A1A1A] text-white'
-                    : 'bg-white text-[#4A4A4A] hover:bg-[#EBEBEA]'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'bg-secondary text-secondary-foreground hover:bg-accent'
                 }`}
-                style={genre !== g.value ? { border: '1px solid #E8E8E6' } : {}}
               >
                 {g.label}
               </button>
             ))}
           </div>
 
-          {/* 그리드 */}
+          {/* Book Grid */}
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="aspect-[2/3] bg-white rounded-xl" />
-                  <div className="mt-3.5 space-y-2">
-                    <div className="h-4 rounded bg-white" />
-                    <div className="h-3 rounded bg-white w-2/3" />
-                  </div>
+                  <div className="aspect-[3/4] bg-muted rounded-xl mb-3" />
+                  <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
                 </div>
               ))}
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-24">
-              <p className="text-[#1A1A1A] text-lg font-semibold mb-2">결과 없음</p>
-              <p className="text-[#8C8C8C] text-sm">다른 키워드로 검색해보세요</p>
+              <p className="text-lg font-semibold mb-2">결과 없음</p>
+              <p className="text-sm text-muted-foreground">다른 키워드로 검색해보세요</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-10">
-              {filtered.map((book) => (
-                <BookCard key={book.id} book={book} />
+            <motion.div
+              key={genre}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
+            >
+              {filtered.map((book, i) => (
+                <BookCard key={book.id} book={book} index={i} />
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
 
-      {/* ── 푸터 ── */}
-      <footer className="py-10" style={{ borderTop: '1px solid #F0F0EE' }}>
-        <div className="max-w-[1080px] mx-auto px-5 sm:px-8 text-center space-y-2">
-          <span className="text-[#1A1A1A] text-sm font-semibold" style={{ fontFamily: 'var(--serif)' }}>Purplelica Books</span>
-          <p className="text-[#B0B0B0] text-xs">
-            본 서비스는{' '}
-            <a href="https://www.gutenberg.org" target="_blank" rel="noopener noreferrer"
-              className="text-[#8C8C8C] hover:text-[#1A1A1A] underline underline-offset-2 transition-colors">
-              Project Gutenberg
-            </a>
-            에서 제공하는 저작권 만료 공개 도서를 활용합니다.
-          </p>
-          <p className="text-[#B0B0B0] text-xs">&copy; 2026 Purplelica Books</p>
+      {/* ── Footer ── */}
+      <footer className="border-t border-border bg-secondary/30">
+        <div className="container py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <Link href="/" className="flex items-center gap-2 mb-4">
+                <BookOpen className="w-5 h-5 text-primary" />
+                <span className="text-lg font-semibold">
+                  Purplelica <span className="text-primary">Books</span>
+                </span>
+              </Link>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                저작권이 만료된 세계 고전 문학을<br />
+                한글 번역과 영어 원문으로 무료 제공합니다.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-4">탐색</h4>
+              <div className="flex flex-col gap-2">
+                <Link href="/recommended" className="text-sm text-muted-foreground hover:text-primary transition-colors">추천</Link>
+                <Link href="/recommended/mbti" className="text-sm text-muted-foreground hover:text-primary transition-colors">MBTI 추천</Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-4">안내</h4>
+              <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                <p>회원가입 없이 무료로 이용 가능합니다.</p>
+                <p>모든 도서는 공공도메인(Public Domain) 작품입니다.</p>
+                <a href="https://www.gutenberg.org" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  원문 출처: Project Gutenberg
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="mt-10 pt-6 border-t border-border">
+            <p className="text-xs text-muted-foreground text-center">
+              &copy; 2026 Purplelica Books. All translations are provided for educational purposes.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
