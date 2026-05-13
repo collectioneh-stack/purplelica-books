@@ -85,35 +85,69 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
   const displayContent = summary
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--paper)' }}>
 
-      {/* ── Navbar (glassmorphism) ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      {/* ── Navbar ── */}
+      <header
+        className="fixed top-0 left-0 right-0 z-50"
+        style={{
+          background: 'color-mix(in oklch, var(--paper) 85%, transparent)',
+          backdropFilter: 'blur(16px)',
+          borderBottom: '1px solid var(--paper-3)',
+        }}
+      >
         <nav className="container flex items-center justify-between h-16">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium group"
+            className="flex items-center gap-1.5 transition-colors group"
+            style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500, color: 'var(--ink-3)' }}
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             목록으로
           </button>
           <Link href="/" className="flex items-center gap-2 group">
-            <BookOpen className="w-6 h-6 text-primary transition-transform group-hover:scale-110" />
-            <span className="text-lg font-semibold tracking-tight text-foreground">
-              Purplelica <span className="text-primary">Books</span>
+            <BookOpen className="w-5 h-5" style={{ color: 'var(--accent-purple)' }} />
+            <span
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: '18px',
+                fontWeight: 500,
+                color: 'var(--ink)',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Purplelica <span style={{ color: 'var(--accent-purple)' }}>Books</span>
             </span>
           </Link>
           <div className="w-16" />
         </nav>
       </header>
 
-      {/* ── 책 상세 히어로 ── */}
-      <section className="pt-28 pb-12 sm:pt-32 sm:pb-16 bg-secondary/30">
-        <div className="max-w-[900px] mx-auto px-4 sm:px-8">
+      {/* ── 히어로 ── */}
+      <section
+        className="pt-28 pb-12 sm:pt-32 sm:pb-16 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, var(--accent-deep) 0%, var(--accent-ink) 100%)',
+        }}
+      >
+        {/* 등고선 장식 */}
+        <svg
+          className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 opacity-[0.06] pointer-events-none"
+          width="500" height="500" viewBox="0 0 500 500"
+        >
+          {[60, 110, 170, 240].map((r) => (
+            <circle key={r} cx="250" cy="250" r={r} fill="none" stroke="white" strokeWidth="0.5" />
+          ))}
+        </svg>
+
+        <div className="max-w-[900px] mx-auto px-4 sm:px-8 relative">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12">
-            {/* 표지 이미지 */}
+            {/* 표지 */}
             <div className="shrink-0">
-              <div className="w-48 sm:w-56 lg:w-64 aspect-[2/3] rounded-xl overflow-hidden bg-muted shadow-lg">
+              <div
+                className="w-48 sm:w-56 lg:w-64 aspect-[2/3] overflow-hidden"
+                style={{ borderRadius: '4px', boxShadow: '0 16px 48px rgba(0,0,0,0.3)' }}
+              >
                 {!imgError && cover ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -123,9 +157,14 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
                     onError={() => setImgError(true)}
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-6 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5">
-                    <BookOpen className="w-12 h-12 text-primary/40" />
-                    <p className="text-muted-foreground text-sm text-center leading-snug font-serif">
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center gap-4 p-6"
+                    style={{
+                      background: `repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 8px), var(--accent-soft)`,
+                    }}
+                  >
+                    <BookOpen className="w-12 h-12" style={{ color: 'var(--accent-ink)', opacity: 0.4 }} />
+                    <p style={{ fontFamily: 'var(--font-serif)', fontSize: '14px', color: 'var(--accent-ink)', textAlign: 'center', lineHeight: 1.3 }}>
                       {book?.title ?? ''}
                     </p>
                   </div>
@@ -133,38 +172,57 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
               </div>
             </div>
 
-            {/* 책 메타 정보 */}
+            {/* 메타 정보 */}
             <div className="flex-1 min-w-0 text-center sm:text-left">
-              <div className="inline-flex items-center gap-2 text-muted-foreground text-[11px] font-semibold tracking-[0.15em] uppercase mb-4">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
-                무료 열람 · 전문 번역 제공
-              </div>
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase' as const,
+                  color: 'rgba(255,255,255,0.45)',
+                }}
+              >
+                Public Domain · Free Reading
+              </span>
 
               {koTitle && (
-                <p className="text-muted-foreground text-[15px] font-medium mb-1">{koTitle}</p>
+                <p
+                  className="mt-4 mb-1"
+                  style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}
+                >
+                  {koTitle}
+                </p>
               )}
 
-              <h1 className="text-foreground leading-tight mb-5 font-serif" style={{
-                fontSize: 'clamp(24px, 3vw, 36px)',
-                fontWeight: 500,
-              }}>
-                {book?.title ?? <span className="animate-pulse bg-muted rounded h-8 w-48 inline-block" />}
+              <h1
+                className="leading-tight mb-5"
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: 'clamp(24px, 3vw, 40px)',
+                  fontWeight: 400,
+                  color: 'var(--paper)',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.15,
+                }}
+              >
+                {book?.title ?? <span className="animate-pulse rounded h-8 w-48 inline-block" style={{ background: 'rgba(255,255,255,0.1)' }} />}
               </h1>
 
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mb-8">
                 <div className="flex items-center gap-2">
-                  <div className="text-muted-foreground text-[13px]">저자</div>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Author</span>
                   <div>
-                    <p className="text-foreground text-[15px] font-medium">{book?.author ?? ''}</p>
-                    {koAuthor && <p className="text-muted-foreground text-[13px]">{koAuthor}</p>}
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 500, color: 'var(--paper)' }}>{book?.author ?? ''}</p>
+                    {koAuthor && <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>{koAuthor}</p>}
                   </div>
                 </div>
                 {book?.year && book.year > 0 && (
                   <>
-                    <div className="w-px h-5 bg-border" />
+                    <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.15)' }} />
                     <div className="flex items-center gap-2">
-                      <div className="text-muted-foreground text-[13px]">출간</div>
-                      <p className="text-foreground text-[15px] font-medium">{book.year}년</p>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Year</span>
+                      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 500, color: 'var(--paper)' }}>{book.year}년</p>
                     </div>
                   </>
                 )}
@@ -172,8 +230,18 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
 
               <button
                 onClick={() => router.push(`/book/${bookId}?page=1`)}
-                className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 rounded-2xl text-[17px] font-bold bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] group"
-                style={{ minWidth: '200px' }}
+                className="inline-flex items-center justify-center gap-3 w-full sm:w-auto transition-all hover:scale-[1.02] active:scale-[0.98] group"
+                style={{
+                  background: 'var(--paper)',
+                  color: 'var(--accent-deep)',
+                  height: '48px',
+                  padding: '0 26px',
+                  borderRadius: '999px',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '14.5px',
+                  fontWeight: 600,
+                  minWidth: '200px',
+                }}
               >
                 읽기 시작
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
@@ -184,7 +252,7 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
       </section>
 
       {/* ── 기능 배지 ── */}
-      <section className="py-8">
+      <section className="py-8" style={{ borderBottom: '1px solid var(--paper-3)' }}>
         <div className="max-w-[900px] mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-3 gap-3 sm:gap-4">
             {[
@@ -192,10 +260,20 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
               { label: '한국어 번역', desc: '전문 번역', num: '02' },
               { label: '인물 관계도', desc: 'AI 분석', num: '03' },
             ].map(({ label, desc, num }) => (
-              <div key={label} className="p-4 sm:p-5 text-center rounded-xl border border-border">
-                <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground">{num}</span>
-                <p className="text-foreground text-[14px] font-semibold mt-1">{label}</p>
-                <p className="text-muted-foreground text-[12px] mt-0.5">{desc}</p>
+              <div
+                key={label}
+                className="p-4 sm:p-5 text-center"
+                style={{ borderRadius: '4px', border: '1px solid var(--paper-3)' }}
+              >
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.16em', color: 'var(--ink-4)' }}>
+                  {num}
+                </span>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 600, color: 'var(--ink)', marginTop: '4px' }}>
+                  {label}
+                </p>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'var(--ink-4)', marginTop: '2px' }}>
+                  {desc}
+                </p>
               </div>
             ))}
           </div>
@@ -205,10 +283,29 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
       {/* ── 서머리 / 머리말 ── */}
       <section className="flex-1 py-10">
         <div className="max-w-[900px] mx-auto px-4 sm:px-8">
-          <div className="rounded-2xl overflow-hidden border border-border">
-            <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 border-b border-border">
-              <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-1">About</p>
-              <h2 className="text-foreground text-lg font-semibold font-serif">
+          <div style={{ borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--paper-3)' }}>
+            <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4" style={{ borderBottom: '1px solid var(--paper-3)' }}>
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase' as const,
+                  color: 'var(--ink-4)',
+                }}
+              >
+                About
+              </span>
+              <h2
+                className="mt-1"
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '20px',
+                  fontWeight: 500,
+                  color: 'var(--ink)',
+                  letterSpacing: '-0.01em',
+                }}
+              >
                 {hasKoSummary ? '이 책에 대하여' : preface ? '머리말' : '소개'}
               </h2>
             </div>
@@ -217,11 +314,11 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
               {prefaceLoading ? (
                 <div className="space-y-3 animate-pulse">
                   {[100, 95, 90, 85, 70].map((w, i) => (
-                    <div key={i} className="h-3 rounded bg-muted" style={{ width: `${w}%` }} />
+                    <div key={i} className="h-3 rounded" style={{ background: 'var(--paper-2)', width: `${w}%` }} />
                   ))}
                 </div>
               ) : (
-                <div className="text-secondary-foreground leading-relaxed space-y-4" style={{ fontSize: 'clamp(14px, 1.1vw, 16px)', lineHeight: 1.9 }}>
+                <div className="space-y-4" style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(14px, 1.1vw, 16px)', lineHeight: 1.9, color: 'var(--ink-2)' }}>
                   {displayContent.split('\n\n').map((para, i) => (
                     <p key={i}>{para}</p>
                   ))}
@@ -232,7 +329,16 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
             <div className="px-6 sm:px-8 pb-6 sm:pb-8">
               <button
                 onClick={() => router.push(`/book/${bookId}?page=1`)}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-[17px] font-bold bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] group"
+                className="w-full flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] group"
+                style={{
+                  background: 'var(--ink)',
+                  color: 'var(--paper)',
+                  height: '48px',
+                  borderRadius: '999px',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                }}
               >
                 읽기 시작
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
@@ -240,10 +346,13 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
             </div>
           </div>
 
-          {/* 라이선스 고지 */}
-          <div className="mt-6 rounded-xl p-5 sm:p-6 border border-border">
-            <div className="text-muted-foreground space-y-1.5 text-xs">
-              <p className="font-semibold text-secondary-foreground">
+          {/* 라이선스 */}
+          <div
+            className="mt-6 p-5 sm:p-6"
+            style={{ borderRadius: '4px', border: '1px solid var(--paper-3)' }}
+          >
+            <div className="space-y-1.5" style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'var(--ink-4)' }}>
+              <p style={{ fontWeight: 600, color: 'var(--ink-3)' }}>
                 프로젝트 구텐베르크 전자책 {koTitle ? `\u300A${koTitle}\u300B` : book ? `"${book.title}"` : ''}
               </p>
               <p>
@@ -251,12 +360,16 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
                 무료로 이용할 수 있습니다.
               </p>
               <p>
-                전자책 #{bookId} ·{' '}
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.04em' }}>
+                  전자책 #{bookId}
+                </span>
+                {' · '}
                 <a
                   href={`https://www.gutenberg.org/ebooks/${bookId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
+                  className="underline underline-offset-2 transition-colors"
+                  style={{ color: 'var(--accent-purple)' }}
                 >
                   www.gutenberg.org/ebooks/{bookId}
                 </a>
@@ -267,9 +380,9 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-border bg-secondary/30">
+      <footer style={{ borderTop: '1px solid var(--rule)', background: 'var(--paper-2)' }}>
         <div className="container py-8 text-center">
-          <p className="text-xs text-muted-foreground">
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--ink-5)', letterSpacing: '0.04em' }}>
             Powered by Project Gutenberg · &copy; 2026 Purplelica Books
           </p>
         </div>

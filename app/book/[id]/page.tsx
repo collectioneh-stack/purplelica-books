@@ -21,6 +21,7 @@ const MAX_WORDS_PER_PAGE = 600
 
 // ─── 챕터 제목 판별 ──────────────────────────────────────────────────────────
 const CHAPTER_RE = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act|SECTION|Section|PROLOGUE|Prologue|EPILOGUE|Epilogue|PREFACE|Preface|INTRODUCTION|Introduction|VOLUME|Volume)\b/
+const ALL_CAPS_TITLE_RE = /^[A-Z][A-Z\s''',.:;!?\-—]+$/
 
 // ─── 구텐베르크 헤더/푸터 제거 ──────────────────────────────────────────────
 function stripGutenbergWrapper(text: string): string {
@@ -75,12 +76,14 @@ function splitIntoChapterPages(text: string): PageData[] {
   const chapters: Chapter[] = []
   let current: Chapter = { title: null, blocks: [] }
 
+  // 1차: CHAPTER_RE로만 챕터 감지
   for (const block of allBlocks) {
-    if (CHAPTER_RE.test(block.trim()) && block.length < 200) {
+    const trimmed = block.trim()
+    if (CHAPTER_RE.test(trimmed) && block.length < 200) {
       if (current.blocks.length > 0 || current.title !== null) {
         chapters.push(current)
       }
-      current = { title: block.trim(), blocks: [] }
+      current = { title: trimmed, blocks: [] }
     } else if (block.length > 20) {
       current.blocks.push(block)
     }
@@ -89,15 +92,55 @@ function splitIntoChapterPages(text: string): PageData[] {
     chapters.push(current)
   }
 
+  // 2차: CHAPTER_RE가 부족하면 (< 5개) ALL_CAPS 제목도 감지 (시집 등)
+  const chapterReCount = chapters.filter((c) => c.title !== null).length
+  if (chapterReCount < 5) {
+    const chapters2: Chapter[] = []
+    current = { title: null, blocks: [] }
+    for (const block of allBlocks) {
+      const trimmed = block.trim()
+      const isChapterTitle = CHAPTER_RE.test(trimmed) && block.length < 200
+      const isAllCapsTitle = ALL_CAPS_TITLE_RE.test(trimmed) && trimmed.length >= 3 && trimmed.length < 80
+      if (isChapterTitle || isAllCapsTitle) {
+        if (current.blocks.length > 0 || current.title !== null) {
+          chapters2.push(current)
+        }
+        current = { title: trimmed, blocks: [] }
+      } else if (block.length > 20) {
+        current.blocks.push(block)
+      }
+    }
+    if (current.blocks.length > 0 || current.title !== null) {
+      chapters2.push(current)
+    }
+    if (chapters2.filter((c) => c.title !== null).length > chapterReCount) {
+      chapters.length = 0
+      chapters.push(...chapters2)
+    }
+  }
+
   if (chapters.length === 0 || (chapters.length === 1 && chapters[0].title === null)) {
     return wordCountSplit(allBlocks.filter((b) => b.length > 20), null)
   }
 
+  // 시집 모드 감지: 챕터 평균 단어 수가 300 이하면 시집 → 제목 전용 페이지 사용
+  const validChapters = chapters.filter((c) => c.title !== null && c.blocks.length > 0)
+  const totalWords = validChapters.reduce((sum, c) => sum + c.blocks.reduce((s, b) => s + b.split(/\s+/).length, 0), 0)
+  const avgWordsPerChapter = validChapters.length > 0 ? totalWords / validChapters.length : Infinity
+  const isPoetryMode = avgWordsPerChapter < 300 && validChapters.length > 5
+
   const pages: PageData[] = []
   for (const chapter of chapters) {
-    if (chapter.blocks.length === 0) continue
     if (chapter.title === null) continue
-    pages.push(...wordCountSplit(chapter.blocks, chapter.title))
+    if (chapter.blocks.length === 0) continue
+    if (isPoetryMode) {
+      // 시집: 제목 전용 페이지 + 본문 페이지
+      pages.push({ paragraphs: [], chapterTitle: chapter.title, isChapterStart: true })
+      pages.push(...wordCountSplit(chapter.blocks, null))
+    } else {
+      // 소설: 기존 방식 (제목 + 본문 같은 페이지)
+      pages.push(...wordCountSplit(chapter.blocks, chapter.title))
+    }
   }
 
   return pages
@@ -386,7 +429,7 @@ export default function BookPage() {
 
   // ─── 렌더 ────────────────────────────────────────────────────────────────
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: themeStyle.bg, color: themeStyle.text, transition: 'background 0.3s, color 0.3s' }}>
+    <div className="h-[calc(100dvh-92px)] flex flex-col overflow-hidden" style={{ background: themeStyle.bg, color: themeStyle.text, transition: 'background 0.3s, color 0.3s' }}>
 
       {/* ── 적응형 스타일 ── */}
       <style>{`
@@ -486,7 +529,7 @@ export default function BookPage() {
             <svg className="w-5 h-5 text-white group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="text-white text-[13px] font-semibold tracking-tight hidden sm:inline" style={{ fontFamily: 'Georgia, serif' }}>Purplelica</span>
+            <span className="text-white text-[13px] font-semibold tracking-tight hidden sm:inline" style={{ fontFamily: 'var(--font-serif)' }}>Purplelica</span>
           </button>
 
           {/* 책 제목 (데스크톱만) */}
@@ -547,8 +590,8 @@ export default function BookPage() {
 
           {/* 페이지 */}
           <div className="text-right shrink-0 min-w-[36px]">
-            <div className="text-white text-sm font-bold leading-none">{currentPage}</div>
-            <div className="text-[#8C8C8C] text-[10px]">/ {totalPages}</div>
+            <div className="text-white text-sm font-bold leading-none" style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>{currentPage}</div>
+            <div className="text-[#8C8C8C] text-[10px]" style={{ fontFamily: 'var(--font-mono)' }}>/ {totalPages}</div>
           </div>
         </div>
 
@@ -567,15 +610,15 @@ export default function BookPage() {
       >
         <div className={`reader-body flex flex-col ${isSplit ? 'split-mode' : ''}`}>
 
-          {/* 챕터 제목 — 첫 페이지: 크게 / 이후: 작은 배지 */}
+          {/* 챕터 제목 — 전용 타이틀 페이지: 세로 중앙 / 이후: 작은 배지 */}
           {pageData.isChapterStart && pageData.chapterTitle ? (
-            <div className="mb-8 sm:mb-10 pb-6 sm:pb-8 text-center" style={{ borderBottom: `2px solid ${themeStyle.border}` }}>
+            <div className={`text-center ${pageData.paragraphs.length === 0 ? 'flex-1 flex flex-col items-center justify-center' : 'mb-8 sm:mb-10 pb-6 sm:pb-8'}`} style={pageData.paragraphs.length > 0 ? { borderBottom: `2px solid ${themeStyle.border}` } : undefined}>
               <p className="text-[11px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: themeStyle.muted }}>
                 — Chapter —
               </p>
               <h2
                 className="text-2xl sm:text-4xl lg:text-5xl leading-tight"
-                style={{ fontFamily: 'Georgia, serif', fontWeight: 500, color: themeStyle.text }}
+                style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, color: themeStyle.text, letterSpacing: '-0.02em' }}
               >
                 {pageData.chapterTitle}
               </h2>
