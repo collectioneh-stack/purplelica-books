@@ -813,7 +813,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid var(--rule)', background: 'var(--paper-2)' }}>
+      <footer style={{ borderTop: '1px solid var(--rule)', background: 'var(--paper-2)', paddingBottom: '100px' }}>
         <div className="container py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
