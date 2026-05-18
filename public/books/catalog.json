@@ -217,13 +217,6 @@
     "size": 492873
   },
   {
-    "id": 161,
-    "title": "Sense and Sensibility",
-    "author": "Austen, Jane",
-    "year": 1811,
-    "size": 703003
-  },
-  {
     "id": 1322,
     "title": "Leaves of Grass",
     "author": "Whitman, Walt",
@@ -327,13 +320,6 @@
     "author": "Swift, Jonathan",
     "year": 1726,
     "size": 87559
-  },
-  {
-    "id": 2148,
-    "title": "Don Quixote",
-    "author": "Cervantes Saavedra, Miguel de",
-    "year": 1605,
-    "size": 632177
   },
   {
     "id": 1934,
@@ -456,10 +442,17 @@
   },
   {
     "id": 139,
+    "title": "The Lost World",
+    "author": "Doyle, Arthur Conan",
+    "year": 1912,
+    "size": 451721
+  },
+  {
+    "id": 236,
     "title": "The Jungle Book",
     "author": "Kipling, Rudyard",
     "year": 1894,
-    "size": 451721
+    "size": 303643
   },
   {
     "id": 160,
@@ -467,13 +460,6 @@
     "author": "Chesterton, G. K.",
     "year": 1908,
     "size": 386537
-  },
-  {
-    "id": 1268,
-    "title": "Treasure Island",
-    "author": "Stevenson, Robert Louis",
-    "year": 1882,
-    "size": 1155085
   },
   {
     "id": 120,
@@ -495,13 +481,6 @@
     "author": "Austen, Jane",
     "year": 1811,
     "size": 919320
-  },
-  {
-    "id": 1155,
-    "title": "The Brothers Karamazov",
-    "author": "Dostoevsky, Fyodor",
-    "year": 1880,
-    "size": 457326
   },
   {
     "id": 4517,
@@ -579,13 +558,6 @@
     "author": "Hobbes, Thomas",
     "year": 1651,
     "size": 1254733
-  },
-  {
-    "id": 1250,
-    "title": "The Art of War",
-    "author": "Sunzi",
-    "year": -500,
-    "size": 129843
   },
   {
     "id": 2268,
