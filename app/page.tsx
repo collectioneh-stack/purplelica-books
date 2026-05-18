@@ -221,8 +221,9 @@ function Navbar({ query, setQuery }: { query: string; setQuery: (q: string) => v
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50"
+      className="fixed left-0 right-0 z-40"
       style={{
+        top: '94px',
         background: 'color-mix(in oklch, var(--paper) 85%, transparent)',
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--paper-3)',
@@ -470,7 +471,7 @@ export default function Home() {
 
       {/* ── Hero ── */}
       {!isSearching && !loading && (
-        <section className="pt-28 pb-16 md:pt-40 md:pb-24 relative overflow-hidden">
+        <section className="pt-52 pb-16 md:pt-64 md:pb-24 relative overflow-hidden">
           {/* 등고선 SVG 배경 */}
           <svg
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.04] pointer-events-none"
@@ -728,7 +729,7 @@ export default function Home() {
       {/* ── 전체 도서 ── */}
       <section
         id="all-books"
-        className={`py-14 flex-1 ${isSearching ? 'pt-28' : ''}`}
+        className={`py-14 flex-1 ${isSearching ? 'pt-52' : ''}`}
         style={{ borderTop: isSearching ? 'none' : '1px solid var(--paper-3)' }}
       >
         <div className="container">
@@ -813,7 +814,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid var(--rule)', background: 'var(--paper-2)', paddingBottom: '100px' }}>
+      <footer style={{ borderTop: '1px solid var(--rule)', background: 'var(--paper-2)', paddingBottom: '24px' }}>
         <div className="container py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>

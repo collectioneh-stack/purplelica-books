@@ -429,7 +429,7 @@ export default function BookPage() {
 
   // ─── 렌더 ────────────────────────────────────────────────────────────────
   return (
-    <div className="h-[calc(100dvh-92px)] flex flex-col overflow-hidden" style={{ background: themeStyle.bg, color: themeStyle.text, transition: 'background 0.3s, color 0.3s' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100dvh - 94px)', marginTop: '94px', background: themeStyle.bg, color: themeStyle.text, transition: 'background 0.3s, color 0.3s' }}>
 
       {/* ── 적응형 스타일 ── */}
       <style>{`

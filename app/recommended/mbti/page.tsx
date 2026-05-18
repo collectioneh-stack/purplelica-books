@@ -260,7 +260,7 @@ export default function MbtiPage() {
     <div className="min-h-screen flex flex-col bg-background">
 
       {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <header className="fixed left-0 right-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50" style={{ top: '94px' }}>
         <nav className="container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 group">
             <BookOpen className="w-6 h-6 text-primary transition-transform group-hover:scale-110" />
@@ -277,7 +277,7 @@ export default function MbtiPage() {
       </header>
 
       {/* Hero */}
-      <section className="pt-32 pb-12 md:pt-40 md:pb-16 relative overflow-hidden">
+      <section className="pt-52 pb-12 md:pt-56 md:pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] to-transparent" />
         <div className="container relative text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-primary text-xs font-medium mb-4">

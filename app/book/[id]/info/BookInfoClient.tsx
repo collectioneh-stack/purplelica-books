@@ -89,8 +89,9 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
 
       {/* ── Navbar ── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50"
+        className="fixed left-0 right-0 z-40"
         style={{
+          top: '94px',
           background: 'color-mix(in oklch, var(--paper) 85%, transparent)',
           backdropFilter: 'blur(16px)',
           borderBottom: '1px solid var(--paper-3)',
@@ -125,7 +126,7 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
 
       {/* ── 히어로 ── */}
       <section
-        className="pt-28 pb-12 sm:pt-32 sm:pb-16 relative overflow-hidden"
+        className="pt-52 pb-12 sm:pt-56 sm:pb-16 relative overflow-hidden"
         style={{
           background: 'linear-gradient(180deg, var(--accent-deep) 0%, var(--accent-ink) 100%)',
         }}
@@ -380,7 +381,7 @@ export default function BookInfoClient({ bookId, koTitle, koAuthor, summary, has
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid var(--rule)', background: 'var(--paper-2)', paddingBottom: '100px' }}>
+      <footer style={{ borderTop: '1px solid var(--rule)', background: 'var(--paper-2)', paddingBottom: '24px' }}>
         <div className="container py-8 text-center">
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--ink-5)', letterSpacing: '0.04em' }}>
             Powered by Project Gutenberg · &copy; 2026 Purplelica Books
