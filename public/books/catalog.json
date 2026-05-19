@@ -456,9 +456,9 @@
   },
   {
     "id": 160,
-    "title": "The Man Who Was Thursday",
-    "author": "Chesterton, G. K.",
-    "year": 1908,
+    "title": "The Awakening",
+    "author": "Chopin, Kate",
+    "year": 1899,
     "size": 386537
   },
   {
@@ -469,17 +469,10 @@
     "size": 391658
   },
   {
-    "id": 5765,
-    "title": "A Room with a View",
-    "author": "Forster, E. M.",
-    "year": 1908,
-    "size": 965670
-  },
-  {
     "id": 141,
-    "title": "Sense and Sensibility",
+    "title": "Mansfield Park",
     "author": "Austen, Jane",
-    "year": 1811,
+    "year": 1814,
     "size": 919320
   },
   {
@@ -568,9 +561,9 @@
   },
   {
     "id": 1404,
-    "title": "The Divine Comedy",
-    "author": "Alighieri, Dante",
-    "year": 1320,
+    "title": "The Federalist Papers",
+    "author": "Hamilton, Alexander; Madison, James; Jay, John",
+    "year": 1788,
     "size": 1186744
   },
   {

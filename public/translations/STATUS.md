@@ -23,8 +23,8 @@
 | pg103 | 해저 2만리 | Twenty Thousand Leagues Under the Sea | 69 | 2026-05-09 |
 | pg132 | 손자병법 | The Art of War | 57 | 2026-05-17 |
 | pg139 | 잃어버린 세계 | The Lost World | 68 | 2026-05-18 |
-| pg141 | 이성과 감성 | Sense and Sensibility | 165 | 2026-05-17 |
-| pg160 | 목요일이었던 남자 | The Man Who Was Thursday | 73 | 2026-05-17 |
+| pg141 | 맨스필드 파크 | Mansfield Park | 165 | 2026-05-17 |
+| pg160 | 각성 | The Awakening | 73 | 2026-05-17 |
 | pg215 | 화이트 팽 | White Fang | 31 | 2026-05-09 |
 | pg345 | 드라큘라 | Dracula | 323 | 2026-05-09 |
 | pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 44 | 2026-05-02 |
@@ -33,7 +33,7 @@
 | pg1260 | 제인 에어 | Jane Eyre | 354 | 2026-05-18 |
 | pg1317 | 붉은 무공훈장 | The Red Badge of Courage | 18 | 2026-05-17 |
 | pg1342 | 오만과 편견 | Pride and Prejudice | 323 | 2026-05-01 |
-| pg1404 | 신곡 | The Divine Comedy | 285 | 2026-05-17 |
+| pg1404 | 연방주의자 논집 | The Federalist Papers | 285 | 2026-05-17 |
 | pg1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | 280 | 2026-05-01 |
 | pg1934 | 순수의 노래와 경험의 노래 | Songs of Innocence and of Experience | 92 | 2026-05-17 |
 | pg1952 | 노란 벽지 | The Yellow Wallpaper | 24 | 2026-05-02 |
@@ -59,7 +59,7 @@
 | pg1400 | 위대한 기대 | Great Expectations | 45/187 | 142 |
 | pg1497 | 국가 | The Republic | 48/198 | 150 |
 | pg1728 | 오디세이 | The Odyssey | 42/109 | 67 |
-| pg5765 | 전망 좋은 방 | A Room with a View | 13/86 | 73 |
+| pg5765 | ~~식충식물 (비문학, catalog 제거됨)~~ | Insectivorous Plants | 13/86 | 73 |
 | pg6130 | 일리아드 | The Iliad | 27/171 | 144 |
 
 ## 미번역 (빈 페이지 100% — 파일 존재하지만 내용 없음)
