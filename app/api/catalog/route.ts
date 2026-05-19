@@ -34,7 +34,7 @@ export async function GET() {
     const books: CatalogBook[] = JSON.parse(raw)
     const filtered = books.filter((b) => TRANSLATED_IDS.has(b.id))
     return NextResponse.json(filtered, {
-      headers: { 'Cache-Control': 'public, max-age=0, s-maxage=86400, stale-while-revalidate=86400' },
+      headers: { 'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=3600' },
     })
   } catch {
     const filtered = FALLBACK.filter((b) => TRANSLATED_IDS.has(b.id))
