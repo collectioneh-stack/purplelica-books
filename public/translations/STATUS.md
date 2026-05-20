@@ -49,18 +49,20 @@
 | pg105 | 설득 | Persuasion | 168 | 2026-05-18 |
 | pg236 | 정글북 | The Jungle Book | 45 | 2026-05-18 |
 | pg35 | 타임머신 | The Time Machine | 29 | 2026-05-18 |
+| pg120 | 보물섬 | Treasure Island | 131 | 2026-05-19 |
+| pg1728 | 오디세이 | The Odyssey | 283 | 2026-05-19 |
+| pg1400 | 위대한 기대 | Great Expectations | 360 | 2026-05-19 |
+| pg600 | 지하로부터의 수기 | Notes from the Underground | 80 | 2026-05-19 |
+| pg2097 | 네 사람의 서명 | The Sign of the Four | 87 | 2026-05-19 |
 
 ## 번역 진행 중 (부분 완료)
 
 | PG ID | 한국어 제목 | 원제 | 완료/전체 | 빈 페이지 |
 |:---:|:---|:---|:---:|:---:|
-| pg120 | 보물섬 | Treasure Island | 17/69 | 52 |
 | pg135 | 레 미제라블 | Les Misérables | 51/494 | 443 |
-| pg1400 | 위대한 기대 | Great Expectations | 45/187 | 142 |
 | pg1497 | 국가 | The Republic | 48/198 | 150 |
-| pg1728 | 오디세이 | The Odyssey | 42/109 | 67 |
 | pg5765 | ~~식충식물 (비문학, catalog 제거됨)~~ | Insectivorous Plants | 13/86 | 73 |
-| pg6130 | 일리아드 | The Iliad | 27/171 | 144 |
+| pg6130 | 일리아드 | The Iliad | 87/375 | 288 |
 
 ## 미번역 (빈 페이지 100% — 파일 존재하지만 내용 없음)
 
@@ -70,14 +72,12 @@
 | pg161 | ?? | ?? | 106 |
 | pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 70 |
 | pg244 | 주홍색 연구 | A Study in Scarlet | 44 |
-| pg600 | 지하로부터의 수기 | Notes from the Underground | 41 |
 | pg768 | 폭풍의 언덕 | Wuthering Heights | 102 |
 | pg1184 | 몬테크리스토 백작 | The Count of Monte Cristo | 439 |
 | pg1232 | 군주론 | The Prince | 59 |
 | pg1251 | 아서 왕의 죽음 | Le Morte d'Arthur | 251 |
 | pg1322 | 풀잎 | Leaves of Grass | 111 |
 | pg1399 | 안나 카레니나 | Anna Karenina | 306 |
-| pg2097 | 카라마조프 형제들 | The Brothers Karamazov | 43 |
 | pg2554 | 죄와 벌 | Crime and Punishment | 181 |
 | pg2600 | 전쟁과 평화 | War and Peace | 494 |
 | pg2814 | 더블린 사람들 | Dubliners | 59 |
