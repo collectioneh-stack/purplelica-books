@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-// Vercel에 번들된 책 — 외부 fetch 없이 즉시 응답
+// 번들된 책 — 외부 fetch 없이 즉시 응답
 // public/books/pg{id}.txt 형식으로 저장
 function getLocalBook(url: string): string | null {
   const match = url.match(/\/(\d+)\/pg\1\.txt/)

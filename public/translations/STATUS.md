@@ -126,4 +126,4 @@ node scripts/pre-translate.js {pg_id}
 2. `git add public/translations/pg{id}/ public/translations/STATUS.md`
 3. `git commit -m "feat: {한국어제목}(pg{id}) 전체 번역 완료"`
 4. `git subtree push --prefix=projects/bookmap purplelica-books master`
-5. `vercel deploy --prod --yes` (bookmap 디렉토리에서)
+5. Cloudflare Pages 자동 배포 (GitHub push 시 트리거)
