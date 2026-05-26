@@ -59,12 +59,13 @@
 | pg135 | 레 미제라블 | Les Misérables | 494 | 2026-05-22 |
 | pg244 | 주홍색 연구 | A Study in Scarlet | 45 | 2026-05-26 |
 | pg5230 | 투명 인간 | The Invisible Man | 55 | 2026-05-26 (STATUS.md에 ‘모로 박사의 섬’으로 오라벨 → 실제 소스=투명 인간) |
+| pg5765 | 식충식물 | Insectivorous Plants | 86 | 2026-05-26 (3분할 병행, 비문학·catalog 제거됨) |
 
 ## 번역 진행 중 (부분 완료)
 
 | PG ID | 한국어 제목 | 원제 | 완료/전체 | 빈 페이지 |
 |:---:|:---|:---|:---:|:---:|
-| pg5765 | ~~식충식물 (비문학, catalog 제거됨)~~ | Insectivorous Plants | 13/86 | 73 |
+| (없음) | | | | |
 
 ## 미번역 (빈 페이지 100% — 파일 존재하지만 내용 없음)
 
@@ -113,12 +114,9 @@
 
 ## 번역 방법
 
-### 사전 번역 스크립트 (Gemini API)
-```bash
-cd projects/bookmap
-node scripts/pre-translate.js {pg_id}
-```
-- Gemini 무료 티어 할당량 초과 시 → Claude가 직접 번역 (JSON 수동 작성)
+### 번역 실행
+- **Claude 직접 번역** (기본): JSON 파일을 직접 작성
+- **로컬 LLM**: `projects/bookmap/scripts/local-llm-test/` 비교 검증 후 채택 모델 사용
 - 페이지당 약 1200 단어 기준으로 분할됨
 
 ### 번역 완료 후 할 일
