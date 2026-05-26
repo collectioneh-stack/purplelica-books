@@ -169,8 +169,8 @@ export default function RecommendedPage() {
           <div className="mt-6 rounded-xl p-6 text-center" style={{ background: '#FAFAF8', border: '1px solid #F0F0EE' }}>
             <p className="text-[#1A1A1A] text-[15px] font-semibold mb-1">매주 자동 교체</p>
             <p className="text-[#8C8C8C] text-[13px] leading-relaxed">
-              추천 목록은 전체 100권 중에서 매주 새롭게 선정됩니다.
-              100권 모두 언제든지{' '}
+              추천 목록은 전체 {allBooks.length}권 중에서 매주 새롭게 선정됩니다.
+              {allBooks.length}권 모두 언제든지{' '}
               <Link href="/" className="text-[#1A1A1A] underline underline-offset-2 hover:no-underline transition-all">
                 홈에서 바로 읽기
               </Link>{' '}
@@ -185,7 +185,7 @@ export default function RecommendedPage() {
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-[15px] font-semibold transition-all duration-200 hover:opacity-85"
               style={{ background: '#1A1A1A', color: '#FFFFFF' }}
             >
-              전체 100권 보기 &rarr;
+              전체 {allBooks.length}권 보기 &rarr;
             </Link>
           </div>
         </div>
