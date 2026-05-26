@@ -57,6 +57,8 @@
 | pg6130 | 일리아드 | The Iliad | 164 | 2026-05-21 |
 | pg1497 | 국가 | The Republic | 198 | 2026-05-21 |
 | pg135 | 레 미제라블 | Les Misérables | 494 | 2026-05-22 |
+| pg244 | 주홍색 연구 | A Study in Scarlet | 45 | 2026-05-26 |
+| pg5230 | 투명 인간 | The Invisible Man | 55 | 2026-05-26 (STATUS.md에 ‘모로 박사의 섬’으로 오라벨 → 실제 소스=투명 인간) |
 
 ## 번역 진행 중 (부분 완료)
 
@@ -71,7 +73,6 @@
 | pg158 | 엠마 | Emma | 138 |
 | pg161 | ?? | ?? | 106 |
 | pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 70 |
-| pg244 | 주홍색 연구 | A Study in Scarlet | 44 |
 | pg768 | 폭풍의 언덕 | Wuthering Heights | 102 |
 | pg1184 | 몬테크리스토 백작 | The Count of Monte Cristo | 439 |
 | pg1232 | 군주론 | The Prince | 59 |
@@ -82,7 +83,6 @@
 | pg2600 | 전쟁과 평화 | War and Peace | 494 |
 | pg2814 | 더블린 사람들 | Dubliners | 59 |
 | pg4300 | 율리시스 | Ulysses | 160 |
-| pg5230 | 모로 박사의 섬 | The Island of Doctor Moreau | 55 |
 
 ## catalog에만 있고 translations 폴더 없음
 
