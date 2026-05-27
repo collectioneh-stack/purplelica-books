@@ -62,6 +62,7 @@
 | pg5765 | 식충식물 | Insectivorous Plants | 86 | 2026-05-26 (3분할 병행, 비문학·catalog 제거됨) |
 | pg1399 | 안나 카레리나 | Anna Karenina | 414 | 2026-05-27 (10분할 + 5 마무리 배치 병행) |
 | pg1251 | 아서왕의 죽음 | Le Morte d'Arthur | 251 | 2026-05-27 (10분할 + CLI 폴백) |
+| pg1232 | 군주론 | The Prince | 59 | 2026-05-27 (10분할 병행, 텔레그램 명령 트리거) |
 
 ## 번역 진행 중 (부분 완료)
 
@@ -78,7 +79,6 @@
 | pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 70 |
 | pg768 | 폭풍의 언덕 | Wuthering Heights | 102 |
 | pg1184 | 몬테크리스토 백작 | The Count of Monte Cristo | 439 |
-| pg1232 | 군주론 | The Prince | 59 |
 | pg1322 | 풀잎 | Leaves of Grass | 111 |
 | pg2554 | 죄와 벌 | Crime and Punishment | 181 |
 | pg2600 | 전쟁과 평화 | War and Peace | 494 |
