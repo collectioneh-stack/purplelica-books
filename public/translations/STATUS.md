@@ -60,6 +60,7 @@
 | pg244 | 주홍색 연구 | A Study in Scarlet | 45 | 2026-05-26 |
 | pg5230 | 투명 인간 | The Invisible Man | 55 | 2026-05-26 (STATUS.md에 ‘모로 박사의 섬’으로 오라벨 → 실제 소스=투명 인간) |
 | pg5765 | 식충식물 | Insectivorous Plants | 86 | 2026-05-26 (3분할 병행, 비문학·catalog 제거됨) |
+| pg1399 | 안나 카레리나 | Anna Karenina | 414 | 2026-05-27 (10분할 + 5 마무리 배치 병행) |
 
 ## 번역 진행 중 (부분 완료)
 
@@ -79,7 +80,6 @@
 | pg1232 | 군주론 | The Prince | 59 |
 | pg1251 | 아서 왕의 죽음 | Le Morte d'Arthur | 251 |
 | pg1322 | 풀잎 | Leaves of Grass | 111 |
-| pg1399 | 안나 카레니나 | Anna Karenina | 306 |
 | pg2554 | 죄와 벌 | Crime and Punishment | 181 |
 | pg2600 | 전쟁과 평화 | War and Peace | 494 |
 | pg2814 | 더블린 사람들 | Dubliners | 59 |
