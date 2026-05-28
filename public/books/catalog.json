@@ -119,13 +119,6 @@
     "size": 1047583
   },
   {
-    "id": 1184,
-    "title": "The Count of Monte Cristo",
-    "author": "Dumas, Alexandre",
-    "year": 1844,
-    "size": 2708331
-  },
-  {
     "id": 2814,
     "title": "Dubliners",
     "author": "Joyce, James",
@@ -175,13 +168,6 @@
     "size": 39526
   },
   {
-    "id": 1232,
-    "title": "The Prince",
-    "author": "Machiavelli, Niccolò",
-    "year": 1532,
-    "size": 307128
-  },
-  {
     "id": 2542,
     "title": "A Doll's House",
     "author": "Ibsen, Henrik",
@@ -222,48 +208,6 @@
     "author": "Whitman, Walt",
     "year": 1855,
     "size": 775575
-  },
-  {
-    "id": 1251,
-    "title": "Le Morte d'Arthur",
-    "author": "Malory, Thomas",
-    "year": 1485,
-    "size": 915937
-  },
-  {
-    "id": 2554,
-    "title": "Crime and Punishment",
-    "author": "Dostoevsky, Fyodor",
-    "year": 1866,
-    "size": 1176912
-  },
-  {
-    "id": 600,
-    "title": "Notes from the Underground",
-    "author": "Dostoevsky, Fyodor",
-    "year": 1864,
-    "size": 263946
-  },
-  {
-    "id": 2097,
-    "title": "The Brothers Karamazov",
-    "author": "Dostoevsky, Fyodor",
-    "year": 1880,
-    "size": 256330
-  },
-  {
-    "id": 2600,
-    "title": "War and Peace",
-    "author": "Tolstoy, Leo",
-    "year": 1869,
-    "size": 3293656
-  },
-  {
-    "id": 1399,
-    "title": "Anna Karenina",
-    "author": "Tolstoy, Leo",
-    "year": 1877,
-    "size": 2024318
   },
   {
     "id": 4300,
@@ -316,9 +260,9 @@
   },
   {
     "id": 721,
-    "title": "Gulliver's Travels",
-    "author": "Swift, Jonathan",
-    "year": 1726,
+    "title": "The Birds' Christmas Carol",
+    "author": "Wiggin, Kate Douglas Smith",
+    "year": 1887,
     "size": 87559
   },
   {
@@ -348,13 +292,6 @@
     "author": "Machen, Arthur",
     "year": 1890,
     "size": 685270
-  },
-  {
-    "id": 526,
-    "title": "The Call of the Wild",
-    "author": "London, Jack",
-    "year": 1903,
-    "size": 233840
   },
   {
     "id": 1327,
@@ -428,9 +365,9 @@
   },
   {
     "id": 1064,
-    "title": "The Importance of Being Earnest",
-    "author": "Wilde, Oscar",
-    "year": 1895,
+    "title": "The Masque of the Red Death",
+    "author": "Poe, Edgar Allan",
+    "year": 1842,
     "size": 33717
   },
   {
@@ -607,5 +544,12 @@
     "author": "Sunzi",
     "year": -500,
     "size": 339290
+  },
+  {
+    "id": 161,
+    "title": "Sense and Sensibility",
+    "author": "Austen, Jane",
+    "year": 1811,
+    "size": 712845
   }
 ]
