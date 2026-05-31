@@ -1,11 +1,9 @@
 # 한국어 번역 현황
 
-> 새 책 번역 완료 시 이 파일을 업데이트하세요.
-> 중복 작업 방지용 — 번역 전 반드시 이 목록 확인.
-> **마지막 디스크 실사: 2026-05-31** (한국 명저 3권 신규 ID 추가: 도덕경/이솝우화/명상록)
+> **마지막 디스크 실사: 2026-05-31** (catalog 누락 5권 추가 + 사이트 노출 70권으로 갱신)
 
 - ✅ 완료: **70권**  ⏳ 진행 중(부분): **2권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **18권**
-- ⚠️ **분할 불일치** 마크는 _source(1200w/p)와 디스크(600w/p) 분할 다른 책 — 디스크 기준 완역이지만 워커 재진행 불가
+- 🌐 **사이트 노출: 70권** (`TRANSLATED_IDS` 기준 — 100% 완역만)
 
 ## 번역 완료 (디스크 실사 확인 — 빈 페이지 0)
 
@@ -43,8 +41,8 @@
 | pg244 | 주홍색 연구 | A Study in Scarlet | 86 | ⚠️ |
 | pg308 | 보트 위의 세 남자 | Three men in a boat (to say nothing of the dog) | 33 | ⚠️ |
 | pg345 | 드라큘라 | Dracula | 323 | ✓ |
-| pg526 | 야성의 부름 | ? | 74 | ✓ |
-| pg600 | 지하로부터의 수기 | ? | 80 | ✓ |
+| pg526 | 어둠의 심장 (pg219와 중복) | Heart of Darkness | 74 | ✓ |
+| pg600 | 지하로부터의 수기 | Notes from the Underground | 80 | ✓ |
 | pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 44 | ⚠️ |
 | pg768 | 폭풍의 언덕 | Wuthering Heights | 227 | ⚠️ |
 | pg863 | 스타일스 저택의 괴사건 | The Mysterious Affair at Styles | 104 | ✓ |
@@ -57,18 +55,18 @@
 | pg1317 | 붉은 무공훈장 | The Red Badge of Courage: An Episode of the American Civil War | 18 | ✓ |
 | pg1322 | 풀잎 | Leaves of Grass | 237 | ✓ |
 | pg1342 | 오만과 편견 | Pride and Prejudice | 323 | ⚠️ |
-| pg1399 | 안나 카레리나 | ? | 414 | ✓ |
+| pg1399 | 안나 카레리나 | Anna Karenina | 414 | ✓ |
 | pg1400 | 위대한 기대 | Great Expectations | 360 | ✓ |
 | pg1497 | 국가 | The Republic | 198 | ✓ |
 | pg1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | 280 | ✓ |
 | pg1728 | 오디세이 | The Odyssey of Homer | 136 | ⚠️ |
 | pg1934 | 순수의 노래와 경험의 노래 | Songs of Innocence and of Experience | 92 | ✓ |
 | pg1952 | 노란 벽지 | The Yellow Wallpaper | 24 | ✓ |
-| pg2097 | 네 사람의 서명 | ? | 85 | ✓ |
+| pg2097 | 네 사람의 서명 | The Sign of the Four | 85 | ✓ |
 | pg2197 | 도박꾼 | The Gambler | 104 | ✓ |
 | pg2500 | 싯다르타 | Siddhartha | 155 | ✓ |
 | pg2542 | 인형의 집 | A Doll's House : a play | 82 | ✓ |
-| pg2554 | 죄와 벌 | ? | 393 | ✓ |
+| pg2554 | 죄와 벌 | Crime and Punishment | 393 | ✓ |
 | pg2701 | 모비 딕 | Moby Dick; Or, The Whale | 466 | ✓ |
 | pg2814 | 더블린 사람들 | Dubliners | 131 | ⚠️ |
 | pg2852 | 바스커빌 가의 개 | The Hound of the Baskervilles | 47 | ✓ |
@@ -89,7 +87,7 @@
 | pg158 | 엠마 | Emma | 319/638 | 50% | ⚠️ |
 | pg1404 | 연방주의자 논집 | The Federalist Papers | 274/285 | 96% | ⚠️ |
 
-## 미번역 (빈 페이지 100% — 파일 존재하지만 내용 없음)
+## 미번역 (빈 페이지 100%)
 
 | PG ID | 한국어 제목 | 원제 | 페이지 수 |
 |:---:|:---|:---|:---:|

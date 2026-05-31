@@ -593,5 +593,40 @@
     "author": "Emperor of Rome Marcus Aurelius",
     "year": 180,
     "size": 425311
+  },
+  {
+    "id": 526,
+    "title": "Heart of Darkness",
+    "author": "Joseph Conrad",
+    "year": 1899,
+    "size": 233946
+  },
+  {
+    "id": 600,
+    "title": "Notes from the Underground",
+    "author": "Fyodor Dostoyevsky",
+    "year": 1864,
+    "size": 266985
+  },
+  {
+    "id": 1399,
+    "title": "Anna Karenina",
+    "author": "graf Leo Tolstoy",
+    "year": 1877,
+    "size": 2067955
+  },
+  {
+    "id": 2097,
+    "title": "The Sign of the Four",
+    "author": "Arthur Conan Doyle",
+    "year": 1890,
+    "size": 261155
+  },
+  {
+    "id": 2554,
+    "title": "Crime and Punishment",
+    "author": "Fyodor Dostoyevsky",
+    "year": 1866,
+    "size": 1201728
   }
 ]
