@@ -2,90 +2,91 @@
 
 > 새 책 번역 완료 시 이 파일을 업데이트하세요.
 > 중복 작업 방지용 — 번역 전 반드시 이 목록 확인.
-> **마지막 디스크 실사: 2026-05-31** (catalog 매핑 오류 21권 수정 + 전 카탈로그·STATUS 동기화)
+> **마지막 디스크 실사: 2026-05-31** (catalog 3권 추가 + 분할 불일치 19권 마킹 + STATUS 동기화)
 
 - ✅ 완료: **69권**  ⏳ 진행 중(부분): **2권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **16권**
+- ⚠️ **분할 불일치** 마크는 _source(1200w/p)와 디스크(600w/p) 분할 다른 책 — 디스크 기준 완역이지만 워커 재진행 불가
 
 ## 번역 완료 (디스크 실사 확인 — 빈 페이지 0)
 
-| PG ID | 한국어 제목 | 원제 | 페이지 수 |
-|:---:|:---|:---|:---:|
-| pg11 | 이상한 나라의 앨리스 | Alice's Adventures in Wonderland | 76 |
-| pg16 | 피터 팬 | Peter Pan | 131 |
-| pg23 | 프레더릭 더글러스의 생애 | Narrative of the Life of Frederick Douglass, an American Slave | 87 |
-| pg35 | 타임머신 | The Time Machine | 63 |
-| pg36 | 우주전쟁 | The war of the worlds | 114 |
-| pg41 | 슬리피 할로우의 전설 | The Legend of Sleepy Hollow | 48 |
-| pg43 | 지킬 박사와 하이드 씨 | The strange case of Dr. Jekyll and Mr. Hyde | 96 |
-| pg45 | 빨강머리 앤 | Anne of Green Gables | 208 |
-| pg46 | 크리스마스 캐럴 | A Christmas Carol in Prose; Being a Ghost Story of Christmas | 19 |
-| pg55 | 오즈의 마법사 | The Wonderful Wizard of Oz | 34 |
-| pg61 | 공산당 선언 | The Communist Manifesto | 1 |
-| pg76 | 허클베리 핀의 모험 | Adventures of Huckleberry Finn | 6 |
-| pg84 | 프랑켄슈타인 | Frankenstein; or, the modern prometheus | 194 |
-| pg98 | 두 도시 이야기 | A Tale of Two Cities | 134 |
-| pg103 | 80일간의 세계 일주 | Around the World in Eighty Days | 69 |
-| pg105 | 설득 | Persuasion | 168 |
-| pg120 | 보물섬 | Treasure Island | 131 |
-| pg132 | 손자병법 | The Art of War | 57 |
-| pg135 | 레 미제라블 | Les Misérables | 494 |
-| pg139 | 잃어버린 세계 | The Lost World | 68 |
-| pg141 | 맨스필드 파크 | Mansfield Park | 165 |
-| pg160 | 각성 | The Awakening, and Selected Short Stories | 129 |
-| pg161 | 이성과 감성 | Sense and Sensibility | 240 |
-| pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 157 |
-| pg209 | 나사의 회전 | The Turn of the Screw | 94 |
-| pg215 | 야성의 부름 | The call of the wild | 62 |
-| pg219 | 어둠의 심장 | Heart of Darkness | 73 |
-| pg236 | 정글북 | The Jungle Book | 45 |
-| pg244 | 주홍색 연구 | A Study in Scarlet | 86 |
-| pg308 | 보트 위의 세 남자 | Three men in a boat (to say nothing of the dog) | 33 |
-| pg345 | 드라큘라 | Dracula | 323 |
-| pg526 | 야성의 부름 | ? | 74 |
-| pg600 | 지하로부터의 수기 | ? | 80 |
-| pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 44 |
-| pg768 | 폭풍의 언덕 | Wuthering Heights | 227 |
-| pg863 | 스타일스 저택의 괴사건 | The Mysterious Affair at Styles | 104 |
-| pg1007 | 신곡: 천국편 | Divine Comedy, Cary's Translation, Paradise | 81 |
-| pg1064 | 진지함의 중요성 | The Masque of the Red Death | 9 |
-| pg1080 | 겸손한 제안 | A Modest Proposal | 13 |
-| pg1232 | 군주론 | ? | 104 |
-| pg1251 | 아서왕의 죽음 | ? | 395 |
-| pg1260 | 제인 에어 | Jane Eyre: An Autobiography | 354 |
-| pg1317 | 붉은 무공훈장 | The Red Badge of Courage: An Episode of the American Civil War | 18 |
-| pg1322 | 풀잎 | Leaves of Grass | 237 |
-| pg1342 | 오만과 편견 | Pride and Prejudice | 323 |
-| pg1399 | 안나 카레리나 | ? | 414 |
-| pg1400 | 위대한 기대 | Great Expectations | 360 |
-| pg1497 | 국가 | The Republic | 198 |
-| pg1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | 280 |
-| pg1728 | 오디세이 | The Odyssey of Homer | 136 |
-| pg1934 | 순수의 노래와 경험의 노래 | Songs of Innocence and of Experience | 92 |
-| pg1952 | 노란 벽지 | The Yellow Wallpaper | 24 |
-| pg2097 | 네 사람의 서명 | ? | 85 |
-| pg2197 | 도박꾼 | The Gambler | 104 |
-| pg2500 | 싯다르타 | Siddhartha | 155 |
-| pg2542 | 인형의 집 | A Doll's House : a play | 82 |
-| pg2554 | 죄와 벌 | ? | 393 |
-| pg2701 | 모비 딕 | Moby Dick; Or, The Whale | 466 |
-| pg2814 | 더블린 사람들 | Dubliners | 131 |
-| pg2852 | 바스커빌 가의 개 | The Hound of the Baskervilles | 47 |
-| pg3825 | 피그말리온 | Pygmalion | 30 |
-| pg4085 | 아라비안 나이트 | The Arabian Nights Entertainments | 211 |
-| pg4300 | 율리시스 | Ulysses | 287 |
-| pg4363 | 선악의 저편 | Beyond Good and Evil | 70 |
-| pg4517 | 이선 프롬 | Ethan Frome | 65 |
-| pg5200 | 변신 | Metamorphosis | 71 |
-| pg5230 | 투명 인간 | The Invisible Man: A Grotesque Romance | 102 |
-| pg5765 | 식충식물 | ? | 86 |
-| pg6130 | 일리아드 | The Iliad | 164 |
+| PG ID | 한국어 제목 | 원제 | 페이지 수 | 분할정합 |
+|:---:|:---|:---|:---:|:---:|
+| pg11 | 이상한 나라의 앨리스 | Alice's Adventures in Wonderland | 76 | ✓ |
+| pg16 | 피터 팬 | Peter Pan | 131 | ✓ |
+| pg23 | 프레더릭 더글러스의 생애 | Narrative of the Life of Frederick Douglass, an American Slave | 87 | ✓ |
+| pg35 | 타임머신 | The Time Machine | 63 | ✓ |
+| pg36 | 우주전쟁 | The war of the worlds | 114 | ✓ |
+| pg41 | 슬리피 할로우의 전설 | The Legend of Sleepy Hollow | 48 | ✓ |
+| pg43 | 지킬 박사와 하이드 씨 | The strange case of Dr. Jekyll and Mr. Hyde | 96 | ✓ |
+| pg45 | 빨강머리 앤 | Anne of Green Gables | 208 | ✓ |
+| pg46 | 크리스마스 캐럴 | A Christmas Carol in Prose; Being a Ghost Story of Christmas | 19 | ⚠️ |
+| pg55 | 오즈의 마법사 | The Wonderful Wizard of Oz | 34 | ✓ |
+| pg61 | 공산당 선언 | The Communist Manifesto | 1 | ✓ |
+| pg76 | 허클베리 핀의 모험 | Adventures of Huckleberry Finn | 6 | ✓ |
+| pg84 | 프랑켄슈타인 | Frankenstein; or, the modern prometheus | 194 | ✓ |
+| pg98 | 두 도시 이야기 | A Tale of Two Cities | 134 | ✓ |
+| pg103 | 80일간의 세계 일주 | Around the World in Eighty Days | 69 | ✓ |
+| pg105 | 설득 | Persuasion | 168 | ✓ |
+| pg120 | 보물섬 | Treasure Island | 131 | ⚠️ |
+| pg132 | 손자병법 | The Art of War | 57 | ✓ |
+| pg135 | 레 미제라블 | Les Misérables | 494 | ⚠️ |
+| pg139 | 잃어버린 세계 | The Lost World | 68 | ✓ |
+| pg141 | 맨스필드 파크 | Mansfield Park | 165 | ✓ |
+| pg160 | 각성 | The Awakening, and Selected Short Stories | 129 | ✓ |
+| pg161 | 이성과 감성 | Sense and Sensibility | 240 | ⚠️ |
+| pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 157 | ⚠️ |
+| pg209 | 나사의 회전 | The Turn of the Screw | 94 | ✓ |
+| pg215 | 야성의 부름 | The call of the wild | 62 | ✓ |
+| pg219 | 어둠의 심장 | Heart of Darkness | 73 | ✓ |
+| pg236 | 정글북 | The Jungle Book | 45 | ✓ |
+| pg244 | 주홍색 연구 | A Study in Scarlet | 86 | ⚠️ |
+| pg308 | 보트 위의 세 남자 | Three men in a boat (to say nothing of the dog) | 33 | ⚠️ |
+| pg345 | 드라큘라 | Dracula | 323 | ✓ |
+| pg526 | 야성의 부름 | ? | 74 | ✓ |
+| pg600 | 지하로부터의 수기 | ? | 80 | ✓ |
+| pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 44 | ⚠️ |
+| pg768 | 폭풍의 언덕 | Wuthering Heights | 227 | ⚠️ |
+| pg863 | 스타일스 저택의 괴사건 | The Mysterious Affair at Styles | 104 | ✓ |
+| pg1007 | 신곡: 천국편 | Divine Comedy, Cary's Translation, Paradise | 81 | ✓ |
+| pg1064 | 진지함의 중요성 | The Masque of the Red Death | 9 | ✓ |
+| pg1080 | 겸손한 제안 | A Modest Proposal | 13 | ✓ |
+| pg1232 | 군주론 | The Prince | 104 | ⚠️ |
+| pg1251 | 아서왕의 죽음 | Le Morte d'Arthur: Volume 1 | 395 | ⚠️ |
+| pg1260 | 제인 에어 | Jane Eyre: An Autobiography | 354 | ✓ |
+| pg1317 | 붉은 무공훈장 | The Red Badge of Courage: An Episode of the American Civil War | 18 | ✓ |
+| pg1322 | 풀잎 | Leaves of Grass | 237 | ✓ |
+| pg1342 | 오만과 편견 | Pride and Prejudice | 323 | ⚠️ |
+| pg1399 | 안나 카레리나 | ? | 414 | ✓ |
+| pg1400 | 위대한 기대 | Great Expectations | 360 | ✓ |
+| pg1497 | 국가 | The Republic | 198 | ✓ |
+| pg1661 | 셜록 홈즈의 모험 | The Adventures of Sherlock Holmes | 280 | ✓ |
+| pg1728 | 오디세이 | The Odyssey of Homer | 136 | ⚠️ |
+| pg1934 | 순수의 노래와 경험의 노래 | Songs of Innocence and of Experience | 92 | ✓ |
+| pg1952 | 노란 벽지 | The Yellow Wallpaper | 24 | ✓ |
+| pg2097 | 네 사람의 서명 | ? | 85 | ✓ |
+| pg2197 | 도박꾼 | The Gambler | 104 | ✓ |
+| pg2500 | 싯다르타 | Siddhartha | 155 | ✓ |
+| pg2542 | 인형의 집 | A Doll's House : a play | 82 | ✓ |
+| pg2554 | 죄와 벌 | ? | 393 | ✓ |
+| pg2701 | 모비 딕 | Moby Dick; Or, The Whale | 466 | ✓ |
+| pg2814 | 더블린 사람들 | Dubliners | 131 | ⚠️ |
+| pg2852 | 바스커빌 가의 개 | The Hound of the Baskervilles | 47 | ✓ |
+| pg3825 | 피그말리온 | Pygmalion | 30 | ✓ |
+| pg4085 | 아라비안 나이트 | The Arabian Nights Entertainments | 211 | ✓ |
+| pg4300 | 율리시스 | Ulysses | 287 | ⚠️ |
+| pg4363 | 선악의 저편 | Beyond Good and Evil | 70 | ✓ |
+| pg4517 | 이선 프롬 | Ethan Frome | 65 | ✓ |
+| pg5200 | 변신 | Metamorphosis | 71 | ✓ |
+| pg5230 | 투명 인간 | The Invisible Man: A Grotesque Romance | 102 | ⚠️ |
+| pg5765 | 식충식물 | Insectivorous Plants | 86 | ⚠️ |
+| pg6130 | 일리아드 | The Iliad | 164 | ✓ |
 
 ## 번역 진행 중 (부분 완료)
 
-| PG ID | 한국어 제목 | 원제 | 완료/전체 | 진행률 |
-|:---:|:---|:---|:---:|:---:|
-| pg158 | 엠마 | Emma | 319/638 | 50% |
-| pg1404 | 연방주의자 논집 | The Federalist Papers | 274/285 | 96% |
+| PG ID | 한국어 제목 | 원제 | 완료/전체 | 진행률 | 분할정합 |
+|:---:|:---|:---|:---:|:---:|:---:|
+| pg158 | 엠마 | Emma | 319/638 | 50% | ⚠️ |
+| pg1404 | 연방주의자 논집 | The Federalist Papers | 274/285 | 96% | ⚠️ |
 
 ## 미번역 (빈 페이지 100% — 파일 존재하지만 내용 없음)
 

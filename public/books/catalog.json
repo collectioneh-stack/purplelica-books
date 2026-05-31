@@ -551,5 +551,26 @@
     "author": "Jane Austen",
     "year": 1811,
     "size": 712845
+  },
+  {
+    "id": 1232,
+    "title": "The Prince",
+    "author": "Niccolò Machiavelli",
+    "year": 2006,
+    "size": 308025
+  },
+  {
+    "id": 1251,
+    "title": "Le Morte d'Arthur: Volume 1",
+    "author": "Sir Thomas Malory",
+    "year": 1998,
+    "size": 917386
+  },
+  {
+    "id": 5765,
+    "title": "Insectivorous Plants",
+    "author": "Charles Darwin",
+    "year": 2004,
+    "size": 969001
   }
 ]
