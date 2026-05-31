@@ -1,11 +1,10 @@
 # 한국어 번역 현황
 
-> **마지막 디스크 실사: 2026-05-31** (p#.json만 정확히 카운트 — 영어 원본 p#_en.json 별도 처리)
+> **마지막 디스크 실사: 2026-06-01** (짧은 책 5권 병렬 번역 완료 후)
 
-- ✅ 완료: **71권**  ⏳ 진행 중(부분): **1권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **18권**
-- 🌐 **사이트 노출: 71권** (`TRANSLATED_IDS` 기준 — pg158 엠마 신규 추가)
+- ✅ 완료: **75권**  ⏳ 진행 중(부분): **2권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **13권**
 
-## 번역 완료 (디스크 실사 확인 — 빈 페이지 0)
+## 번역 완료
 
 | PG ID | 한국어 제목 | 원제 | 페이지 수 | 분할정합 |
 |:---:|:---|:---|:---:|:---:|
@@ -37,11 +36,13 @@
 | pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 157 | ⚠️ |
 | pg209 | 나사의 회전 | The Turn of the Screw | 94 | ✓ |
 | pg215 | 야성의 부름 | The call of the wild | 62 | ✓ |
+| pg216 | 도덕경 | The Tao Teh King, or the Tao and its Characteristics | 20 | ✓ |
 | pg219 | 어둠의 심장 | Heart of Darkness | 73 | ✓ |
 | pg236 | 정글북 | The Jungle Book | 45 | ✓ |
 | pg244 | 주홍색 연구 | A Study in Scarlet | 86 | ⚠️ |
 | pg308 | 보트 위의 세 남자 | Three men in a boat (to say nothing of the dog) | 33 | ⚠️ |
 | pg345 | 드라큘라 | Dracula | 323 | ✓ |
+| pg408 | 흑인의 영혼 | The Souls of Black Folk | 146 | ✓ |
 | pg526 | 어둠의 심장 (pg219와 중복) | Heart of Darkness | 74 | ✓ |
 | pg600 | 지하로부터의 수기 | Notes from the Underground | 80 | ✓ |
 | pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 44 | ⚠️ |
@@ -55,6 +56,7 @@
 | pg1260 | 제인 에어 | Jane Eyre: An Autobiography | 354 | ✓ |
 | pg1317 | 붉은 무공훈장 | The Red Badge of Courage: An Episode of the American Civil War | 18 | ✓ |
 | pg1322 | 풀잎 | Leaves of Grass | 237 | ✓ |
+| pg1327 | 엘리자베스와 독일 정원 | Elizabeth and Her German Garden | 97 | ✓ |
 | pg1342 | 오만과 편견 | Pride and Prejudice | 323 | ⚠️ |
 | pg1399 | 안나 카레리나 | Anna Karenina | 414 | ✓ |
 | pg1400 | 위대한 기대 | Great Expectations | 360 | ✓ |
@@ -68,6 +70,7 @@
 | pg2500 | 싯다르타 | Siddhartha | 155 | ✓ |
 | pg2542 | 인형의 집 | A Doll's House : a play | 82 | ✓ |
 | pg2554 | 죄와 벌 | Crime and Punishment | 393 | ✓ |
+| pg2680 | 명상록 | Meditations | 143 | ✓ |
 | pg2701 | 모비 딕 | Moby Dick; Or, The Whale | 466 | ✓ |
 | pg2814 | 더블린 사람들 | Dubliners | 131 | ⚠️ |
 | pg2852 | 바스커빌 가의 개 | The Hound of the Baskervilles | 47 | ✓ |
@@ -81,11 +84,12 @@
 | pg5765 | 식충식물 | Insectivorous Plants | 86 | ⚠️ |
 | pg6130 | 일리아드 | The Iliad | 164 | ✓ |
 
-## 번역 진행 중 (부분 완료)
+## 번역 진행 중
 
 | PG ID | 한국어 제목 | 원제 | 완료/전체 | 진행률 | 분할정합 |
 |:---:|:---|:---|:---:|:---:|:---:|
 | pg1404 | 연방주의자 논집 | The Federalist Papers | 274/285 | 96% | ⚠️ |
+| pg11339 | 이솝 우화 | Aesop's Fables; a new translation | 259/517 | 50% | ⚠️ |
 
 ## 미번역 (빈 페이지 100%)
 
@@ -100,19 +104,14 @@
 |:---:|:---|:---|
 | pg67 | 미국의 흑인 경험 | The Black Experience in America |
 | pg83 | 지구에서 달까지 | From the Earth to the moon; and, round the moon |
-| pg216 | 도덕경 | The Tao Teh King, or the Tao and its Characteristics |
-| pg408 | 흑인의 영혼 | The Souls of Black Folk |
 | pg512 | 옛 목사관의 이끼 | Mosses from an old manse |
 | pg514 | 작은 아씨들 | Little Women |
 | pg730 | 올리버 트위스트 | Oliver Twist |
 | pg996 | 돈키호테 | Don Quixote |
-| pg1327 | 엘리자베스와 독일 정원 | Elizabeth and Her German Garden |
 | pg1998 | 차라투스트라는 이렇게 말했다 | Thus Spake Zarathustra: A Book for All and None |
 | pg2268 | 안토니우스와 클레오파트라 | Antony and Cleopatra |
 | pg2413 | 보바리 부인 | Madame Bovary |
 | pg2591 | 그림 동화 | Grimms' Fairy Tales |
-| pg2680 | 명상록 | Meditations |
 | pg3207 | 리바이어던 | Leviathan |
 | pg6593 | 톰 존스 | History of Tom Jones, a Foundling |
 | pg7849 | 심판 | The Trial |
-| pg11339 | 이솝 우화 | Aesop's Fables; a new translation |
