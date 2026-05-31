@@ -2,9 +2,9 @@
 
 > 새 책 번역 완료 시 이 파일을 업데이트하세요.
 > 중복 작업 방지용 — 번역 전 반드시 이 목록 확인.
-> **마지막 디스크 실사: 2026-05-31** (catalog 3권 추가 + 분할 불일치 19권 마킹 + STATUS 동기화)
+> **마지막 디스크 실사: 2026-05-31** (한국 명저 3권 신규 ID 추가: 도덕경/이솝우화/명상록)
 
-- ✅ 완료: **69권**  ⏳ 진행 중(부분): **2권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **16권**
+- ✅ 완료: **70권**  ⏳ 진행 중(부분): **2권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **18권**
 - ⚠️ **분할 불일치** 마크는 _source(1200w/p)와 디스크(600w/p) 분할 다른 책 — 디스크 기준 완역이지만 워커 재진행 불가
 
 ## 번역 완료 (디스크 실사 확인 — 빈 페이지 0)
@@ -22,6 +22,7 @@
 | pg46 | 크리스마스 캐럴 | A Christmas Carol in Prose; Being a Ghost Story of Christmas | 19 | ⚠️ |
 | pg55 | 오즈의 마법사 | The Wonderful Wizard of Oz | 34 | ✓ |
 | pg61 | 공산당 선언 | The Communist Manifesto | 1 | ✓ |
+| pg74 | 톰 소여의 모험 | The Adventures of Tom Sawyer, Complete | 143 | ✓ |
 | pg76 | 허클베리 핀의 모험 | Adventures of Huckleberry Finn | 6 | ✓ |
 | pg84 | 프랑켄슈타인 | Frankenstein; or, the modern prometheus | 194 | ✓ |
 | pg98 | 두 도시 이야기 | A Tale of Two Cities | 134 | ✓ |
@@ -100,8 +101,8 @@
 | PG ID | 한국어 제목 | 원제 |
 |:---:|:---|:---|
 | pg67 | 미국의 흑인 경험 | The Black Experience in America |
-| pg74 | 톰 소여의 모험 | The Adventures of Tom Sawyer, Complete |
 | pg83 | 지구에서 달까지 | From the Earth to the moon; and, round the moon |
+| pg216 | 도덕경 | The Tao Teh King, or the Tao and its Characteristics |
 | pg408 | 흑인의 영혼 | The Souls of Black Folk |
 | pg512 | 옛 목사관의 이끼 | Mosses from an old manse |
 | pg514 | 작은 아씨들 | Little Women |
@@ -112,6 +113,8 @@
 | pg2268 | 안토니우스와 클레오파트라 | Antony and Cleopatra |
 | pg2413 | 보바리 부인 | Madame Bovary |
 | pg2591 | 그림 동화 | Grimms' Fairy Tales |
+| pg2680 | 명상록 | Meditations |
 | pg3207 | 리바이어던 | Leviathan |
 | pg6593 | 톰 존스 | History of Tom Jones, a Foundling |
 | pg7849 | 심판 | The Trial |
+| pg11339 | 이솝 우화 | Aesop's Fables; a new translation |

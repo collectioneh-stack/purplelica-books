@@ -572,5 +572,26 @@
     "author": "Charles Darwin",
     "year": 2004,
     "size": 969001
+  },
+  {
+    "id": 216,
+    "title": "The Tao Teh King, or the Tao and its Characteristics",
+    "author": "Laozi",
+    "year": -500,
+    "size": 80555
+  },
+  {
+    "id": 11339,
+    "title": "Aesop's Fables; a new translation",
+    "author": "Aesop",
+    "year": -600,
+    "size": 241782
+  },
+  {
+    "id": 2680,
+    "title": "Meditations",
+    "author": "Emperor of Rome Marcus Aurelius",
+    "year": 180,
+    "size": 425311
   }
 ]
