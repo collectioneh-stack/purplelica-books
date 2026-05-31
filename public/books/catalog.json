@@ -2,343 +2,343 @@
   {
     "id": 1342,
     "title": "Pride and Prejudice",
-    "author": "Austen, Jane",
+    "author": "Jane Austen",
     "year": 1813,
     "size": 763083
   },
   {
     "id": 11,
     "title": "Alice's Adventures in Wonderland",
-    "author": "Carroll, Lewis",
+    "author": "Lewis Carroll",
     "year": 1865,
     "size": 167713
   },
   {
     "id": 84,
-    "title": "Frankenstein",
-    "author": "Shelley, Mary Wollstonecraft",
+    "title": "Frankenstein; or, the modern prometheus",
+    "author": "Mary Wollstonecraft Shelley",
     "year": 1818,
     "size": 448888
   },
   {
     "id": 1661,
     "title": "The Adventures of Sherlock Holmes",
-    "author": "Doyle, Arthur Conan",
+    "author": "Arthur Conan Doyle",
     "year": 1892,
     "size": 593912
   },
   {
     "id": 98,
     "title": "A Tale of Two Cities",
-    "author": "Dickens, Charles",
+    "author": "Charles Dickens",
     "year": 1859,
     "size": 793196
   },
   {
     "id": 2701,
     "title": "Moby Dick; Or, The Whale",
-    "author": "Melville, Herman",
+    "author": "Herman Melville",
     "year": 1851,
     "size": 1260594
   },
   {
     "id": 174,
     "title": "The Picture of Dorian Gray",
-    "author": "Wilde, Oscar",
+    "author": "Oscar Wilde",
     "year": 1890,
     "size": 457568
   },
   {
     "id": 345,
     "title": "Dracula",
-    "author": "Stoker, Bram",
+    "author": "Bram Stoker",
     "year": 1897,
     "size": 881061
   },
   {
     "id": 76,
     "title": "Adventures of Huckleberry Finn",
-    "author": "Twain, Mark",
+    "author": "Mark Twain",
     "year": 1884,
     "size": 602753
   },
   {
     "id": 46,
-    "title": "A Christmas Carol in Prose",
-    "author": "Dickens, Charles",
+    "title": "A Christmas Carol in Prose; Being a Ghost Story of Christmas",
+    "author": "Charles Dickens",
     "year": 1843,
     "size": 182146
   },
   {
     "id": 1260,
     "title": "Jane Eyre: An Autobiography",
-    "author": "Brontë, Charlotte",
+    "author": "Charlotte Brontë",
     "year": 1847,
     "size": 1063116
   },
   {
     "id": 768,
     "title": "Wuthering Heights",
-    "author": "Brontë, Emily",
+    "author": "Emily Brontë",
     "year": 1847,
     "size": 677618
   },
   {
     "id": 5200,
     "title": "Metamorphosis",
-    "author": "Kafka, Franz",
+    "author": "Franz Kafka",
     "year": 1915,
     "size": 140566
   },
   {
     "id": 74,
-    "title": "The Adventures of Tom Sawyer",
-    "author": "Twain, Mark",
+    "title": "The Adventures of Tom Sawyer, Complete",
+    "author": "Mark Twain",
     "year": 1876,
     "size": 421361
   },
   {
     "id": 43,
-    "title": "The Strange Case of Dr Jekyll and Mr Hyde",
-    "author": "Stevenson, Robert Louis",
+    "title": "The strange case of Dr. Jekyll and Mr. Hyde",
+    "author": "Robert Louis Stevenson",
     "year": 1886,
     "size": 161124
   },
   {
     "id": 1400,
     "title": "Great Expectations",
-    "author": "Dickens, Charles",
+    "author": "Charles Dickens",
     "year": 1861,
     "size": 1034709
   },
   {
     "id": 514,
     "title": "Little Women",
-    "author": "Alcott, Louisa May",
+    "author": "Louisa May Alcott",
     "year": 1868,
     "size": 1047583
   },
   {
     "id": 2814,
     "title": "Dubliners",
-    "author": "Joyce, James",
+    "author": "James Joyce",
     "year": 1914,
     "size": 397354
   },
   {
     "id": 244,
     "title": "A Study in Scarlet",
-    "author": "Doyle, Arthur Conan",
+    "author": "Arthur Conan Doyle",
     "year": 1887,
     "size": 263857
   },
   {
     "id": 16,
     "title": "Peter Pan",
-    "author": "Barrie, J. M.",
+    "author": "J. M. Barrie",
     "year": 1904,
     "size": 281504
   },
   {
     "id": 1952,
     "title": "The Yellow Wallpaper",
-    "author": "Gilman, Charlotte Perkins",
+    "author": "Charlotte Perkins Gilman",
     "year": 1892,
     "size": 52059
   },
   {
     "id": 23,
-    "title": "Narrative of the Life of Frederick Douglass",
-    "author": "Douglass, Frederick",
+    "title": "Narrative of the Life of Frederick Douglass, an American Slave",
+    "author": "Frederick Douglass",
     "year": 1845,
     "size": 247586
   },
   {
     "id": 2500,
     "title": "Siddhartha",
-    "author": "Hesse, Hermann",
+    "author": "Hermann Hesse",
     "year": 1922,
     "size": 239818
   },
   {
     "id": 1080,
     "title": "A Modest Proposal",
-    "author": "Swift, Jonathan",
+    "author": "Jonathan Swift",
     "year": 1729,
     "size": 39526
   },
   {
     "id": 2542,
-    "title": "A Doll's House",
-    "author": "Ibsen, Henrik",
+    "title": "A Doll's House : a play",
+    "author": "Henrik Ibsen",
     "year": 1879,
     "size": 167147
   },
   {
     "id": 135,
     "title": "Les Misérables",
-    "author": "Hugo, Victor",
+    "author": "Victor Hugo",
     "year": 1862,
     "size": 3324283
   },
   {
     "id": 730,
     "title": "Oliver Twist",
-    "author": "Dickens, Charles",
+    "author": "Charles Dickens",
     "year": 1837,
     "size": 931658
   },
   {
     "id": 158,
     "title": "Emma",
-    "author": "Austen, Jane",
+    "author": "Jane Austen",
     "year": 1815,
     "size": 916551
   },
   {
     "id": 105,
     "title": "Persuasion",
-    "author": "Austen, Jane",
+    "author": "Jane Austen",
     "year": 1817,
     "size": 492873
   },
   {
     "id": 1322,
     "title": "Leaves of Grass",
-    "author": "Whitman, Walt",
+    "author": "Walt Whitman",
     "year": 1855,
     "size": 775575
   },
   {
     "id": 4300,
     "title": "Ulysses",
-    "author": "Joyce, James",
+    "author": "James Joyce",
     "year": 1922,
     "size": 1572179
   },
   {
     "id": 61,
-    "title": "The Secret Garden",
-    "author": "Burnett, Frances Hodgson",
+    "title": "The Communist Manifesto",
+    "author": "Karl Marx",
     "year": 1911,
     "size": 94044
   },
   {
     "id": 45,
     "title": "Anne of Green Gables",
-    "author": "Montgomery, L. M.",
+    "author": "L. M. Montgomery",
     "year": 1908,
     "size": 591613
   },
   {
     "id": 219,
     "title": "Heart of Darkness",
-    "author": "Conrad, Joseph",
+    "author": "Joseph Conrad",
     "year": 1899,
     "size": 232925
   },
   {
     "id": 35,
     "title": "The Time Machine",
-    "author": "Wells, H. G.",
+    "author": "H. G. Wells",
     "year": 1895,
     "size": 202498
   },
   {
     "id": 36,
-    "title": "The War of the Worlds",
-    "author": "Wells, H. G.",
+    "title": "The war of the worlds",
+    "author": "H. G. Wells",
     "year": 1898,
     "size": 363441
   },
   {
     "id": 5230,
-    "title": "The Island of Doctor Moreau",
-    "author": "Wells, H. G.",
+    "title": "The Invisible Man: A Grotesque Romance",
+    "author": "H. G. Wells",
     "year": 1896,
     "size": 298319
   },
   {
     "id": 721,
     "title": "The Birds' Christmas Carol",
-    "author": "Wiggin, Kate Douglas Smith",
+    "author": "Kate Douglas Smith Wiggin",
     "year": 1887,
     "size": 87559
   },
   {
     "id": 1934,
-    "title": "Songs of Innocence and Experience",
-    "author": "Blake, William",
+    "title": "Songs of Innocence and of Experience",
+    "author": "William Blake",
     "year": 1789,
     "size": 52344
   },
   {
     "id": 103,
-    "title": "Twenty Thousand Leagues under the Sea",
-    "author": "Verne, Jules",
+    "title": "Around the World in Eighty Days",
+    "author": "Jules Verne",
     "year": 1870,
     "size": 396839
   },
   {
     "id": 83,
-    "title": "The Gospel of Matthew",
-    "author": "Various",
+    "title": "From the Earth to the moon; and, round the moon",
+    "author": "Jules Verne",
     "year": 0,
     "size": 576023
   },
   {
     "id": 2413,
-    "title": "The Great God Pan",
-    "author": "Machen, Arthur",
+    "title": "Madame Bovary",
+    "author": "Gustave Flaubert",
     "year": 1890,
     "size": 685270
   },
   {
     "id": 1327,
-    "title": "The Sea-Wolf",
-    "author": "London, Jack",
+    "title": "Elizabeth and Her German Garden",
+    "author": "Elizabeth Von Arnim",
     "year": 1904,
     "size": 288908
   },
   {
     "id": 215,
-    "title": "White Fang",
-    "author": "London, Jack",
+    "title": "The call of the wild",
+    "author": "Jack London",
     "year": 1906,
     "size": 198370
   },
   {
     "id": 1317,
-    "title": "The Red Badge of Courage",
-    "author": "Crane, Stephen",
+    "title": "The Red Badge of Courage: An Episode of the American Civil War",
+    "author": "Stephen Crane",
     "year": 1895,
     "size": 131068
   },
   {
     "id": 863,
-    "title": "The Phantom of the Opera",
-    "author": "Leroux, Gaston",
+    "title": "The Mysterious Affair at Styles",
+    "author": "Agatha Christie",
     "year": 1910,
     "size": 349123
   },
   {
     "id": 1998,
-    "title": "Thus Spoke Zarathustra",
-    "author": "Nietzsche, Friedrich",
+    "title": "Thus Spake Zarathustra: A Book for All and None",
+    "author": "Friedrich Wilhelm Nietzsche",
     "year": 1883,
     "size": 672792
   },
   {
     "id": 4363,
     "title": "Beyond Good and Evil",
-    "author": "Nietzsche, Friedrich",
+    "author": "Friedrich Wilhelm Nietzsche",
     "year": 1886,
     "size": 408873
   },
   {
     "id": 2197,
-    "title": "Meditations",
-    "author": "Aurelius, Marcus",
+    "title": "The Gambler",
+    "author": "Fyodor Dostoyevsky",
     "year": 180,
     "size": 357975
   },
@@ -351,7 +351,7 @@
   },
   {
     "id": 1728,
-    "title": "The Odyssey",
+    "title": "The Odyssey of Homer",
     "author": "Homer",
     "year": -800,
     "size": 786306
@@ -366,21 +366,21 @@
   {
     "id": 1064,
     "title": "The Masque of the Red Death",
-    "author": "Poe, Edgar Allan",
+    "author": "Edgar Allan Poe",
     "year": 1842,
     "size": 33717
   },
   {
     "id": 2852,
     "title": "The Hound of the Baskervilles",
-    "author": "Doyle, Arthur Conan",
+    "author": "Arthur Conan Doyle",
     "year": 1902,
     "size": 381208
   },
   {
     "id": 139,
     "title": "The Lost World",
-    "author": "Doyle, Arthur Conan",
+    "author": "Arthur Conan Doyle",
     "year": 1912,
     "size": 451721
   },
@@ -393,162 +393,162 @@
   },
   {
     "id": 160,
-    "title": "The Awakening",
-    "author": "Chopin, Kate",
+    "title": "The Awakening, and Selected Short Stories",
+    "author": "Kate Chopin",
     "year": 1899,
     "size": 386537
   },
   {
     "id": 120,
     "title": "Treasure Island",
-    "author": "Stevenson, Robert Louis",
+    "author": "Robert Louis Stevenson",
     "year": 1882,
     "size": 391658
   },
   {
     "id": 141,
     "title": "Mansfield Park",
-    "author": "Austen, Jane",
+    "author": "Jane Austen",
     "year": 1814,
     "size": 919320
   },
   {
     "id": 4517,
-    "title": "My Ántonia",
-    "author": "Cather, Willa",
+    "title": "Ethan Frome",
+    "author": "Edith Wharton",
     "year": 1918,
     "size": 211916
   },
   {
     "id": 67,
-    "title": "The Scarlet Letter",
-    "author": "Hawthorne, Nathaniel",
+    "title": "The Black Experience in America",
+    "author": "Norman Coombs",
     "year": 1850,
     "size": 505998
   },
   {
     "id": 512,
-    "title": "The House of the Seven Gables",
-    "author": "Hawthorne, Nathaniel",
+    "title": "Mosses from an old manse",
+    "author": "Nathaniel Hawthorne",
     "year": 1851,
     "size": 938105
   },
   {
     "id": 7849,
-    "title": "Anthem",
-    "author": "Rand, Ayn",
+    "title": "The Trial",
+    "author": "Franz Kafka",
     "year": 1938,
     "size": 476644
   },
   {
     "id": 41,
     "title": "The Legend of Sleepy Hollow",
-    "author": "Irving, Washington",
+    "author": "Washington Irving",
     "year": 1820,
     "size": 90624
   },
   {
     "id": 308,
-    "title": "Ethan Frome",
-    "author": "Wharton, Edith",
+    "title": "Three men in a boat (to say nothing of the dog)",
+    "author": "Jerome K. Jerome",
     "year": 1911,
     "size": 388645
   },
   {
     "id": 6593,
-    "title": "The House of Mirth",
-    "author": "Wharton, Edith",
+    "title": "History of Tom Jones, a Foundling",
+    "author": "Henry Fielding",
     "year": 1905,
     "size": 2016267
   },
   {
     "id": 2591,
     "title": "Grimms' Fairy Tales",
-    "author": "Grimm, Jacob",
+    "author": "Jacob Grimm",
     "year": 1812,
     "size": 549777
   },
   {
     "id": 1007,
-    "title": "Aesop's Fables",
-    "author": "Aesop",
+    "title": "Divine Comedy, Cary's Translation, Paradise",
+    "author": "Dante Alighieri",
     "year": -600,
     "size": 223507
   },
   {
     "id": 4085,
-    "title": "The Arabian Nights",
-    "author": "Anonymous",
+    "title": "The Arabian Nights Entertainments",
+    "author": "Andrew Lang",
     "year": 1000,
     "size": 1110552
   },
   {
     "id": 3207,
     "title": "Leviathan",
-    "author": "Hobbes, Thomas",
+    "author": "Thomas Hobbes",
     "year": 1651,
     "size": 1254733
   },
   {
     "id": 2268,
-    "title": "Tao Te Ching",
-    "author": "Laozi",
+    "title": "Antony and Cleopatra",
+    "author": "William Shakespeare",
     "year": -400,
     "size": 172964
   },
   {
     "id": 1404,
     "title": "The Federalist Papers",
-    "author": "Hamilton, Alexander; Madison, James; Jay, John",
+    "author": "Alexander Hamilton",
     "year": 1788,
     "size": 1186744
   },
   {
     "id": 209,
     "title": "The Turn of the Screw",
-    "author": "James, Henry",
+    "author": "Henry James",
     "year": 1898,
     "size": 252691
   },
   {
     "id": 408,
-    "title": "The Awakening",
-    "author": "Chopin, Kate",
+    "title": "The Souls of Black Folk",
+    "author": "W. E. B. Du Bois",
     "year": 1899,
     "size": 425403
   },
   {
     "id": 55,
     "title": "The Wonderful Wizard of Oz",
-    "author": "Baum, L. Frank",
+    "author": "L. Frank Baum",
     "year": 1900,
     "size": 232243
   },
   {
     "id": 996,
     "title": "Don Quixote",
-    "author": "Cervantes Saavedra, Miguel de",
+    "author": "Miguel de Cervantes Saavedra",
     "year": 1605,
     "size": 2361875
   },
   {
     "id": 3825,
-    "title": "Walden",
-    "author": "Thoreau, Henry David",
+    "title": "Pygmalion",
+    "author": "Bernard Shaw",
     "year": 1854,
     "size": 212317
   },
   {
     "id": 132,
     "title": "The Art of War",
-    "author": "Sunzi",
+    "author": "active 6th century B.C. Sunzi",
     "year": -500,
     "size": 339290
   },
   {
     "id": 161,
     "title": "Sense and Sensibility",
-    "author": "Austen, Jane",
+    "author": "Jane Austen",
     "year": 1811,
     "size": 712845
   }
