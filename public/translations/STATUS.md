@@ -1,12 +1,13 @@
 # 한국어 번역 현황
 
-> **마지막 디스크 실사: 2026-06-01** (짧은 책 5권 병렬 번역 완료 후)
+> **마지막 디스크 실사: 2026-06-01** (본문 페이지 기준 카운트 — 시집 모드 챕터 제목 페이지 제외)
 
-- ✅ 완료: **75권**  ⏳ 진행 중(부분): **2권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **13권**
+- ✅ 완료: **76권**  ⏳ 진행 중(부분): **1권**  ⚪ 빈 페이지만: **2권**  ❌ 폴더 없음: **13권**
+- 🌐 **사이트 노출: 72권** (`TRANSLATED_IDS` 기준 — pg11339 이솝 우화 신규 추가, 본문 288p 완역)
 
-## 번역 완료
+## 번역 완료 (본문 페이지 100% 한국어)
 
-| PG ID | 한국어 제목 | 원제 | 페이지 수 | 분할정합 |
+| PG ID | 한국어 제목 | 원제 | 본문 페이지 | 분할정합 |
 |:---:|:---|:---|:---:|:---:|
 | pg11 | 이상한 나라의 앨리스 | Alice's Adventures in Wonderland | 76 | ✓ |
 | pg16 | 피터 팬 | Peter Pan | 131 | ✓ |
@@ -25,39 +26,39 @@
 | pg98 | 두 도시 이야기 | A Tale of Two Cities | 134 | ✓ |
 | pg103 | 80일간의 세계 일주 | Around the World in Eighty Days | 69 | ✓ |
 | pg105 | 설득 | Persuasion | 168 | ✓ |
-| pg120 | 보물섬 | Treasure Island | 131 | ⚠️ |
+| pg120 | 보물섬 | Treasure Island | 69 | ⚠️ |
 | pg132 | 손자병법 | The Art of War | 57 | ✓ |
 | pg135 | 레 미제라블 | Les Misérables | 494 | ⚠️ |
 | pg139 | 잃어버린 세계 | The Lost World | 68 | ✓ |
 | pg141 | 맨스필드 파크 | Mansfield Park | 165 | ✓ |
-| pg158 | 엠마 | Emma | 319 | ⚠️ |
+| pg158 | 엠마 | Emma | 311 | ⚠️ |
 | pg160 | 각성 | The Awakening, and Selected Short Stories | 129 | ✓ |
-| pg161 | 이성과 감성 | Sense and Sensibility | 240 | ⚠️ |
-| pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 157 | ⚠️ |
+| pg161 | 이성과 감성 | Sense and Sensibility | 131 | ⚠️ |
+| pg174 | 도리안 그레이의 초상 | The Picture of Dorian Gray | 78 | ⚠️ |
 | pg209 | 나사의 회전 | The Turn of the Screw | 94 | ✓ |
 | pg215 | 야성의 부름 | The call of the wild | 62 | ✓ |
 | pg216 | 도덕경 | The Tao Teh King, or the Tao and its Characteristics | 20 | ✓ |
 | pg219 | 어둠의 심장 | Heart of Darkness | 73 | ✓ |
 | pg236 | 정글북 | The Jungle Book | 45 | ✓ |
-| pg244 | 주홍색 연구 | A Study in Scarlet | 86 | ⚠️ |
+| pg244 | 주홍색 연구 | A Study in Scarlet | 45 | ⚠️ |
 | pg308 | 보트 위의 세 남자 | Three men in a boat (to say nothing of the dog) | 33 | ⚠️ |
 | pg345 | 드라큘라 | Dracula | 323 | ✓ |
 | pg408 | 흑인의 영혼 | The Souls of Black Folk | 146 | ✓ |
 | pg526 | 어둠의 심장 (pg219와 중복) | Heart of Darkness | 74 | ✓ |
 | pg600 | 지하로부터의 수기 | Notes from the Underground | 80 | ✓ |
-| pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 44 | ⚠️ |
-| pg768 | 폭풍의 언덕 | Wuthering Heights | 227 | ⚠️ |
+| pg721 | 새들의 크리스마스 캐럴 | The Birds' Christmas Carol | 19 | ⚠️ |
+| pg768 | 폭풍의 언덕 | Wuthering Heights | 118 | ⚠️ |
 | pg863 | 스타일스 저택의 괴사건 | The Mysterious Affair at Styles | 104 | ✓ |
 | pg1007 | 신곡: 천국편 | Divine Comedy, Cary's Translation, Paradise | 81 | ✓ |
 | pg1064 | 진지함의 중요성 | The Masque of the Red Death | 9 | ✓ |
 | pg1080 | 겸손한 제안 | A Modest Proposal | 13 | ✓ |
-| pg1232 | 군주론 | The Prince | 104 | ⚠️ |
-| pg1251 | 아서왕의 죽음 | Le Morte d'Arthur: Volume 1 | 395 | ⚠️ |
+| pg1232 | 군주론 | The Prince | 59 | ⚠️ |
+| pg1251 | 아서왕의 죽음 | Le Morte d'Arthur: Volume 1 | 251 | ⚠️ |
 | pg1260 | 제인 에어 | Jane Eyre: An Autobiography | 354 | ✓ |
 | pg1317 | 붉은 무공훈장 | The Red Badge of Courage: An Episode of the American Civil War | 18 | ✓ |
 | pg1322 | 풀잎 | Leaves of Grass | 237 | ✓ |
 | pg1327 | 엘리자베스와 독일 정원 | Elizabeth and Her German Garden | 97 | ✓ |
-| pg1342 | 오만과 편견 | Pride and Prejudice | 323 | ⚠️ |
+| pg1342 | 오만과 편견 | Pride and Prejudice | 256 | ⚠️ |
 | pg1399 | 안나 카레리나 | Anna Karenina | 414 | ✓ |
 | pg1400 | 위대한 기대 | Great Expectations | 360 | ✓ |
 | pg1497 | 국가 | The Republic | 198 | ✓ |
@@ -72,7 +73,7 @@
 | pg2554 | 죄와 벌 | Crime and Punishment | 393 | ✓ |
 | pg2680 | 명상록 | Meditations | 143 | ✓ |
 | pg2701 | 모비 딕 | Moby Dick; Or, The Whale | 466 | ✓ |
-| pg2814 | 더블린 사람들 | Dubliners | 131 | ⚠️ |
+| pg2814 | 더블린 사람들 | Dubliners | 68 | ⚠️ |
 | pg2852 | 바스커빌 가의 개 | The Hound of the Baskervilles | 47 | ✓ |
 | pg3825 | 피그말리온 | Pygmalion | 30 | ✓ |
 | pg4085 | 아라비안 나이트 | The Arabian Nights Entertainments | 211 | ✓ |
@@ -80,16 +81,16 @@
 | pg4363 | 선악의 저편 | Beyond Good and Evil | 70 | ✓ |
 | pg4517 | 이선 프롬 | Ethan Frome | 65 | ✓ |
 | pg5200 | 변신 | Metamorphosis | 71 | ✓ |
-| pg5230 | 투명 인간 | The Invisible Man: A Grotesque Romance | 102 | ⚠️ |
+| pg5230 | 투명 인간 | The Invisible Man: A Grotesque Romance | 55 | ⚠️ |
 | pg5765 | 식충식물 | Insectivorous Plants | 86 | ⚠️ |
 | pg6130 | 일리아드 | The Iliad | 164 | ✓ |
+| pg11339 | 이솝 우화 | Aesop's Fables; a new translation | 288 | ✓ |
 
 ## 번역 진행 중
 
-| PG ID | 한국어 제목 | 원제 | 완료/전체 | 진행률 | 분할정합 |
+| PG ID | 한국어 제목 | 원제 | 완료/본문 | 진행률 | 분할정합 |
 |:---:|:---|:---|:---:|:---:|:---:|
 | pg1404 | 연방주의자 논집 | The Federalist Papers | 274/285 | 96% | ⚠️ |
-| pg11339 | 이솝 우화 | Aesop's Fables; a new translation | 259/517 | 50% | ⚠️ |
 
 ## 미번역 (빈 페이지 100%)
 
