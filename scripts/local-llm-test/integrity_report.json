@@ -1,0 +1,399 @@
+{
+  "empty_translations": [
+    {
+      "pg": "pg1184",
+      "title": "The Count of Monte Cristo",
+      "empty": 439,
+      "total": 439,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg120",
+      "title": "Treasure Island",
+      "empty": 52,
+      "total": 69,
+      "ratio": 0.75
+    },
+    {
+      "pg": "pg1232",
+      "title": "The Prince",
+      "empty": 59,
+      "total": 59,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg1251",
+      "title": "Le Morte d'Arthur",
+      "empty": 251,
+      "total": 251,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg1322",
+      "title": "Leaves of Grass",
+      "empty": 114,
+      "total": 122,
+      "ratio": 0.93
+    },
+    {
+      "pg": "pg1399",
+      "title": "Anna Karenina",
+      "empty": 306,
+      "total": 306,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg1400",
+      "title": "Great Expectations",
+      "empty": 142,
+      "total": 187,
+      "ratio": 0.76
+    },
+    {
+      "pg": "pg158",
+      "title": "Emma",
+      "empty": 13,
+      "total": 604,
+      "ratio": 0.02
+    },
+    {
+      "pg": "pg161",
+      "title": "(미등록)",
+      "empty": 108,
+      "total": 131,
+      "ratio": 0.82
+    },
+    {
+      "pg": "pg1728",
+      "title": "The Odyssey",
+      "empty": 67,
+      "total": 109,
+      "ratio": 0.61
+    },
+    {
+      "pg": "pg174",
+      "title": "The Picture of Dorian Gray",
+      "empty": 70,
+      "total": 78,
+      "ratio": 0.9
+    },
+    {
+      "pg": "pg2097",
+      "title": "The Brothers Karamazov",
+      "empty": 43,
+      "total": 43,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg236",
+      "title": "The Jungle Book",
+      "empty": 9,
+      "total": 45,
+      "ratio": 0.2
+    },
+    {
+      "pg": "pg2554",
+      "title": "Crime and Punishment",
+      "empty": 181,
+      "total": 181,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg2600",
+      "title": "War and Peace",
+      "empty": 494,
+      "total": 494,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg2814",
+      "title": "Dubliners",
+      "empty": 59,
+      "total": 68,
+      "ratio": 0.87
+    },
+    {
+      "pg": "pg4300",
+      "title": "Ulysses",
+      "empty": 161,
+      "total": 187,
+      "ratio": 0.86
+    },
+    {
+      "pg": "pg5765",
+      "title": "(미등록)",
+      "empty": 73,
+      "total": 86,
+      "ratio": 0.85
+    },
+    {
+      "pg": "pg600",
+      "title": "Notes from the Underground",
+      "empty": 41,
+      "total": 41,
+      "ratio": 1.0
+    },
+    {
+      "pg": "pg768",
+      "title": "Wuthering Heights",
+      "empty": 104,
+      "total": 118,
+      "ratio": 0.88
+    }
+  ],
+  "missing_source": [
+    {
+      "pg": "pg103",
+      "title": "Twenty Thousand Leagues under the Sea"
+    },
+    {
+      "pg": "pg105",
+      "title": "Persuasion"
+    },
+    {
+      "pg": "pg11",
+      "title": "Alice's Adventures in Wonderland"
+    },
+    {
+      "pg": "pg1184",
+      "title": "The Count of Monte Cristo"
+    },
+    {
+      "pg": "pg120",
+      "title": "Treasure Island"
+    },
+    {
+      "pg": "pg1232",
+      "title": "The Prince"
+    },
+    {
+      "pg": "pg1251",
+      "title": "Le Morte d'Arthur"
+    },
+    {
+      "pg": "pg1260",
+      "title": "Jane Eyre: An Autobiography"
+    },
+    {
+      "pg": "pg1317",
+      "title": "The Red Badge of Courage"
+    },
+    {
+      "pg": "pg132",
+      "title": "The Art of War"
+    },
+    {
+      "pg": "pg1322",
+      "title": "Leaves of Grass"
+    },
+    {
+      "pg": "pg1342",
+      "title": "Pride and Prejudice"
+    },
+    {
+      "pg": "pg135",
+      "title": "Les Misérables"
+    },
+    {
+      "pg": "pg139",
+      "title": "The Lost World"
+    },
+    {
+      "pg": "pg1399",
+      "title": "Anna Karenina"
+    },
+    {
+      "pg": "pg1400",
+      "title": "Great Expectations"
+    },
+    {
+      "pg": "pg1404",
+      "title": "The Federalist Papers"
+    },
+    {
+      "pg": "pg141",
+      "title": "Mansfield Park"
+    },
+    {
+      "pg": "pg1497",
+      "title": "The Republic"
+    },
+    {
+      "pg": "pg158",
+      "title": "Emma"
+    },
+    {
+      "pg": "pg16",
+      "title": "Peter Pan"
+    },
+    {
+      "pg": "pg160",
+      "title": "The Awakening"
+    },
+    {
+      "pg": "pg161",
+      "title": "(미등록)"
+    },
+    {
+      "pg": "pg1661",
+      "title": "The Adventures of Sherlock Holmes"
+    },
+    {
+      "pg": "pg1728",
+      "title": "The Odyssey"
+    },
+    {
+      "pg": "pg174",
+      "title": "The Picture of Dorian Gray"
+    },
+    {
+      "pg": "pg2097",
+      "title": "The Brothers Karamazov"
+    },
+    {
+      "pg": "pg215",
+      "title": "White Fang"
+    },
+    {
+      "pg": "pg2197",
+      "title": "Meditations"
+    },
+    {
+      "pg": "pg23",
+      "title": "Narrative of the Life of Frederick Douglass"
+    },
+    {
+      "pg": "pg244",
+      "title": "A Study in Scarlet"
+    },
+    {
+      "pg": "pg2500",
+      "title": "Siddhartha"
+    },
+    {
+      "pg": "pg2542",
+      "title": "A Doll's House"
+    },
+    {
+      "pg": "pg2554",
+      "title": "Crime and Punishment"
+    },
+    {
+      "pg": "pg2600",
+      "title": "War and Peace"
+    },
+    {
+      "pg": "pg2701",
+      "title": "Moby Dick; Or, The Whale"
+    },
+    {
+      "pg": "pg2814",
+      "title": "Dubliners"
+    },
+    {
+      "pg": "pg2852",
+      "title": "The Hound of the Baskervilles"
+    },
+    {
+      "pg": "pg345",
+      "title": "Dracula"
+    },
+    {
+      "pg": "pg36",
+      "title": "The War of the Worlds"
+    },
+    {
+      "pg": "pg3825",
+      "title": "Walden"
+    },
+    {
+      "pg": "pg4085",
+      "title": "The Arabian Nights"
+    },
+    {
+      "pg": "pg41",
+      "title": "The Legend of Sleepy Hollow"
+    },
+    {
+      "pg": "pg4300",
+      "title": "Ulysses"
+    },
+    {
+      "pg": "pg4363",
+      "title": "Beyond Good and Evil"
+    },
+    {
+      "pg": "pg45",
+      "title": "Anne of Green Gables"
+    },
+    {
+      "pg": "pg5200",
+      "title": "Metamorphosis"
+    },
+    {
+      "pg": "pg5230",
+      "title": "The Island of Doctor Moreau"
+    },
+    {
+      "pg": "pg55",
+      "title": "The Wonderful Wizard of Oz"
+    },
+    {
+      "pg": "pg5765",
+      "title": "(미등록)"
+    },
+    {
+      "pg": "pg600",
+      "title": "Notes from the Underground"
+    },
+    {
+      "pg": "pg61",
+      "title": "The Secret Garden"
+    },
+    {
+      "pg": "pg6130",
+      "title": "The Iliad"
+    },
+    {
+      "pg": "pg76",
+      "title": "Adventures of Huckleberry Finn"
+    },
+    {
+      "pg": "pg768",
+      "title": "Wuthering Heights"
+    },
+    {
+      "pg": "pg84",
+      "title": "Frankenstein"
+    },
+    {
+      "pg": "pg98",
+      "title": "A Tale of Two Cities"
+    }
+  ],
+  "title_mismatch": [
+    {
+      "pg": "pg1064",
+      "catalog_title": "The Importance of Being Earnest",
+      "source_start": "﻿The Project Gutenberg eBook of The Masque of the Red Death      This eBook is for the use of anyone anywhere in the United States and most other parts of the world at no cost and with almost no restr"
+    },
+    {
+      "pg": "pg526",
+      "catalog_title": "The Call of the Wild",
+      "source_start": "*** START OF THE PROJECT GUTENBERG EBOOK HEART OF DARKNESS *** Produced by Judith Boss and David Widger [Note: See also etext #219 which is a different version of this eBook]"
+    },
+    {
+      "pg": "pg721",
+      "catalog_title": "Gulliver's Travels",
+      "source_start": "﻿The Project Gutenberg eBook of The Birds' Christmas Carol      This eBook is for the use of anyone anywhere in the United States and most other parts of the world at no cost and with almost no restri"
+    }
+  ],
+  "few_pages": [
+    {
+      "pg": "pg61",
+      "title": "The Secret Garden",
+      "pages": 1
+    }
+  ],
+  "no_translations": []
+}

@@ -1,0 +1,11 @@
+📖 테스트 입력: 17단락, 총 6296자
+⏭  claude (이미 존재)
+⏭  exaone-deep:7.8b (이미 존재)
+⏭  deepseek-r1:14b (이미 존재)
+
+🤖 qwen2.5:32b 번역 시작... (num_thread=4, keep_alive=0)
+  ✓ 1093.4초, 단락 17/17
+⏭  exaone-deep:32b (이미 존재)
+⏭  deepseek-r1:32b (이미 존재)
+
+✅ 완료. results/ 폴더 확인.

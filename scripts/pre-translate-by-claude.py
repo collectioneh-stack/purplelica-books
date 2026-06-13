@@ -10,7 +10,7 @@ BOOKMAP_DIR    = SCRIPT_DIR.parent
 BOOKS_DIR      = BOOKMAP_DIR / "public" / "books"
 TRANS_DIR      = BOOKMAP_DIR / "public" / "translations"
 
-WORDS_PER_PAGE = 1200
+WORDS_PER_PAGE = 600   # app/book/[id]/page.tsx의 MAX_WORDS_PER_PAGE와 일치 (페이지 번호 정합 필수)
 DELAY_SEC      = 0.5   # API 호출 사이 대기
 
 CHAPTER_RE = re.compile(

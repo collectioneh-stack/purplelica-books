@@ -52,6 +52,15 @@ GLOSSARIES = {
         "Stiva": "스티바", "Dolly": "돌리", "Vronsky": "브론스키",
         "Moscow": "모스크바", "St. Petersburg": "페테르부르크",
     },
+    46: {
+        "Scrooge": "스크루지", "Marley": "말리", "Jacob Marley": "제이콥 말리",
+        "Bob Cratchit": "밥 크래칫", "Cratchit": "크래칫",
+        "Tiny Tim": "꼬마 팀", "Tim": "팀",
+        "Fezziwig": "페지위그", "Fred": "프레드", "Belle": "벨",
+        "Ghost of Christmas Past": "과거의 크리스마스 유령",
+        "Ghost of Christmas Present": "현재의 크리스마스 유령",
+        "Ghost of Christmas Yet to Come": "미래의 크리스마스 유령",
+    },
 }
 
 
@@ -161,7 +170,8 @@ def has_real_content(data) -> bool:
 def translate_book(book_id: int, model: str, skip_existing: bool = True) -> None:
     book_titles = {1251: "Le Morte d'Arthur (아서왕의 죽음)",
                    1232: "The Prince (군주론)",
-                   1399: "Anna Karenina (안나 카레리나)"}
+                   1399: "Anna Karenina (안나 카레리나)",
+                   46: "A Christmas Carol (크리스마스 캐럴)"}
     book_title = book_titles.get(book_id, f"pg{book_id}")
 
     print(f"\n{'='*60}")

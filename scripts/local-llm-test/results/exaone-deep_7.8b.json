@@ -1,0 +1,8 @@
+{
+  "name": "exaone-deep:7.8b",
+  "elapsed_sec": 315.7,
+  "raw_chars": 5882,
+  "parsed_count": -1,
+  "translations": [],
+  "raw_preview": "<thought>\nAlright, I need to translate each of these English paragraphs into natural,\u001b[8D\u001b[K\nnatural, fluent Korean. The user specified that the response should be a JS\u001b[2D\u001b[K\nJSON array with exactly 17 elements, each being a translated string. Let me\u001b[2D\u001b[K\nme start by carefully reading each paragraph to ensure accurate translation\u001b[11D\u001b[K\ntranslation.\n\nStarting with paragraph [0], the key points are Scrooge withdrawing and res\u001b[3D\u001b[K\nresuming his work with a better opinion. I need to convey th"
+}

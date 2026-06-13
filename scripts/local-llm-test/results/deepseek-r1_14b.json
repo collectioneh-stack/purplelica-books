@@ -1,0 +1,8 @@
+{
+  "name": "deepseek-r1:14b",
+  "elapsed_sec": 610.6,
+  "raw_chars": 4878,
+  "parsed_count": -1,
+  "translations": [],
+  "raw_preview": "Thinking...\nOkay, so I need to translate these 17 English paragraphs into natural, flue\u001b[4D\u001b[K\nfluent Korean. The user specifically asked for a JSON array with exactly 17\u001b[2D\u001b[K\n17 elements, no explanations or markdown—just the translations.\n\nFirst, I should go through each paragraph one by one and make sure they're \u001b[K\naccurately translated. Since some of the text is from \"A Christmas Carol,\" \u001b[K\nI need to capture the Dickensian tone while making it sound natural in Kore\u001b[4D\u001b[K\nKorean. For exam"
+}
