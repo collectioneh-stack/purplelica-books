@@ -7,3 +7,5 @@ node_modules
 public/translations/**/_backup/
 public/translations/*.backup/
 public/translations/*_preview/
+# per-page 번역은 R2에서 서빙 (책별 번들 pg{id}.json). 에셋 2만 한도 회피.
+public/translations/pg*/

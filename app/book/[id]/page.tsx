@@ -18,6 +18,9 @@ interface PageData {
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 const MAX_WORDS_PER_PAGE = 600
+// 번역물은 R2(객체 저장소)에서 책별 번들(pg{id}.json = {페이지번호: [문단들]})로 서빙.
+// 에셋 파일 수 한도(2만) 회피 + 번역 업데이트 시 해당 번들만 교체.
+const R2_TRANSLATIONS_BASE = 'https://pub-debd9b2a2fb84bf9b56d450f3b8f6975.r2.dev/translations'
 
 // ─── 챕터 제목 판별 ──────────────────────────────────────────────────────────
 const CHAPTER_RE = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act|SECTION|Section|PROLOGUE|Prologue|EPILOGUE|Epilogue|PREFACE|Preface|INTRODUCTION|Introduction|VOLUME|Volume)\b/
@@ -233,6 +236,9 @@ export default function BookPage() {
   const [pageTranslations, setPageTranslations] = useState<string[]>([])
   const prevTailRef = useRef<string>('')
   const mainRef = useRef<HTMLElement>(null)
+  // R2 책 번들 캐시 ({페이지번호: [문단들]}) — 책당 1회 fetch
+  const bundleRef = useRef<Record<string, string[]> | null>(null)
+  const bundleIdRef = useRef<string>('')
 
   // 터치 스와이프
   const touchStartX = useRef(0)
@@ -305,7 +311,7 @@ export default function BookPage() {
     prevTailRef.current = prevParagraphs.length > 0 ? prevParagraphs[prevParagraphs.length - 1] : ''
   }, [currentPage, prevParagraphs])
 
-  // 번역 로드
+  // 번역 로드 — R2 책 번들에서 페이지 슬라이스 (책당 1회 fetch, 이후 메모리/로컬 캐시)
   useEffect(() => {
     if (currentParagraphs.length === 0) return
     const pgMatch = bookId.match(/gutenberg_(\d+)/)
@@ -316,13 +322,28 @@ export default function BookPage() {
     const cached = getTranslations(bookId, pageNum)
     if (cached) { setPageTranslations(cached); return }
 
-    fetch(`/translations/pg${pgId}/p${pageNum}.json`)
+    const applyFromBundle = (bundle: Record<string, string[]>) => {
+      const arr = bundle[String(pageNum)]
+      if (Array.isArray(arr)) {
+        const translations = arr.map(String)
+        saveTranslations(bookId, pageNum, translations)
+        setPageTranslations(translations)
+      }
+    }
+
+    // 같은 책 번들이 이미 메모리에 있으면 바로 슬라이스
+    if (bundleIdRef.current === pgId && bundleRef.current) {
+      applyFromBundle(bundleRef.current)
+      return
+    }
+    // 책 번들 1회 fetch
+    fetch(`${R2_TRANSLATIONS_BASE}/pg${pgId}.json`)
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
-        if (Array.isArray(d)) {
-          const translations = d.map(String)
-          saveTranslations(bookId, pageNum, translations)
-          setPageTranslations(translations)
+        if (d && typeof d === 'object') {
+          bundleRef.current = d as Record<string, string[]>
+          bundleIdRef.current = pgId
+          applyFromBundle(d as Record<string, string[]>)
         }
       })
       .catch(() => {})
@@ -344,20 +365,8 @@ export default function BookPage() {
     setPageTranslations([])
     if (mainRef.current) mainRef.current.scrollTop = 0
     router.push(`/book/${id}?page=${page}`)
-    // 다음 페이지 미리 캐시
-    if (pages[page]) {
-      const nextPage = page + 1
-      if (!getTranslations(bookId, nextPage)) {
-        const pgMatch = bookId.match(/gutenberg_(\d+)/)
-        if (pgMatch) {
-          fetch(`/translations/pg${pgMatch[1]}/p${nextPage}.json`)
-            .then((r) => r.ok ? r.json() : null)
-            .then((d) => { if (Array.isArray(d)) saveTranslations(bookId, nextPage, d.map(String)) })
-            .catch(() => {})
-        }
-      }
-    }
-  }, [id, router, pages, bookId])
+    // 번역은 책 번들이 메모리에 있어 별도 프리페치 불필요 (번역 로드 effect가 슬라이스)
+  }, [id, router])
 
   // 키보드 네비게이션
   useEffect(() => {
